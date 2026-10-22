@@ -6,6 +6,7 @@ import {
   Sparkles,
   ArrowLeft,
   UserCheck,
+  Megaphone,
 } from 'lucide-react';
 import {
   EventPlan,
@@ -30,6 +31,7 @@ import {
 import { getCurrentUser, logoutUser } from './utils/cloudSync';
 import { generateEventPlanWithAI } from './utils/geminiApi';
 import { downloadCalendarICS } from './utils/calendarExport';
+import { SAMPLE_WEDDING_PLAN } from './utils/sampleData';
 import { Navbar } from './components/Navbar';
 import { HomePage } from './components/HomePage';
 import { UserDashboard } from './components/UserDashboard';
@@ -53,12 +55,14 @@ import { WeatherContingencyModal } from './components/WeatherContingencyModal';
 import { LiveEventDirectorModal } from './components/LiveEventDirectorModal';
 import { Footer } from './components/Footer';
 import { PrintView } from './components/PrintView';
+import { NextBestStepCard } from './components/NextBestStepCard';
+import { CommunityChecklistHub } from './components/CommunityChecklistHub';
 
 export function App() {
   const [plans, setPlans] = useState<EventPlan[]>([]);
   const [activePlanId, setActiveId] = useState<string>('');
   const [currentView, setCurrentView] = useState<'home' | 'dashboard' | 'user-hub'>('home');
-  const [activeTab, setActiveTab] = useState<'budget' | 'timeline' | 'vendors' | 'ideas' | 'guests'>('budget');
+  const [activeTab, setActiveTab] = useState<'budget' | 'timeline' | 'vendors' | 'ideas' | 'guests' | 'community'>('budget');
 
   // Modals & Drawers
   const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -199,20 +203,34 @@ export function App() {
     showToast(`Created duplicate of "${planToClone.basics.title}"`);
   };
 
-  // Delete Plan
+  // Delete Plan (Priority 1.4)
   const handleDeletePlan = (id: string) => {
-    if (plans.length <= 1) {
-      showToast('Cannot delete the only remaining plan.');
+    const updatedList = plans.filter((p) => p.id !== id);
+    if (updatedList.length === 0) {
+      const freshStarter: EventPlan = {
+        ...SAMPLE_WEDDING_PLAN,
+        id: `plan-${Date.now()}`,
+        userId: currentUser?.id,
+        basics: {
+          ...SAMPLE_WEDDING_PLAN.basics,
+          title: 'My New Event Plan',
+        },
+      };
+      setPlans([freshStarter]);
+      savePlans([freshStarter], currentUser?.id);
+      setActiveId(freshStarter.id);
+      setActivePlanId(freshStarter.id);
+      showToast('Plan deleted. Initialized fresh celebration draft.');
       return;
     }
-    const updatedList = plans.filter((p) => p.id !== id);
+
     setPlans(updatedList);
     savePlans(updatedList, currentUser?.id);
     if (activePlanId === id) {
       setActiveId(updatedList[0].id);
       setActivePlanId(updatedList[0].id);
     }
-    showToast('Plan deleted');
+    showToast('Plan deleted successfully.');
   };
 
   // Module Updates
@@ -238,6 +256,22 @@ export function App() {
       timeline: updatedTimeline,
       ...(updatedRunOfShow ? { runOfShow: updatedRunOfShow } : {}),
     });
+  };
+
+  // 1-Click Task Completion from Next Best Step Card
+  const handleCompleteTaskFromNextStep = (sectionId: string, taskId: string) => {
+    if (!activePlan) return;
+    const updatedTimeline = activePlan.timeline.map((section) => {
+      if (section.id === sectionId) {
+        return {
+          ...section,
+          tasks: section.tasks.map((t) => (t.id === taskId ? { ...t, completed: true } : t)),
+        };
+      }
+      return section;
+    });
+    updateActivePlan({ timeline: updatedTimeline });
+    showToast('Task marked complete! Next step updated.');
   };
 
   const handleUpdateVendors = (updatedVendors: VendorItem[]) => {
@@ -603,6 +637,13 @@ export function App() {
               onExportICS={handleExportICS}
             />
 
+            {/* Priority 3.1: Next Best Step Card */}
+            <NextBestStepCard
+              plan={activePlan}
+              onCompleteTask={handleCompleteTaskFromNextStep}
+              onNavigateToTimeline={() => setActiveTab('timeline')}
+            />
+
             {/* 5 Synchronized Modules Navigation Tabs */}
             <div className="no-print" style={{ marginBottom: '2rem' }}>
               <div
@@ -758,6 +799,40 @@ export function App() {
                   <UserCheck size={18} color={activeTab === 'guests' ? '#FFFFFF' : '#C2410C'} />
                   <span>5. Guests & Seating</span>
                 </button>
+
+                {/* Tab 6: Community Ops (For Community Events) */}
+                {activePlan.basics.eventType === 'community' && (
+                  <button
+                    id="tab-btn-community"
+                    onClick={() => setActiveTab('community')}
+                    className="btn-ghost"
+                    style={{
+                      borderRadius: 'var(--radius-md)',
+                      padding: '0.75rem 1rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      background:
+                        activeTab === 'community'
+                          ? 'linear-gradient(135deg, #F97316, #F59E0B, #D97706)'
+                          : '#FFFFFF',
+                      border:
+                        activeTab === 'community'
+                          ? '1.5px solid rgba(251, 146, 60, 0.4)'
+                          : '1.5px solid rgba(234, 88, 12, 0.2)',
+                      color: activeTab === 'community' ? '#FFFFFF' : '#140A05',
+                      fontWeight: 700,
+                      boxShadow:
+                        activeTab === 'community'
+                          ? '0 4px 15px rgba(234, 88, 12, 0.3)'
+                          : '0 2px 6px rgba(45, 24, 15, 0.04)',
+                    }}
+                  >
+                    <Megaphone size={18} color={activeTab === 'community' ? '#FFFFFF' : '#C2410C'} />
+                    <span>6. Community Ops & Permits</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -794,6 +869,13 @@ export function App() {
                   plan={activePlan}
                   onUpdateGuests={handleUpdateGuests}
                   onUpdateTables={handleUpdateTables}
+                />
+              )}
+
+              {activeTab === 'community' && (
+                <CommunityChecklistHub
+                  plan={activePlan}
+                  onUpdateChecklist={(items) => updateActivePlan({ communityChecklist: items })}
                 />
               )}
             </div>

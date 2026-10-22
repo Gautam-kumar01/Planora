@@ -1,4 +1,4 @@
-import { EventPlan, OnboardingFormValues } from '../types';
+import { EventPlan, OnboardingFormValues, PersonalizedIdeas, ThemeConcept } from '../types';
 import { generateDeterministicBudget } from './deterministicMath';
 import { getStoredApiKey, isOpenRouterKey } from './storage';
 
@@ -1218,5 +1218,202 @@ Include:
         ?.allocatedAmount || 2500
     }\n\nCould you please share your standard package inclusions, turnaround times, and contract deposit requirements? If you are available, I would love to schedule a brief 15-minute introductory call this week.\n\nThank you for your time, and I look forward to hearing from you!\n\nWarm regards,\nEvent Planning Team`;
   }
+}
+
+/**
+ * Priority 2.5: Targeted AI Section Regeneration
+ * Regenerates ONLY the themeConcept and ideas for an event, strictly preserving
+ * existing user edits in budget, timeline, vendors, guests, tables, and expenses.
+ * Uses Google Gemini 2.5 Flash via OpenRouter or direct Gemini API.
+ */
+export async function regenerateIdeasWithAI(
+  plan: EventPlan,
+  focusHint?: string
+): Promise<{ ideas: PersonalizedIdeas; themeConcept: ThemeConcept }> {
+  const apiKey = getStoredApiKey();
+
+  if (apiKey) {
+    const prompt = `You are Planora, an expert event styling and celebration designer.
+Generate a fresh, creative theme concept and personalized ideas for the following celebration:
+- Event Title: ${plan.basics.title}
+- Event Type: ${plan.basics.eventType}
+- Guest Count: ${plan.basics.guestCount}
+- Desired Vibe: ${plan.basics.preferences.vibe}
+- Location: ${plan.basics.location || 'Local venue'}
+- Specific Focus: ${focusHint || 'Fresh innovative ideas and contemporary styling'}
+
+CRITICAL: Return ONLY valid JSON with this exact structure:
+{
+  "themeConcept": {
+    "title": "Creative Theme Name",
+    "description": "Atmosphere and aesthetic styling description",
+    "colorPalette": [
+      { "name": "Color Name", "hex": "#RRGGBB" },
+      { "name": "Color Name 2", "hex": "#RRGGBB" },
+      { "name": "Color Name 3", "hex": "#RRGGBB" },
+      { "name": "Color Name 4", "hex": "#RRGGBB" }
+    ],
+    "keywords": ["tag1", "tag2", "tag3", "tag4"]
+  },
+  "ideas": {
+    "activities": [
+      { "title": "Activity name", "description": "How it works", "estimatedCost": "$20 - $50", "ageGroup": "All ages" },
+      { "title": "Second activity", "description": "How it works", "estimatedCost": "$10 supplies", "ageGroup": "All guests" }
+    ],
+    "foodAndBeverage": [
+      { "title": "Signature Item", "description": "Description", "dietaryTags": ["Vegetarian", "Gluten-Free"] },
+      { "title": "Second Item", "description": "Description", "dietaryTags": ["Crowd-pleaser"] }
+    ],
+    "decorAndAtmosphere": [
+      { "title": "Decor Concept 1", "description": "Lighting and aesthetic description" },
+      { "title": "Decor Concept 2", "description": "Table or venue layout styling" }
+    ],
+    "diyHacks": [
+      "Clever cost-saving DIY styling hack 1",
+      "Clever cost-saving DIY styling hack 2",
+      "Clever cost-saving DIY styling hack 3"
+    ]
+  }
+}`;
+
+    try {
+      if (isOpenRouterKey(apiKey)) {
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'http://localhost:5173/',
+            'X-Title': 'Planora Event Planner',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            max_tokens: 1200,
+            response_format: { type: 'json_object' },
+            messages: [{ role: 'user', content: prompt }],
+          }),
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          console.warn(`OpenRouter API notice (${res.status}): ${errText}`);
+          return generateProceduralCreativeIdeas(plan.basics.eventType, plan.basics.preferences.vibe, focusHint);
+        }
+
+        const data = await res.json();
+        const raw = data.choices?.[0]?.message?.content;
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed.ideas && parsed.themeConcept) {
+            return {
+              ideas: parsed.ideas,
+              themeConcept: parsed.themeConcept,
+            };
+          }
+        }
+      } else {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: {
+                response_mime_type: 'application/json',
+                temperature: 0.7,
+                maxOutputTokens: 1200,
+              },
+            }),
+          }
+        );
+
+        if (!res.ok) {
+          const errText = await res.text();
+          console.warn(`Google Gemini API notice (${res.status}): ${errText}`);
+          return generateProceduralCreativeIdeas(plan.basics.eventType, plan.basics.preferences.vibe, focusHint);
+        }
+
+        const json = await res.json();
+        const raw = json.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed.ideas && parsed.themeConcept) {
+            return {
+              ideas: parsed.ideas,
+              themeConcept: parsed.themeConcept,
+            };
+          }
+        }
+      }
+    } catch (err: any) {
+      console.warn('Live AI idea regeneration notice, falling back to smart procedural generator:', err);
+      return generateProceduralCreativeIdeas(plan.basics.eventType, plan.basics.preferences.vibe, focusHint);
+    }
+  }
+
+  // Fallback to dynamic deterministic ideas for offline / keyless mode
+  return generateProceduralCreativeIdeas(plan.basics.eventType, plan.basics.preferences.vibe, focusHint);
+}
+
+function generateProceduralCreativeIdeas(
+  eventType: string,
+  vibe: string,
+  focusHint?: string
+): { ideas: PersonalizedIdeas; themeConcept: ThemeConcept } {
+  const timestamp = Date.now();
+  const isCommunity = eventType === 'community';
+  const isBirthday = eventType === 'birthday';
+
+  const themeConcept: ThemeConcept = isCommunity
+    ? {
+        title: focusHint ? `Community Gathering: ${focusHint}` : 'Civic Harmony & Green Commons',
+        description:
+          'Warm, inclusive neighborhood gathering with solar filament lanterns, acoustic seating circles, and zero-waste hospitality stations.',
+        colorPalette: [
+          { name: 'Forest Moss', hex: '#15803D' },
+          { name: 'Warm Terracotta', hex: '#C2410C' },
+          { name: 'Golden Honey', hex: '#D97706' },
+          { name: 'Linen Cream', hex: '#FEF3C7' },
+        ],
+        keywords: ['Community First', 'Inclusive', 'Zero-Waste', 'Local Hospitality'],
+      }
+    : isBirthday
+    ? {
+        title: focusHint ? `Birthday Celebration: ${focusHint}` : 'Sunset Glow & Kinetic Joy',
+        description:
+          'Vibrant celebratory atmosphere with playful ambient lighting, custom photo backdrops, and interactive group entertainment.',
+        colorPalette: [
+          { name: 'Sunset Tangerine', hex: '#EA580C' },
+          { name: 'Golden Amber', hex: '#F59E0B' },
+          { name: 'Blush Rose', hex: '#FB7185' },
+          { name: 'Champagne Ivory', hex: '#FFFBEB' },
+        ],
+        keywords: ['Joyful', 'Interactive', 'Lively Vibe', 'Personalized'],
+      }
+    : {
+        title: focusHint ? `Wedding Vision: ${focusHint}` : 'Warm Terracotta & Candlelit Elegance',
+        description:
+          'A romantic, heartfelt design featuring soft amber pillar candles, textured organic linens, and personalized guest touchpoints.',
+        colorPalette: [
+          { name: 'Terracotta Clay', hex: '#C2410C' },
+          { name: 'Amber Gold', hex: '#D97706' },
+          { name: 'Sage Leaf', hex: '#4D7C0F' },
+          { name: 'Warm Ivory', hex: '#FDFBF7' },
+        ],
+        keywords: ['Timeless', 'Heartfelt', 'Intimate', 'Warm Glow'],
+      };
+
+  const defaultIdeas = generateDefaultIdeas(eventType, vibe);
+  return {
+    themeConcept,
+    ideas: {
+      ...defaultIdeas,
+      diyHacks: [
+        ...defaultIdeas.diyHacks,
+        `Fresh concept (${new Date(timestamp).toLocaleDateString()}): Pair seasonal foliage with budget glassware for luxury ambiance at 20% standard cost.`,
+      ],
+    },
+  };
 }
 

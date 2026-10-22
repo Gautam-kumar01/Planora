@@ -33,7 +33,7 @@ export const AICopilotDrawer: React.FC<AICopilotDrawerProps> = ({
       id: 'msg-init',
       sender: 'assistant',
       timestamp: 'Just now',
-      text: `Hello! I'm your Planora Event Concierge & Copilot. I'm connected directly with live AI (Gemini 3.7 Flash) and loaded with the full details of "${plan.basics.title}".
+      text: `Hello! I'm your Planora Event Concierge & Copilot. I'm connected directly with live AI (Google Gemini 2.5 Flash) and loaded with the full details of "${plan.basics.title}".
 
 Ask me anything about planning:
 • Vendor interview questions & negotiation tips
@@ -227,7 +227,7 @@ Ask me anything about planning:
               Planora AI Concierge
             </h3>
             <span style={{ fontSize: '0.725rem', color: '#86efac', fontWeight: 600 }}>
-              ● Live GenAI Assistant (Gemini 3.7 Flash)
+              ● Live GenAI Assistant (Google Gemini 2.5 Flash)
             </span>
           </div>
         </div>
@@ -394,7 +394,7 @@ Ask me anything about planning:
             }}
           >
             <Sparkles size={15} className="pulse-glow" color="var(--color-amber-400)" />
-            <span>Consulting AI Event Concierge (Gemini 3.7 Flash)...</span>
+            <span>Consulting AI Event Concierge (Google Gemini 2.5 Flash)...</span>
           </div>
         )}
         <div ref={messagesEndRef} />

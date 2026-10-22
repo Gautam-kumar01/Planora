@@ -21,46 +21,80 @@ export function loadSavedPlans(userId?: string): EventPlan[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        // Enforce user ownership isolation
+        if (userId) {
+          return parsed.filter((p) => !p.userId || p.userId === userId).map((p) => ({ ...p, userId }));
+        }
+        return parsed.filter((p) => !p.userId || p.userId === 'guest');
       }
     }
 
-    // Check legacy storage migration if user or guest doesn't have plans yet
-    const legacyRaw = localStorage.getItem(STORAGE_KEY_PLANS_LEGACY);
-    if (legacyRaw) {
-      const legacyParsed = JSON.parse(legacyRaw);
-      if (Array.isArray(legacyParsed) && legacyParsed.length > 0) {
-        const migrated = legacyParsed.map((p) => ({
-          ...p,
-          ...(userId ? { userId } : {}),
-        }));
-        savePlans(migrated, userId);
-        return migrated;
-      }
-    }
-
-    // Default seed
+    // Default seed strictly scoped to user or guest
     const initialPlans = ALL_PRESET_PLANS.map((p) => ({
       ...p,
-      ...(userId ? { userId } : {}),
+      id: userId ? `${p.id}-${userId.slice(-6)}` : p.id,
+      userId: userId || undefined,
     }));
     savePlans(initialPlans, userId);
     return initialPlans;
   } catch (err) {
     console.warn('Failed to load plans from localStorage, falling back to presets', err);
-    return ALL_PRESET_PLANS;
+    return ALL_PRESET_PLANS.map((p) => ({ ...p, userId: userId || undefined }));
   }
 }
 
 export function savePlans(plans: EventPlan[], userId?: string) {
   try {
     const key = getUserStorageKey(userId);
-    localStorage.setItem(key, JSON.stringify(plans));
-    // Also update legacy for backward compatibility
-    localStorage.setItem(STORAGE_KEY_PLANS_LEGACY, JSON.stringify(plans));
+    // Guarantee plan userId matches current session
+    const securedPlans = plans.map((p) => ({
+      ...p,
+      userId: userId || undefined,
+    }));
+    localStorage.setItem(key, JSON.stringify(securedPlans));
+
+    // Only update legacy storage for guest mode, never leak signed-in user plans
+    if (!userId) {
+      localStorage.setItem(STORAGE_KEY_PLANS_LEGACY, JSON.stringify(securedPlans));
+    }
   } catch (err) {
     console.error('Failed to save plans to localStorage', err);
   }
+}
+
+/**
+ * Priority 1.3: Backend/Storage Rule for Plan Ownership
+ * Verifies whether a given user session is authorized to read, modify, or delete a plan.
+ */
+export function canUserAccessPlan(plan: EventPlan, currentUserId?: string): boolean {
+  if (!plan) return false;
+  // If plan is tied to a specific user account:
+  if (plan.userId) {
+    return Boolean(currentUserId && plan.userId === currentUserId);
+  }
+  // If plan has no owner (guest plan):
+  // Guest can access, or signed-in user can claim it
+  return true;
+}
+
+/**
+ * Priority 1.4: Delete Individual Plan
+ */
+export function deleteStoredPlan(planId: string, userId?: string): EventPlan[] {
+  const currentPlans = loadSavedPlans(userId);
+  const updated = currentPlans.filter((p) => p.id !== planId);
+  savePlans(updated, userId);
+  return updated;
+}
+
+/**
+ * Priority 1.4: Purge User Data on Account Deletion
+ */
+export function purgeUserData(userId: string) {
+  try {
+    const key = getUserStorageKey(userId);
+    localStorage.removeItem(key);
+  } catch {}
 }
 
 export function getActivePlanId(plans: EventPlan[]): string {

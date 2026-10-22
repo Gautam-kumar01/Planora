@@ -572,7 +572,7 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
                     </div>
                   </div>
 
-                  {/* Community */}
+                  {/* Community Event (Priority 2.1) */}
                   <div
                     onClick={() => handleSelectEventType('community')}
                     className="glass-card-interactive"
@@ -584,9 +584,9 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
                     }}
                   >
                     <Megaphone size={28} color="#38bdf8" style={{ margin: '0 auto 0.65rem auto' }} />
-                    <div style={{ fontWeight: 700, fontSize: '1rem', color: '#111' }}>Community</div>
+                    <div style={{ fontWeight: 700, fontSize: '1rem', color: '#111' }}>Community Event</div>
                     <div style={{ fontSize: '0.75rem', color: '#555', marginTop: '0.25rem' }}>
-                      Fairs, cleanups, permits & volunteers
+                      Cleanups, fundraisers, neighborhood gatherings & festivals
                     </div>
                   </div>
                 </div>

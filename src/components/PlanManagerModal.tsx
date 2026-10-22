@@ -238,16 +238,18 @@ export const PlanManagerModal: React.FC<PlanManagerModalProps> = ({
                       <Download size={15} />
                     </button>
 
-                    {plans.length > 1 && (
-                      <button
-                        onClick={() => onDeletePlan(p.id)}
-                        className="btn-ghost"
-                        style={{ padding: '0.35rem', color: '#dc2626' }}
-                        title="Delete Plan"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    )}
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to delete "${p.basics.title}"?`)) {
+                          onDeletePlan(p.id);
+                        }
+                      }}
+                      className="btn-ghost"
+                      style={{ padding: '0.35rem', color: '#dc2626' }}
+                      title="Delete Plan"
+                    >
+                      <Trash2 size={15} />
+                    </button>
                   </div>
                 </div>
               </div>

@@ -297,6 +297,93 @@ export const BudgetHub: React.FC<BudgetHubProps> = ({ plan, onUpdateBudget, onOp
         </div>
       </div>
 
+      {/* Priority 3.4: Estimate vs. Actual Summary */}
+      <div
+        className="glass-panel"
+        style={{
+          padding: '1.25rem 1.5rem',
+          background: '#FFFFFF',
+          borderRadius: 'var(--radius-md)',
+          border: '1.5px solid rgba(234, 88, 12, 0.22)',
+          boxShadow: '0 4px 15px rgba(45, 24, 15, 0.04)',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Receipt size={18} color="#C2410C" />
+            <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#140A05', fontWeight: 800 }}>
+              Estimate vs. Actual Spending Summary
+            </h3>
+          </div>
+          <span style={{ fontSize: '0.78rem', color: '#78533E', fontWeight: 600 }}>
+            Budget totals are calculated by the app; prices and vendor ranges are estimates.
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+          <div style={{ background: '#FAF6EF', padding: '0.85rem 1rem', borderRadius: '0.65rem' }}>
+            <div style={{ fontSize: '0.75rem', color: '#78533E', textTransform: 'uppercase', fontWeight: 700 }}>
+              Estimated Planned Budget
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.4rem', fontWeight: 800, color: '#140A05' }}>
+              {formatCurrency(budget.totalBudget, budget.currency)}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#78533E' }}>
+              Allocated across {budget.items.length} categories
+            </div>
+          </div>
+
+          <div style={{ background: '#FAF6EF', padding: '0.85rem 1rem', borderRadius: '0.65rem' }}>
+            <div style={{ fontSize: '0.75rem', color: '#78533E', textTransform: 'uppercase', fontWeight: 700 }}>
+              Actual Recorded Expenses
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.4rem', fontWeight: 800, color: '#C2410C' }}>
+              {formatCurrency(effectiveTotalSpent, budget.currency)}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#78533E' }}>
+              {Math.round((effectiveTotalSpent / (budget.totalBudget || 1)) * 100)}% of planned budget used
+            </div>
+          </div>
+
+          <div style={{ background: '#FAF6EF', padding: '0.85rem 1rem', borderRadius: '0.65rem' }}>
+            <div style={{ fontSize: '0.75rem', color: '#78533E', textTransform: 'uppercase', fontWeight: 700 }}>
+              Remaining Amount
+            </div>
+            <div
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '1.4rem',
+                fontWeight: 800,
+                color: budget.totalBudget - effectiveTotalSpent < 0 ? '#DC2626' : '#15803D',
+              }}
+            >
+              {formatCurrency(budget.totalBudget - effectiveTotalSpent, budget.currency)}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: budget.totalBudget - effectiveTotalSpent < 0 ? '#DC2626' : '#15803D', fontWeight: 600 }}>
+              {budget.totalBudget - effectiveTotalSpent < 0 ? '⚠️ Exceeding planned target' : '✓ Available for upcoming expenses'}
+            </div>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#78533E', fontWeight: 600, marginBottom: '0.35rem' }}>
+            <span>Spending Progress</span>
+            <span>{Math.round((effectiveTotalSpent / (budget.totalBudget || 1)) * 100)}% spent</span>
+          </div>
+          <div style={{ height: '8px', background: '#E5DCCE', borderRadius: '99px', overflow: 'hidden' }}>
+            <div
+              style={{
+                height: '100%',
+                width: `${Math.min(100, Math.round((effectiveTotalSpent / (budget.totalBudget || 1)) * 100))}%`,
+                background: effectiveTotalSpent > budget.totalBudget ? '#DC2626' : 'linear-gradient(90deg, #F97316, #D97706)',
+                borderRadius: '99px',
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
       {/* FR-13: Budget Feasibility & Respectful Constraint Advisor */}
       <div
         className="glass-panel"
@@ -381,10 +468,10 @@ export const BudgetHub: React.FC<BudgetHubProps> = ({ plan, onUpdateBudget, onOp
           <Sparkles size={20} color="#D97706" />
           <div>
             <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#9A3412' }}>
-              Planora Trade-off Assistant: Zero Hallucinated Math
+              Planora Trade-off Assistant: Deterministic Budget Arithmetic
             </div>
             <div style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
-              Adjust category sliders below. Changing one category dynamically recalculates allocations so the budget remains mathematically sound.
+              Adjust category sliders below. Changing one category updates allocations. Budget totals are calculated by the app; prices and vendor ranges are estimates.
             </div>
           </div>
         </div>

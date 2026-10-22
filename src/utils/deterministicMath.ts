@@ -1,7 +1,16 @@
 // Deterministic Budget Engine & Math Reconciliation Layer
 // Zero hallucinated math: guarantees Sum(items) == Total Budget
 
-import { BudgetItem, EventType } from '../types';
+import {
+  BudgetItem,
+  EventType,
+  EventPlan,
+  TaskItem,
+  TaskDateStatus,
+  PlanCompleteness,
+  PlanCompletenessMetric,
+  CommunityChecklistItem,
+} from '../types';
 
 export interface DefaultCategorySplit {
   category: string;
@@ -235,4 +244,278 @@ export function calculateDaysRemaining(eventDate?: string): number | null {
   if (isNaN(target)) return null;
   const now = new Date().getTime();
   return Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+}
+
+/**
+ * Priority 2.2: Task Date Status Engine
+ * Aware of today's date and event date.
+ * Categorizes tasks into 'completed', 'overdue', 'due_soon', 'upcoming', or 'no_date'.
+ */
+export function calculateTaskDateStatus(
+  dueDate?: string,
+  eventDate?: string,
+  completed?: boolean
+): TaskDateStatus {
+  if (completed) {
+    return { status: 'completed', label: 'Completed' };
+  }
+
+  if (!dueDate || !dueDate.trim()) {
+    if (eventDate) {
+      const daysToEvent = calculateDaysRemaining(eventDate);
+      if (daysToEvent !== null) {
+        return {
+          status: 'upcoming',
+          label: daysToEvent > 0 ? `Target: before event (${daysToEvent}d left)` : 'Target: event week',
+        };
+      }
+    }
+    return { status: 'no_date', label: 'Flexible timing' };
+  }
+
+  // Parse YYYY-MM-DD or standard date string
+  const parts = dueDate.split('-');
+  let targetDate: Date;
+  if (parts.length === 3) {
+    targetDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  } else {
+    targetDate = new Date(dueDate);
+  }
+
+  if (isNaN(targetDate.getTime())) {
+    return { status: 'no_date', label: 'Flexible timing' };
+  }
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dueMidnight = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+
+  const diffMs = dueMidnight.getTime() - today.getTime();
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    const abs = Math.abs(diffDays);
+    return {
+      status: 'overdue',
+      label: abs === 1 ? 'Overdue by 1 day' : `Overdue by ${abs} days`,
+      daysDiff: diffDays,
+    };
+  }
+
+  if (diffDays === 0) {
+    return {
+      status: 'due_soon',
+      label: 'Due today',
+      daysDiff: 0,
+    };
+  }
+
+  if (diffDays <= 7) {
+    return {
+      status: 'due_soon',
+      label: diffDays === 1 ? 'Due tomorrow' : `Due in ${diffDays} days`,
+      daysDiff: diffDays,
+    };
+  }
+
+  return {
+    status: 'upcoming',
+    label: `Due in ${diffDays} days`,
+    daysDiff: diffDays,
+  };
+}
+
+/**
+ * Priority 3.1: "Next Best Step" Recommendation Engine
+ * Finds the nearest useful incomplete task based on urgency, status, and timeline position.
+ */
+export function getRecommendedNextStep(
+  plan: EventPlan,
+  dismissedTaskIds: string[] = []
+): { task: TaskItem; sectionId: string; sectionPeriod: string; reason: string; dateStatus: TaskDateStatus } | null {
+  if (!plan.timeline || plan.timeline.length === 0) return null;
+
+  interface Candidate {
+    task: TaskItem;
+    sectionId: string;
+    sectionPeriod: string;
+    dateStatus: TaskDateStatus;
+    score: number;
+    reason: string;
+  }
+
+  const candidates: Candidate[] = [];
+
+  plan.timeline.forEach((section, secIdx) => {
+    section.tasks.forEach((task) => {
+      if (task.completed) return;
+      if (dismissedTaskIds.includes(task.id)) return;
+
+      const dateStatus = calculateTaskDateStatus(task.dueDate, plan.basics.eventDate, task.completed);
+      let score = 100 - secIdx * 10;
+      let reason = 'Next sequential milestone in your preparation roadmap.';
+
+      if (dateStatus.status === 'overdue') {
+        score += 500 + Math.min(100, Math.abs(dateStatus.daysDiff || 0));
+        reason = 'This task is past its target date. Addressing it now keeps vendor and venue timelines from slipping.';
+      } else if (dateStatus.status === 'due_soon') {
+        score += 300 + (7 - (dateStatus.daysDiff || 0));
+        reason = 'Due within the next 7 days. Completing this prevents last-minute coordination rushes.';
+      } else if (task.priority === 'High') {
+        score += 150;
+        reason = 'High-priority cornerstone milestone needed to unlock upcoming planning decisions.';
+      } else if (task.priority === 'Medium') {
+        score += 50;
+      }
+
+      candidates.push({
+        task,
+        sectionId: section.id,
+        sectionPeriod: section.period,
+        dateStatus,
+        score,
+        reason,
+      });
+    });
+  });
+
+  if (candidates.length === 0) return null;
+
+  candidates.sort((a, b) => b.score - a.score);
+  const best = candidates[0];
+
+  return {
+    task: best.task,
+    sectionId: best.sectionId,
+    sectionPeriod: best.sectionPeriod,
+    dateStatus: best.dateStatus,
+    reason: best.reason,
+  };
+}
+
+/**
+ * Priority 3.2: Plan Completeness Indicator
+ * Evaluates core event details without blocking user progress.
+ */
+export function calculatePlanCompleteness(plan: EventPlan): PlanCompleteness {
+  const hasDate = Boolean(
+    plan.basics.dateType === 'exact' && plan.basics.eventDate && plan.basics.eventDate.trim().length > 0
+  );
+  const hasGuests = Boolean(plan.basics.guestCount && plan.basics.guestCount > 0);
+  const hasBudget = Boolean(plan.budget && plan.budget.totalBudget > 0 && plan.budget.items.length > 0);
+  const hasLocation = Boolean(plan.basics.location && plan.basics.location.trim().length > 0);
+  const hasVendors = Boolean(plan.vendors && plan.vendors.length >= 3);
+
+  const metrics: PlanCompletenessMetric[] = [
+    {
+      key: 'eventDate',
+      label: 'Target Event Date',
+      isComplete: hasDate,
+      valueDescription: hasDate
+        ? new Date(plan.basics.eventDate!).toLocaleDateString(undefined, { dateStyle: 'medium' })
+        : 'Undecided / Flexible',
+    },
+    {
+      key: 'guestCount',
+      label: 'Guest Count',
+      isComplete: hasGuests,
+      valueDescription: hasGuests ? `${plan.basics.guestCount} attendees` : 'Not specified',
+    },
+    {
+      key: 'budget',
+      label: 'Balanced Budget',
+      isComplete: hasBudget,
+      valueDescription: hasBudget
+        ? formatCurrency(plan.budget.totalBudget, plan.budget.currency)
+        : 'Budget needed',
+    },
+    {
+      key: 'location',
+      label: 'Venue / Location',
+      isComplete: hasLocation,
+      valueDescription: hasLocation ? plan.basics.location! : 'Location pending',
+    },
+    {
+      key: 'vendors',
+      label: 'Major Vendor Roster',
+      isComplete: hasVendors,
+      valueDescription: `${plan.vendors?.length || 0} services tracked`,
+    },
+  ];
+
+  const completedCount = metrics.filter((m) => m.isComplete).length;
+  const totalCount = metrics.length;
+  const score = Math.round((completedCount / totalCount) * 100);
+
+  return {
+    score,
+    completedCount,
+    totalCount,
+    metrics,
+  };
+}
+
+/**
+ * Priority 3.3: Community Event Checklist Template
+ * Relevant optional items with 'needed', 'completed', or 'not_needed' status.
+ */
+export function generateDefaultCommunityChecklist(eventName?: string): CommunityChecklistItem[] {
+  return [
+    {
+      id: 'comm-chk-1',
+      category: 'Permits',
+      title: 'Municipal Park / Venue Permit',
+      description: 'Submit city park reservation, special event application, and facility usage agreement.',
+      status: 'needed',
+    },
+    {
+      id: 'comm-chk-2',
+      category: 'Permits',
+      title: 'Sound & Noise Amplification Waiver',
+      description: 'Obtain city decibel permit and curfew compliance authorization for outdoor speakers/music.',
+      status: 'needed',
+    },
+    {
+      id: 'comm-chk-3',
+      category: 'Volunteers',
+      title: 'Volunteer Recruitment & Role Assignment',
+      description: 'Recruit volunteer leads for check-in desk, crowd guidance, activity stations, and teardown.',
+      status: 'needed',
+    },
+    {
+      id: 'comm-chk-4',
+      category: 'Accessibility',
+      title: 'Universal Accessibility Audit',
+      description: 'Verify step-free wheelchair access, accessible portable restrooms, and ADA parking spaces.',
+      status: 'needed',
+    },
+    {
+      id: 'comm-chk-5',
+      category: 'Sanitation & Waste',
+      title: 'Zero-Waste & Recycling Stations',
+      description: 'Arrange paired recycling, compost, and trash receptacles with a post-event sweep team.',
+      status: 'needed',
+    },
+    {
+      id: 'comm-chk-6',
+      category: 'Weather & Contingency',
+      title: 'Weather & Rain Canopy Contingency',
+      description: 'Secure pop-up shaded canopies, weighted tie-downs, and rain shelter protocol for attendees.',
+      status: 'needed',
+    },
+    {
+      id: 'comm-chk-7',
+      category: 'Safety & First Aid',
+      title: 'First Aid Kit & Emergency Protocol',
+      description: 'Stock a certified first aid kit, identify a CPR-certified volunteer lead, and set up water hydration points.',
+      status: 'needed',
+    },
+    {
+      id: 'comm-chk-8',
+      category: 'Neighborhood Coordination',
+      title: 'Local Neighborhood & Parking Notice',
+      description: 'Notify nearby neighbors/businesses 14 days in advance and post visible parking signage.',
+      status: 'needed',
+    },
+  ];
 }

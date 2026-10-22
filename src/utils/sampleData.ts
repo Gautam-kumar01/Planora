@@ -569,13 +569,14 @@ export const SAMPLE_COMMUNITY_PLAN: EventPlan = {
   updatedAt: new Date().toISOString(),
   basics: {
     eventType: 'community',
-    title: 'Oakridge River Clean-Up & Harvest Block Festival',
+    title: 'Oakridge River Clean-Up & Harvest Community Gathering',
     dateType: 'exact',
-    eventDate: '2026-10-18',
+    eventDate: '2026-11-28',
     guestCount: 120,
     location: 'Oakridge Waterfront Park, Portland',
     totalBudget: 1500,
     currency: 'USD',
+    timeZone: 'America/Los_Angeles',
     preferences: {
       vibe: 'Eco-Friendly, Community Unity, Warm Harvest Vibes & Live Folk Music',
       priorities: ['Volunteer Safety & Equipment', 'Permits & Waste Removal', 'Community Hydration & Food', 'Family Activities'],
@@ -663,24 +664,24 @@ export const SAMPLE_COMMUNITY_PLAN: EventPlan = {
       id: 'c-t1',
       period: '6 Weeks Before',
       tasks: [
-        { id: 'ct-1', title: 'Submit City Parks Special Event & Sound Permit application', dueDate: '2026-09-01', completed: true, category: 'Logistics', priority: 'High' },
-        { id: 'ct-2', title: 'Recruit 6 neighborhood team captains for zone coordination', dueDate: '2026-09-10', completed: true, category: 'Guest Coordination', priority: 'High' },
+        { id: 'ct-1', title: 'Submit City Parks Special Event & Sound Permit application', dueDate: '2026-10-10', completed: true, category: 'Logistics', priority: 'High' },
+        { id: 'ct-2', title: 'Recruit 6 neighborhood team captains for zone coordination', dueDate: '2026-10-18', completed: true, category: 'Guest Coordination', priority: 'High' },
       ],
     },
     {
       id: 'c-t2',
       period: '2 Weeks Before',
       tasks: [
-        { id: 'ct-3', title: 'Pick up donated volunteer work gloves and litter pickers from public works', dueDate: '2026-10-04', completed: true, category: 'Logistics', priority: 'Medium' },
-        { id: 'ct-4', title: 'Confirm local acoustic bluegrass duo for afternoon harvest set', dueDate: '2026-10-06', completed: false, category: 'Creative', priority: 'Medium' },
+        { id: 'ct-3', title: 'Pick up donated volunteer work gloves and litter pickers from public works', dueDate: '2026-11-14', completed: false, category: 'Logistics', priority: 'Medium' },
+        { id: 'ct-4', title: 'Confirm local acoustic bluegrass duo for afternoon harvest set', dueDate: '2026-11-18', completed: false, category: 'Creative', priority: 'Medium' },
       ],
     },
     {
       id: 'c-t3',
       period: 'Day of Event',
       tasks: [
-        { id: 'ct-5', title: 'Set up welcome check-in canopy and volunteer safety orientation', dueDate: '2026-10-18', completed: false, category: 'Logistics', priority: 'High' },
-        { id: 'ct-6', title: 'Light chili warmers and serve warm spiced cider to cleanup crews', dueDate: '2026-10-18', completed: false, category: 'Payment', priority: 'High' },
+        { id: 'ct-5', title: 'Set up welcome check-in canopy and volunteer safety orientation', dueDate: '2026-11-28', completed: false, category: 'Logistics', priority: 'High' },
+        { id: 'ct-6', title: 'Light chili warmers and serve warm spiced cider to cleanup crews', dueDate: '2026-11-28', completed: false, category: 'Payment', priority: 'High' },
       ],
     },
   ],

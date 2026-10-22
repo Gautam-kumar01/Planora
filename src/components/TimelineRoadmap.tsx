@@ -17,6 +17,7 @@ import {
 import confetti from 'canvas-confetti';
 import { EventPlan, TaskItem, TimelineSection, HourlyRunOfShowItem } from '../types';
 import { downloadCalendarICS } from '../utils/calendarExport';
+import { calculateTaskDateStatus } from '../utils/deterministicMath';
 
 interface TimelineRoadmapProps {
   plan: EventPlan;
@@ -114,11 +115,14 @@ export const TimelineRoadmap: React.FC<TimelineRoadmapProps> = ({
   );
   const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-  // Filter tasks
+  // Filter tasks (Priority 2.2: Task Date Awareness)
   const filterTask = (task: TaskItem) => {
     if (selectedFilter === 'All') return true;
     if (selectedFilter === 'Pending') return !task.completed;
     if (selectedFilter === 'Completed') return task.completed;
+    const dateStatus = calculateTaskDateStatus(task.dueDate, plan.basics.eventDate, task.completed);
+    if (selectedFilter === 'Overdue') return dateStatus.status === 'overdue';
+    if (selectedFilter === 'Due Soon') return dateStatus.status === 'due_soon';
     return task.category === selectedFilter;
   };
 
@@ -291,7 +295,7 @@ export const TimelineRoadmap: React.FC<TimelineRoadmapProps> = ({
               <Filter size={14} style={{ verticalAlign: 'middle', marginRight: '0.25rem' }} />
               Filter by:
             </span>
-            {['All', 'Pending', 'Completed', 'Logistics', 'Creative', 'Payment', 'Guest Coordination'].map((tag) => (
+            {['All', 'Overdue', 'Due Soon', 'Pending', 'Completed', 'Logistics', 'Creative', 'Payment', 'Guest Coordination'].map((tag) => (
               <button
                 key={tag}
                 onClick={() => setSelectedFilter(tag)}
@@ -354,98 +358,138 @@ export const TimelineRoadmap: React.FC<TimelineRoadmapProps> = ({
 
                   {/* Tasks in Section */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {visibleTasks.map((task) => (
-                      <div
-                        key={task.id}
-                        onClick={() => handleToggleTask(section.id, task.id)}
-                        className="glass-card-interactive"
-                        style={{
-                          padding: '0.9rem 1.2rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '1rem',
-                          background: task.completed ? 'rgba(234, 88, 12, 0.05)' : '#FFFFFF',
-                          borderColor: task.completed ? 'rgba(22, 163, 74, 0.35)' : 'rgba(234, 88, 12, 0.18)',
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: '1 1 auto' }}>
-                          <button
-                            type="button"
-                            aria-label={task.completed ? 'Mark task incomplete' : 'Mark task complete'}
-                            style={{
-                              background: 'transparent',
-                              border: 'none',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                            }}
-                          >
-                            {task.completed ? (
-                              <CheckCircle2 size={20} color="#15803D" />
-                            ) : (
-                              <Circle size={20} color="#EA580C" />
-                            )}
-                          </button>
-
-                          <div>
-                            <span
+                    {visibleTasks.map((task) => {
+                      const dateStatus = calculateTaskDateStatus(task.dueDate, plan.basics.eventDate, task.completed);
+                      return (
+                        <div
+                          key={task.id}
+                          onClick={() => handleToggleTask(section.id, task.id)}
+                          className="glass-card-interactive"
+                          style={{
+                            padding: '0.9rem 1.2rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '1rem',
+                            background: task.completed ? 'rgba(234, 88, 12, 0.05)' : '#FFFFFF',
+                            borderColor: task.completed
+                              ? 'rgba(22, 163, 74, 0.35)'
+                              : dateStatus.status === 'overdue'
+                              ? '#FCA5A5'
+                              : dateStatus.status === 'due_soon'
+                              ? '#FCD34D'
+                              : 'rgba(234, 88, 12, 0.18)',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: '1 1 auto' }}>
+                            <button
+                              type="button"
+                              aria-label={task.completed ? 'Mark task incomplete' : 'Mark task complete'}
                               style={{
-                                fontSize: '0.95rem',
-                                color: task.completed ? '#78533E' : '#140A05',
-                                textDecoration: task.completed ? 'line-through' : 'none',
-                                fontWeight: task.completed ? 400 : 600,
+                                background: 'transparent',
+                                border: 'none',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
                               }}
                             >
-                              {task.title}
+                              {task.completed ? (
+                                <CheckCircle2 size={20} color="#15803D" />
+                              ) : (
+                                <Circle size={20} color="#EA580C" />
+                              )}
+                            </button>
+
+                            <div>
+                              <span
+                                style={{
+                                  fontSize: '0.95rem',
+                                  color: task.completed ? '#78533E' : '#140A05',
+                                  textDecoration: task.completed ? 'line-through' : 'none',
+                                  fontWeight: task.completed ? 400 : 600,
+                                }}
+                              >
+                                {task.title}
+                              </span>
+                              {task.dueDate && (
+                                <div style={{ fontSize: '0.75rem', color: '#9A3412', marginTop: '0.2rem', fontWeight: 600 }}>
+                                  Target Due: {new Date(task.dueDate).toLocaleDateString()}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Badges */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            {/* Priority 2.2: Task Date Status Badge */}
+                            {task.completed ? (
+                              <span
+                                className="badge"
+                                style={{ background: '#DCFCE7', color: '#15803D', border: '1px solid #86EFAC', fontSize: '0.65rem', fontWeight: 700 }}
+                              >
+                                ✓ Completed
+                              </span>
+                            ) : dateStatus.status === 'overdue' ? (
+                              <span
+                                className="badge"
+                                style={{ background: '#FEE2E2', color: '#991B1B', border: '1px solid #FCA5A5', fontSize: '0.65rem', fontWeight: 700 }}
+                              >
+                                ⚠️ {dateStatus.label}
+                              </span>
+                            ) : dateStatus.status === 'due_soon' ? (
+                              <span
+                                className="badge"
+                                style={{ background: '#FEF3C7', color: '#92400E', border: '1px solid #FCD34D', fontSize: '0.65rem', fontWeight: 700 }}
+                              >
+                                ⏳ {dateStatus.label}
+                              </span>
+                            ) : dateStatus.status === 'upcoming' ? (
+                              <span
+                                className="badge"
+                                style={{ background: '#EFF6FF', color: '#1E40AF', border: '1px solid #BFDBFE', fontSize: '0.65rem' }}
+                              >
+                                📅 {dateStatus.label}
+                              </span>
+                            ) : null}
+
+                            <span
+                              className="badge"
+                              style={{
+                                background:
+                                  task.priority === 'High'
+                                    ? 'rgba(225, 29, 72, 0.12)'
+                                    : task.priority === 'Medium'
+                                    ? 'rgba(217, 119, 6, 0.14)'
+                                    : 'rgba(100, 116, 139, 0.14)',
+                                color:
+                                  task.priority === 'High'
+                                    ? '#B91C1C'
+                                    : task.priority === 'Medium'
+                                    ? '#92400E'
+                                    : '#334155',
+                                border:
+                                  task.priority === 'High'
+                                    ? '1px solid rgba(225, 29, 72, 0.3)'
+                                    : task.priority === 'Medium'
+                                    ? '1px solid rgba(217, 119, 6, 0.3)'
+                                    : '1px solid rgba(100, 116, 139, 0.25)',
+                                fontSize: '0.65rem',
+                                fontWeight: 700,
+                              }}
+                            >
+                              {task.priority === 'High' ? '🔥 Critical' : `${task.priority} Priority`}
                             </span>
-                            {task.dueDate && (
-                              <div style={{ fontSize: '0.75rem', color: '#9A3412', marginTop: '0.2rem', fontWeight: 600 }}>
-                                Due: {new Date(task.dueDate).toLocaleDateString()}
-                              </div>
-                            )}
+
+                            <span
+                              className="badge badge-orange"
+                              style={{ fontSize: '0.65rem', textTransform: 'capitalize' }}
+                            >
+                              {task.category}
+                            </span>
                           </div>
                         </div>
-
-                        {/* Badges */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span
-                            className="badge"
-                            style={{
-                              background:
-                                task.priority === 'High'
-                                  ? 'rgba(225, 29, 72, 0.12)'
-                                  : task.priority === 'Medium'
-                                  ? 'rgba(217, 119, 6, 0.14)'
-                                  : 'rgba(100, 116, 139, 0.14)',
-                              color:
-                                task.priority === 'High'
-                                  ? '#B91C1C'
-                                  : task.priority === 'Medium'
-                                  ? '#92400E'
-                                  : '#334155',
-                              border:
-                                task.priority === 'High'
-                                  ? '1px solid rgba(225, 29, 72, 0.3)'
-                                  : task.priority === 'Medium'
-                                  ? '1px solid rgba(217, 119, 6, 0.3)'
-                                  : '1px solid rgba(100, 116, 139, 0.25)',
-                              fontSize: '0.65rem',
-                              fontWeight: 700,
-                            }}
-                          >
-                            {task.priority === 'High' ? '🔥 Critical (FR-19)' : `${task.priority} Priority`}
-                          </span>
-
-                          <span
-                            className="badge badge-orange"
-                            style={{ fontSize: '0.65rem', textTransform: 'capitalize' }}
-                          >
-                            {task.category}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               );

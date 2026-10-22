@@ -11,9 +11,18 @@ import {
   LogOut,
   ArrowRight,
   Database,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 import { UserProfile } from '../types';
-import { loginUser, registerUser, logoutUser, getDatabaseConfig } from '../utils/cloudSync';
+import {
+  loginUser,
+  registerUser,
+  logoutUser,
+  getDatabaseConfig,
+  loginWithDemoSession,
+  deleteUserAccount,
+} from '../utils/cloudSync';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -87,6 +96,47 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     logoutUser();
     onUserChange(null);
     onClose();
+  };
+
+  const handleDemoLogin = async () => {
+    setIsLoading(true);
+    setErrorMsg(null);
+    try {
+      const user = await loginWithDemoSession();
+      onUserChange(user);
+      setSuccessMsg('Loaded demo session with sample event data!');
+      setTimeout(() => {
+        setSuccessMsg(null);
+        onClose();
+      }, 900);
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Failed to start demo session.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!currentUser) return;
+    const confirmDelete = window.confirm(
+      'Are you sure you want to permanently delete your account and all associated cloud event plans? This cannot be undone.'
+    );
+    if (!confirmDelete) return;
+
+    setIsLoading(true);
+    try {
+      await deleteUserAccount(currentUser.id);
+      onUserChange(null);
+      setSuccessMsg('Your account and saved event data have been permanently deleted.');
+      setTimeout(() => {
+        setSuccessMsg(null);
+        onClose();
+      }, 1200);
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Failed to delete account.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -263,7 +313,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.75rem' }}>
+              <button
+                type="button"
+                onClick={handleDeleteAccount}
+                className="btn-ghost"
+                style={{ color: '#dc2626', fontSize: '0.8rem', padding: '0.45rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                title="Permanently remove your account and all associated cloud plans"
+              >
+                <Trash2 size={14} />
+                <span>Delete Account</span>
+              </button>
               <button
                 type="button"
                 onClick={handleLogout}
@@ -285,7 +345,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 background: 'rgba(234, 88, 12, 0.08)',
                 padding: '0.25rem',
                 borderRadius: 'var(--radius-full)',
-                marginBottom: '1.25rem',
+                marginBottom: '1rem',
                 border: '1px solid rgba(234, 88, 12, 0.2)',
               }}
             >
@@ -323,26 +383,31 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </button>
             </div>
 
-            {/* Guest Freedom Banner */}
+            {/* Storage & Sync Modes Explanation (Priority 1.2) */}
             <div
               style={{
-                background: 'rgba(254, 243, 199, 0.55)',
+                background: 'rgba(254, 243, 199, 0.65)',
                 border: '1px solid rgba(217, 119, 6, 0.3)',
                 borderRadius: 'var(--radius-md)',
-                padding: '0.75rem 1rem',
+                padding: '0.75rem 0.95rem',
                 marginBottom: '1.25rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontSize: '0.825rem',
-                color: '#92400E',
-                fontWeight: 600,
+                fontSize: '0.78rem',
+                color: '#78350F',
+                lineHeight: 1.45,
               }}
             >
-              <ShieldCheck size={18} color="#D97706" style={{ flexShrink: 0 }} />
-              <span>
-                <strong>Guest Mode Active:</strong> You can create, edit, and export plans right now with zero login. Sign in only if you want cross-device cloud sync.
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontWeight: 800, color: '#92400E', marginBottom: '0.35rem' }}>
+                <ShieldCheck size={16} color="#D97706" style={{ flexShrink: 0 }} />
+                <span>Guest Mode vs. Signed-In Cloud Sync</span>
+              </div>
+              <div style={{ paddingLeft: '1.25rem' }}>
+                <div style={{ marginBottom: '0.2rem' }}>
+                  • <strong>Guest plans</strong> are stored locally in the current browser/device and may not sync across devices.
+                </div>
+                <div>
+                  • <strong>Signed-in plans</strong> are stored in the configured cloud database and can be accessed after login from any device.
+                </div>
+              </div>
             </div>
 
             {/* Tab 1: Login Form */}
@@ -376,23 +441,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   />
                 </div>
 
-                <div
-                  style={{
-                    background: 'rgba(234, 88, 12, 0.06)',
-                    border: '1px dashed rgba(234, 88, 12, 0.35)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '0.65rem 0.85rem',
-                    fontSize: '0.775rem',
-                    color: '#78350F',
-                    lineHeight: 1.45,
-                  }}
-                >
-                  <span style={{ fontWeight: 700, color: '#9A3412' }}>💡 Test Demo Account:</span>{' '}
-                  <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600 }}>planner@planora.com</span> /{' '}
-                  <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600 }}>Planora2026!</span>
-                  <div style={{ marginTop: '0.2rem', color: '#573523' }}>
-                    Or create your own custom account via the <strong>Create Account</strong> tab.
-                  </div>
+                {/* Safe Passwordless Demo Session (Priority 1.1) */}
+                <div style={{ marginTop: '0.25rem' }}>
+                  <button
+                    type="button"
+                    onClick={handleDemoLogin}
+                    disabled={isLoading}
+                    className="btn-secondary"
+                    style={{
+                      width: '100%',
+                      padding: '0.55rem',
+                      fontSize: '0.8rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.45rem',
+                      borderColor: 'rgba(234, 88, 12, 0.35)',
+                      color: '#9A3412',
+                      background: 'rgba(234, 88, 12, 0.05)',
+                    }}
+                  >
+                    <Sparkles size={14} color="#EA580C" />
+                    <span>Try with Demo Planner Session (Instant Sample Data)</span>
+                  </button>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>

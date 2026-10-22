@@ -158,6 +158,7 @@ export interface EventPlan {
     location?: string;
     totalBudget: number;
     currency: string;
+    timeZone?: string;
     budgetStatus?: 'defined' | 'needs_help';
     budgetTier?: 'economy' | 'moderate' | 'premium' | 'luxury';
     venueSetting?: 'indoor' | 'outdoor' | 'hybrid' | 'undecided';
@@ -180,6 +181,7 @@ export interface EventPlan {
   guests?: GuestItem[];
   tables?: TableItem[];
   expenses?: ExpenseRecord[];
+  communityChecklist?: CommunityChecklistItem[];
 }
 
 export interface OnboardingFormValues {
@@ -191,6 +193,7 @@ export interface OnboardingFormValues {
   location: string;
   totalBudget: number;
   currency: string;
+  timeZone?: string;
   budgetStatus: 'defined' | 'needs_help';
   budgetTier: 'economy' | 'moderate' | 'premium' | 'luxury';
   venueSetting: 'indoor' | 'outdoor' | 'hybrid' | 'undecided';
@@ -222,6 +225,37 @@ export interface UserProfile {
 }
 
 export type CloudSyncStatus = 'synced' | 'saving' | 'offline' | 'guest';
+
+export interface CommunityChecklistItem {
+  id: string;
+  category: 'Permits' | 'Volunteers' | 'Accessibility' | 'Sanitation & Waste' | 'Weather & Contingency' | 'Safety & First Aid' | 'Neighborhood Coordination';
+  title: string;
+  description: string;
+  status: 'needed' | 'completed' | 'not_needed';
+  notes?: string;
+}
+
+export type TaskDateStatusType = 'completed' | 'overdue' | 'due_soon' | 'upcoming' | 'no_date';
+
+export interface TaskDateStatus {
+  status: TaskDateStatusType;
+  label: string;
+  daysDiff?: number;
+}
+
+export interface PlanCompletenessMetric {
+  key: string;
+  label: string;
+  isComplete: boolean;
+  valueDescription: string;
+}
+
+export interface PlanCompleteness {
+  score: number;
+  completedCount: number;
+  totalCount: number;
+  metrics: PlanCompletenessMetric[];
+}
 
 export interface DatabaseConfig {
   databaseUrl: string;

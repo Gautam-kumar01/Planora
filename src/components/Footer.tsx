@@ -74,7 +74,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAiTransparency }) => {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
               <CheckCircle size={17} color="#FBBF24" />
-              <span style={{ fontWeight: 600 }}>Zero Hallucinated Arithmetic</span>
+              <span style={{ fontWeight: 600 }}>Deterministic Budget Arithmetic</span>
             </div>
           </div>
         </div>
@@ -276,11 +276,11 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAiTransparency }) => {
                 }}
               >
                 <ShieldCheck size={14} color="#FB923C" />
-                <span>AI Ethics & Limitations Policy</span>
+                <span>AI Ethics & Cost Disclaimers</span>
               </button>
             )}
             <div style={{ fontSize: '0.78rem', color: '#FED7AA', fontWeight: 600 }}>
-              Production Ready • PRD Validated
+              Budget totals are calculated by the app; prices and vendor ranges are estimates.
             </div>
           </div>
         </div>
@@ -303,13 +303,13 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAiTransparency }) => {
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22C55E', display: 'inline-block' }} />
             <span style={{ color: '#E2D5CC', fontWeight: 600 }}>Local Deterministic Engine Ready</span>
             <span>•</span>
-            <span>Gemini Copilot Active</span>
+            <span>Gemini 2.5 Flash Engine</span>
             <span>•</span>
             <span>Zero Remote Telemetry</span>
           </div>
 
           <div style={{ color: '#FED7AA', fontWeight: 600 }}>
-            WCAG AAA Compliant Contrast • PromptWars 2026
+            High-Contrast Accessible Theme • Keyboard Navigable
           </div>
 
           <div>

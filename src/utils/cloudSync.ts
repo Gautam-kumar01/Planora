@@ -1,6 +1,5 @@
-// Cloud Synchronization & Hybrid Authentication Utility for Planora (Option C)
 import { EventPlan, UserProfile, DatabaseConfig, CloudSyncStatus } from '../types';
-import { loadSavedPlans, savePlans } from './storage';
+import { loadSavedPlans, savePlans, purgeUserData } from './storage';
 
 const STORAGE_KEY_USER = 'planora_current_user_v1';
 const STORAGE_KEY_DB_CONFIG = 'planora_db_config_v1';
@@ -15,15 +14,16 @@ export interface RegisteredAccount {
   createdAt: string;
 }
 
-const DEFAULT_DEMO_ACCOUNTS: RegisteredAccount[] = [
-  {
-    id: 'usr_demo_1',
-    email: 'planner@planora.com',
-    passwordHash: 'Planora2026!',
-    fullName: 'Elena Rostova',
-    createdAt: '2026-10-01T10:00:00.000Z',
-  },
-];
+// Priority 1.1: Rotated demo account credentials. Never publicly displayed in UI or code.
+const ROTATED_DEMO_ACCOUNT: RegisteredAccount = {
+  id: 'usr_demo_1',
+  email: 'sample.planner@planora.internal',
+  passwordHash: 'rot_hash_sec_98f48e3a2b7190c',
+  fullName: 'Sample Planner',
+  createdAt: '2026-10-01T10:00:00.000Z',
+};
+
+const DEFAULT_DEMO_ACCOUNTS: RegisteredAccount[] = [ROTATED_DEMO_ACCOUNT];
 
 export function getRegisteredAccounts(): RegisteredAccount[] {
   try {
@@ -198,6 +198,43 @@ export async function registerUser(name: string, email: string, password?: strin
 
 export function logoutUser() {
   setCurrentUser(null);
+}
+
+/**
+ * Priority 1.1: Dedicated safe demo session.
+ * Logs in with fake sample data without requiring or displaying any password.
+ */
+export async function loginWithDemoSession(): Promise<UserProfile> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const user: UserProfile = {
+    id: ROTATED_DEMO_ACCOUNT.id,
+    email: 'sample.planner@planora.internal',
+    fullName: 'Sample Planner (Demo)',
+    createdAt: new Date().toISOString(),
+  };
+
+  setCurrentUser(user);
+  const localPlans = loadSavedPlans(user.id);
+  await syncPlansToCloud(localPlans);
+  return user;
+}
+
+/**
+ * Priority 1.4: Complete Account Deletion
+ * Clears user account, purges user's saved plans, and resets session.
+ */
+export async function deleteUserAccount(userId: string): Promise<boolean> {
+  try {
+    const accounts = getRegisteredAccounts().filter((a) => a.id !== userId);
+    saveRegisteredAccounts(accounts);
+    purgeUserData(userId);
+    logoutUser();
+    localStorage.removeItem(STORAGE_KEY_CLOUD_SYNC_CACHE);
+    return true;
+  } catch (err) {
+    console.error('Failed to delete account:', err);
+    return false;
+  }
 }
 
 // 4. Cloud Plan Synchronization

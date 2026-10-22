@@ -93,7 +93,10 @@ export const HeroLanding: React.FC<HeroLandingProps> = ({
         >
           Planora fuses <strong style={{ color: '#9A3412', fontWeight: 700 }}>GenAI creativity</strong> with{' '}
           <strong style={{ color: '#9A3412', fontWeight: 700 }}>deterministic financial math</strong> for weddings,
-          birthdays, and community festivals. Zero hallucinated arithmetic, dynamic timelines, vendor vetting guides, and instant iCal sync.
+          birthdays, and community events. Deterministic budget arithmetic, dynamic timelines, vendor vetting guides, and instant iCal sync.
+        </p>
+        <p style={{ fontSize: '0.8rem', color: '#78350F', margin: '-0.75rem auto 1.75rem auto', fontWeight: 600 }}>
+          💡 Budget totals are calculated by the app; prices and vendor ranges are estimates.
         </p>
 
         {/* Action CTAs */}

@@ -84,7 +84,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                 AI Model & API Key Settings
               </h3>
               <div style={{ fontSize: '0.78rem', color: '#78533E', fontWeight: 600 }}>
-                Supports OpenRouter (Gemini 3.7 Flash) & Google Gemini Direct
+                Supports OpenRouter (Google Gemini 2.5 Flash) & Google Gemini Direct
               </div>
             </div>
           </div>
@@ -111,7 +111,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Zap size={16} color={isOpenRouter ? '#15803D' : '#C2410C'} />
             <span style={{ fontSize: '0.85rem', fontWeight: 700, color: isOpenRouter ? '#15803D' : '#9A3412' }}>
-              {isOpenRouter ? '🟢 Active Provider: OpenRouter (Gemini 3.7 Flash)' : apiKey ? '🟢 Active Provider: Google Gemini Direct' : '⚪ Active Engine: Local Deterministic (No Key Needed)'}
+              {isOpenRouter ? '🟢 Active Provider: OpenRouter (Google Gemini 2.5 Flash)' : apiKey ? '🟢 Active Provider: Google Gemini 2.5 Flash Direct' : '⚪ Active Engine: Local Deterministic (No Key Needed)'}
             </span>
           </div>
 

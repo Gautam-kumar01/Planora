@@ -216,7 +216,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         >
           Planora fuses <strong style={{ color: '#9A3412', fontWeight: 700 }}>GenAI creativity</strong> with{' '}
           <strong style={{ color: '#9A3412', fontWeight: 700 }}>deterministic financial arithmetic</strong> for weddings,
-          birthdays, and community festivals. Zero hallucinated budgets, hourly run-of-show schedules, vendor interview guides, and instant iCal sync.
+          birthdays, and community events. Deterministic budget arithmetic, hourly run-of-show schedules, vendor interview guides, and instant iCal sync.
         </p>
 
         {/* CTAs */}
@@ -339,7 +339,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 {[
                   { id: 'wedding', label: 'Wedding', icon: Heart, defaultBudget: 25000, defaultGuests: 130 },
                   { id: 'birthday', label: 'Birthday', icon: Cake, defaultBudget: 750, defaultGuests: 25 },
-                  { id: 'community', label: 'Festival / Gala', icon: Megaphone, defaultBudget: 2000, defaultGuests: 120 },
+                  { id: 'community', label: 'Community Event', icon: Megaphone, defaultBudget: 2000, defaultGuests: 120 },
                 ].map((t) => {
                   const Icon = t.icon;
                   const isSelected = sandboxType === t.id;

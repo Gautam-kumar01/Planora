@@ -103,7 +103,7 @@ export const AiDocumentModal: React.FC<AiDocumentModalProps> = ({ isOpen, onClos
                 </span>
               </div>
               <p style={{ fontSize: '0.8rem', color: '#78533E', margin: '0.2rem 0 0 0', fontWeight: 600 }}>
-                Generate Digital Invites, Heartfelt Speeches & Vendor Negotiation Letters with Gemini 3.7 Flash
+                Generate Digital Invites, Heartfelt Speeches & Vendor Negotiation Letters with Google Gemini 2.5 Flash
               </p>
             </div>
           </div>

@@ -416,7 +416,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
               <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#140A05' }}>AI Planning Concierge</span>
             </div>
             <p style={{ fontSize: '0.78rem', color: '#78533E', margin: 0, fontWeight: 500 }}>
-              Chat with Gemini 3.7 Flash on any planning advice.
+              Chat with Google Gemini 2.5 Flash on any planning advice.
             </p>
           </div>
         </div>
@@ -711,20 +711,19 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
                         <span>Duplicate</span>
                       </button>
 
-                      {plans.length > 1 && (
-                        <button
-                          onClick={() => {
-                            if (window.confirm(`Are you sure you want to delete "${basics.title}"?`)) {
-                              onDeletePlan(plan.id);
-                            }
-                          }}
-                          className="btn-ghost"
-                          style={{ fontSize: '0.75rem', color: '#DC2626', padding: '0.2rem 0.4rem' }}
-                        >
-                          <Trash2 size={12} style={{ marginRight: '0.25rem' }} />
-                          <span>Delete</span>
-                        </button>
-                      )}
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Are you sure you want to delete "${basics.title}"? This cannot be undone.`)) {
+                            onDeletePlan(plan.id);
+                          }
+                        }}
+                        className="btn-ghost"
+                        style={{ fontSize: '0.75rem', color: '#DC2626', padding: '0.2rem 0.4rem' }}
+                        title="Delete this event plan"
+                      >
+                        <Trash2 size={12} style={{ marginRight: '0.25rem' }} />
+                        <span>Delete</span>
+                      </button>
                     </div>
                   </div>
                 </div>

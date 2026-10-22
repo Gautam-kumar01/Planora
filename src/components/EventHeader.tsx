@@ -18,9 +18,11 @@ import {
   Share2,
   Printer,
   FileText,
+  Globe,
 } from 'lucide-react';
 import { EventPlan } from '../types';
 import { formatCurrency, calculatePerGuest } from '../utils/deterministicMath';
+import { PlanCompletenessIndicator } from './PlanCompletenessIndicator';
 
 interface EventHeaderProps {
   plan: EventPlan;
@@ -151,6 +153,9 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
               <span>Saved {formatRelativeTime(updatedAt)}</span>
             </span>
 
+            {/* Priority 3.2: Plan Completeness Indicator */}
+            <PlanCompletenessIndicator plan={plan} />
+
             {onOpenAiTransparency && (
               <button
                 type="button"
@@ -259,25 +264,46 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
               <span className="badge" style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', background: 'rgba(22, 163, 74, 0.14)', color: '#15803D', border: '1px solid rgba(22, 163, 74, 0.3)' }}>Fact</span>
             </div>
 
-            {basics.location && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.45rem',
-                  fontSize: '0.85rem',
-                  color: '#2D180F',
-                  fontWeight: 600,
-                  background: 'rgba(234, 88, 12, 0.08)',
-                  padding: '0.4rem 0.85rem',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid rgba(234, 88, 12, 0.22)',
-                }}
-              >
-                <MapPin size={15} color="#C2410C" />
-                <span>{basics.location}</span>
-              </div>
-            )}
+            {/* Explicit Location, Currency & Time Zone (Priority 3.5) */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                fontSize: '0.85rem',
+                color: '#2D180F',
+                fontWeight: 600,
+                background: 'rgba(234, 88, 12, 0.08)',
+                padding: '0.4rem 0.85rem',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid rgba(234, 88, 12, 0.22)',
+              }}
+              title="Event Location"
+            >
+              <MapPin size={15} color="#C2410C" />
+              <span>{basics.location || 'Location Pending'}</span>
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                fontSize: '0.85rem',
+                color: '#2D180F',
+                fontWeight: 600,
+                background: 'rgba(234, 88, 12, 0.08)',
+                padding: '0.4rem 0.85rem',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid rgba(234, 88, 12, 0.22)',
+              }}
+              title="Regional Currency & Time Zone"
+            >
+              <Globe size={15} color="#C2410C" />
+              <span>
+                {basics.currency} ({basics.timeZone || 'UTC'})
+              </span>
+            </div>
 
             {/* Venue Setting Chip */}
             {basics.venueSetting && (
@@ -318,6 +344,24 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
               <Sparkles size={14} color="#D97706" />
               <span>{basics.preferences.vibe}</span>
             </div>
+          </div>
+
+          {/* Transparent Cost & Pricing Disclaimer (Priority 1.5 & 3.5) */}
+          <div
+            style={{
+              marginTop: '0.85rem',
+              fontSize: '0.78rem',
+              color: '#78533E',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              fontWeight: 500,
+            }}
+          >
+            <Info size={14} color="#C2410C" style={{ flexShrink: 0 }} />
+            <span>
+              Budget totals are calculated by the app; prices and vendor ranges are planning estimates (not verified live local market quotes).
+            </span>
           </div>
         </div>
 
