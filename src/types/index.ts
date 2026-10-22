@@ -226,7 +226,7 @@ export type CloudSyncStatus = 'synced' | 'saving' | 'offline' | 'guest';
 export interface DatabaseConfig {
   databaseUrl: string;
   apiKey?: string;
-  provider: 'supabase' | 'postgres' | 'custom' | 'none';
+  provider: 'supabase' | 'postgres' | 'neon' | 'custom' | 'none';
   connected: boolean;
 }
 

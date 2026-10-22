@@ -80,10 +80,18 @@ export function getDatabaseConfig(): DatabaseConfig {
   const envUrl = (import.meta as any).env?.VITE_DATABASE_URL || '';
   const envKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || '';
 
+  const provider = envUrl.includes('neon.tech')
+    ? 'neon'
+    : envUrl.includes('supabase')
+    ? 'supabase'
+    : envUrl
+    ? 'postgres'
+    : 'none';
+
   return {
     databaseUrl: envUrl,
     apiKey: envKey,
-    provider: envUrl.includes('supabase') ? 'supabase' : envUrl ? 'postgres' : 'none',
+    provider,
     connected: Boolean(envUrl),
   };
 }

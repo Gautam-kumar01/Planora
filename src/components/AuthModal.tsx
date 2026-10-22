@@ -10,9 +10,10 @@ import {
   Sparkles,
   LogOut,
   ArrowRight,
+  Database,
 } from 'lucide-react';
 import { UserProfile } from '../types';
-import { loginUser, registerUser, logoutUser } from '../utils/cloudSync';
+import { loginUser, registerUser, logoutUser, getDatabaseConfig } from '../utils/cloudSync';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -36,6 +37,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const dbConfig = getDatabaseConfig();
 
   if (!isOpen) return null;
 
@@ -125,6 +127,34 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <X size={18} />
           </button>
         </div>
+
+        {/* Cloud Database Status Banner */}
+        {dbConfig.connected && (
+          <div
+            style={{
+              padding: '0.65rem 0.85rem',
+              borderRadius: 'var(--radius-md)',
+              marginBottom: '1rem',
+              background: 'rgba(34, 197, 94, 0.08)',
+              border: '1px solid rgba(34, 197, 94, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '0.8rem',
+              color: '#166534',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+              <Database size={15} color="#16A34A" />
+              <span>
+                <strong>Cloud DB:</strong> {dbConfig.provider === 'neon' ? 'Neon Serverless PostgreSQL (AWS us-east-2)' : dbConfig.provider === 'supabase' ? 'Supabase Cloud' : 'PostgreSQL Cloud'}
+              </span>
+            </div>
+            <span style={{ fontSize: '0.7rem', fontWeight: 800, background: '#16A34A', color: '#fff', padding: '0.15rem 0.5rem', borderRadius: '99px' }}>
+              ONLINE
+            </span>
+          </div>
+        )}
 
         {/* Notifications */}
         {successMsg && (
