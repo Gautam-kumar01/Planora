@@ -461,7 +461,7 @@ export function App() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%', maxWidth: '100vw', overflowX: 'clip' }}>
       {/* Toast Notification */}
       {toastMessage && (
         <div
@@ -523,7 +523,7 @@ export function App() {
       />
 
       {/* Main Container */}
-      <main className="app-container" style={{ flex: '1 0 auto' }}>
+      <main className="app-container" style={{ flex: '1 0 auto', width: '100%', maxWidth: '100%', minWidth: 0 }}>
         {/* VIEW 1: DEDICATED FULL-FEATURED HOMEPAGE */}
         {currentView === 'home' && (
           <HomePage

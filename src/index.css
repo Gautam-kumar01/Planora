@@ -62,10 +62,22 @@
 }
 
 /* Base Styles */
+html {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
 }
 
 body {
@@ -81,6 +93,20 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img, svg, video, canvas, audio, iframe, embed, object {
+  max-width: 100%;
+  height: auto;
 }
 
 /* Custom Scrollbars */
@@ -427,8 +453,17 @@ input[type='range']::-webkit-slider-thumb:hover {
 /* Layout Utilities */
 .app-container {
   max-width: 1320px;
+  width: 100%;
   margin: 0 auto;
   padding: 1.5rem 1.25rem 5rem 1.25rem;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.app-navbar {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 /* Dark Footer Treatment - Expanded Size */
@@ -438,6 +473,57 @@ input[type='range']::-webkit-slider-thumb:hover {
   padding: 5rem 2rem 3.5rem 2rem;
   color: #E2D5CC;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive Panel & Section Padding Utilities */
+.responsive-section-padding {
+  padding: 3.5rem 2.5rem;
+}
+.responsive-panel-padding {
+  padding: 1.75rem;
+}
+
+.hero-cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.hero-value-badges {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+  font-size: 0.925rem;
+  color: #140A05;
+  font-weight: 700;
+}
+.sandbox-two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  gap: 2rem;
+  align-items: start;
+}
+.readiness-two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 2.5rem;
+  align-items: center;
+}
+.comparison-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-lg);
+  box-sizing: border-box;
+}
+.mobile-only-indicator {
+  display: none !important;
 }
 
 /* Print CSS Styles for Clean Master Plan Export */
@@ -501,7 +587,33 @@ input[type='range']::-webkit-slider-thumb:hover {
   display: none;
 }
 
-/* Tablet & Mobile Screens (<= 768px) */
+/* Tablet Screens (<= 860px) */
+@media screen and (max-width: 860px) {
+  .responsive-section-padding {
+    padding: 2.25rem 1.25rem !important;
+  }
+  .responsive-panel-padding {
+    padding: 1.25rem 1rem !important;
+  }
+  .sandbox-two-col {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  .readiness-two-col {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  .hero-value-badges {
+    gap: 0.85rem 1.5rem !important;
+    margin-top: 1.75rem !important;
+    font-size: 0.85rem !important;
+  }
+  .mobile-only-indicator {
+    display: inline-flex !important;
+  }
+}
+
+/* Mobile Screens (<= 768px) */
 @media screen and (max-width: 768px) {
   /* Navbar adjustments */
   .desktop-nav-content {
@@ -511,12 +623,21 @@ input[type='range']::-webkit-slider-thumb:hover {
     display: flex !important;
   }
   .app-navbar {
-    padding: 0.65rem 1rem !important;
+    padding: 0.65rem 0.85rem !important;
   }
 
   /* App Container Padding */
   .app-container {
-    padding: 1rem 0.85rem 4rem 0.85rem !important;
+    padding: 1rem 0.75rem 4rem 0.75rem !important;
+  }
+
+  .hero-cta-buttons {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  .hero-cta-buttons > button {
+    width: 100% !important;
+    justify-content: center !important;
   }
 
   /* Modal Cards on Mobile */
@@ -557,11 +678,14 @@ input[type='range']::-webkit-slider-thumb:hover {
   }
 
   /* Headings size scaling for clean viewport fit */
-  h1 {
+  h1, .hero-heading {
     font-size: 1.85rem !important;
+    line-height: 1.2 !important;
+    word-break: break-word !important;
   }
   h2 {
     font-size: 1.45rem !important;
+    line-height: 1.25 !important;
   }
 
   /* Copilot Drawer Mobile Sizing */
@@ -582,16 +706,32 @@ input[type='range']::-webkit-slider-thumb:hover {
 /* Small Smartphone Devices (<= 480px) */
 @media screen and (max-width: 480px) {
   .app-container {
-    padding: 0.75rem 0.6rem 3.5rem 0.6rem !important;
+    padding: 0.65rem 0.5rem 3.5rem 0.5rem !important;
+  }
+  .responsive-section-padding {
+    padding: 1.5rem 0.75rem !important;
+  }
+  .responsive-panel-padding {
+    padding: 1rem 0.75rem !important;
   }
   .modal-card {
-    padding: 1rem !important;
+    padding: 0.85rem !important;
   }
-  h1 {
+  h1, .hero-heading {
     font-size: 1.6rem !important;
+    line-height: 1.2 !important;
+    word-break: break-word !important;
   }
   h2 {
     font-size: 1.25rem !important;
+    line-height: 1.25 !important;
+  }
+  .event-type-selector {
+    gap: 0.35rem !important;
+  }
+  .event-type-selector button {
+    padding: 0.45rem 0.2rem !important;
+    font-size: 0.7rem !important;
   }
   /* Prevent iOS Safari auto-zoom on input focus */
   input, select, textarea {

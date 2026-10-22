@@ -75,6 +75,9 @@ export const Navbar: React.FC<NavbarProps> = ({
         position: 'sticky',
         top: 0,
         zIndex: 100,
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box',
         background: 'rgba(20, 13, 9, 0.94)',
         backdropFilter: 'blur(22px)',
         WebkitBackdropFilter: 'blur(22px)',
@@ -85,6 +88,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div
         style={{
           maxWidth: '1380px',
+          width: '100%',
           margin: '0 auto',
           display: 'flex',
           alignItems: 'center',

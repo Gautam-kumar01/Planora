@@ -148,9 +148,8 @@ export const HomePage: React.FC<HomePageProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '3.5rem', paddingBottom: '3rem' }}>
       {/* 1. Hero Landing Section */}
       <section
-        className="glass-panel"
+        className="glass-panel responsive-section-padding"
         style={{
-          padding: '3.5rem 2.5rem',
           textAlign: 'center',
           position: 'relative',
           overflow: 'hidden',
@@ -173,11 +172,11 @@ export const HomePage: React.FC<HomePageProps> = ({
           }}
         >
           <Sparkles size={16} color="#EA580C" />
-
         </div>
 
         {/* Main Title */}
         <h1
+          className="hero-heading"
           style={{
             fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)',
             fontWeight: 800,
@@ -185,6 +184,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             marginBottom: '1.25rem',
             color: '#140A05',
             letterSpacing: '-0.03em',
+            wordBreak: 'break-word',
           }}
         >
           Transform Scattered Event Ideas Into a{' '}
@@ -204,6 +204,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
         {/* Subtitle */}
         <p
+          className="hero-subtitle"
           style={{
             fontSize: '1.15rem',
             color: '#2C1810',
@@ -219,11 +220,11 @@ export const HomePage: React.FC<HomePageProps> = ({
         </p>
 
         {/* CTAs */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+        <div className="hero-cta-buttons">
           <button
             onClick={() => onOpenWizard()}
             className="btn-primary pulse-glow"
-            style={{ padding: '0.9rem 2.25rem', fontSize: '1.05rem' }}
+            style={{ padding: '0.85rem 2rem', fontSize: '1rem' }}
           >
             <Sparkles size={19} />
             <span>Create Your Event Plan</span>
@@ -236,8 +237,8 @@ export const HomePage: React.FC<HomePageProps> = ({
               onClick={onNavigateUserDashboard}
               className="btn-secondary"
               style={{
-                padding: '0.9rem 1.8rem',
-                fontSize: '1.05rem',
+                padding: '0.85rem 1.8rem',
+                fontSize: '1rem',
                 background: '#FFFFFF',
                 border: '1.5px solid #EA580C',
                 color: '#C2410C',
@@ -251,7 +252,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <button
               onClick={onOpenPlanManager}
               className="btn-secondary"
-              style={{ padding: '0.9rem 1.8rem', fontSize: '1.05rem' }}
+              style={{ padding: '0.85rem 1.8rem', fontSize: '1rem' }}
             >
               <Layers size={18} />
               <span>My Saved Plans ({plans.length})</span>
@@ -260,18 +261,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
 
         {/* Value Differentiator Badges */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '2.5rem',
-            marginTop: '2.5rem',
-            flexWrap: 'wrap',
-            fontSize: '0.925rem',
-            color: '#140A05',
-            fontWeight: 700,
-          }}
-        >
+        <div className="hero-value-badges">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
             <CheckCircle size={18} color="#15803D" />
             <span>Deterministic Math (Sum == 100%)</span>
@@ -294,9 +284,8 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* 2. Interactive Instant Feasibility & Budget Sandbox (Zero-Click Playground) */}
       <section
         id="homepage-feasibility-sandbox"
-        className="glass-panel"
+        className="glass-panel responsive-section-padding"
         style={{
-          padding: '2.5rem',
           position: 'relative',
           overflow: 'hidden',
           border: '2px solid rgba(234, 88, 12, 0.3)',
@@ -326,15 +315,15 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
 
         {/* 2-Column Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '2rem', alignItems: 'start' }}>
+        <div className="sandbox-two-col">
           {/* Column 1: Sliders & Controls */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', background: '#FFFFFF', padding: '1.75rem', borderRadius: 'var(--radius-lg)', border: '1.5px solid rgba(234, 88, 12, 0.2)' }}>
+          <div className="responsive-panel-padding" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', background: '#FFFFFF', borderRadius: 'var(--radius-lg)', border: '1.5px solid rgba(234, 88, 12, 0.2)' }}>
             {/* Event Type Buttons */}
             <div>
               <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#140A05', marginBottom: '0.6rem' }}>
                 1. Select Event Type
               </label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.65rem' }}>
+              <div className="event-type-selector" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
                 {[
                   { id: 'wedding', label: 'Wedding', icon: Heart, defaultBudget: 25000, defaultGuests: 130 },
                   { id: 'birthday', label: 'Birthday', icon: Cake, defaultBudget: 750, defaultGuests: 25 },
@@ -458,25 +447,25 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
 
           {/* Column 2: Instant Results & Zero-Waste Distribution */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', background: '#FFFFFF', padding: '1.75rem', borderRadius: 'var(--radius-lg)', border: '1.5px solid rgba(234, 88, 12, 0.25)', boxShadow: '0 8px 30px rgba(45, 24, 15, 0.05)' }}>
+          <div className="responsive-panel-padding" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', background: '#FFFFFF', borderRadius: 'var(--radius-lg)', border: '1.5px solid rgba(234, 88, 12, 0.25)', boxShadow: '0 8px 30px rgba(45, 24, 15, 0.05)' }}>
             {/* Top Stat Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div style={{ padding: '1rem', borderRadius: 'var(--radius-md)', background: 'rgba(234, 88, 12, 0.06)', border: '1px solid rgba(234, 88, 12, 0.2)' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6B4226', textTransform: 'uppercase' }}>Cost Per Guest</span>
-                <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#C2410C', fontFamily: 'var(--font-mono)', marginTop: '0.2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 130px), 1fr))', gap: '0.75rem' }}>
+              <div style={{ padding: '0.85rem', borderRadius: 'var(--radius-md)', background: 'rgba(234, 88, 12, 0.06)', border: '1px solid rgba(234, 88, 12, 0.2)' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6B4226', textTransform: 'uppercase' }}>Cost Per Guest</span>
+                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#C2410C', fontFamily: 'var(--font-mono)', marginTop: '0.2rem' }}>
                   ${costPerGuest}
                 </div>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9A3412', marginTop: '0.25rem' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9A3412', marginTop: '0.25rem' }}>
                   {tierBadgeText}
                 </div>
               </div>
 
-              <div style={{ padding: '1rem', borderRadius: 'var(--radius-md)', background: 'rgba(22, 163, 74, 0.06)', border: '1px solid rgba(22, 163, 74, 0.2)' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#166534', textTransform: 'uppercase' }}>Feasibility Score</span>
-                <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#15803D', fontFamily: 'var(--font-mono)', marginTop: '0.2rem' }}>
+              <div style={{ padding: '0.85rem', borderRadius: 'var(--radius-md)', background: 'rgba(22, 163, 74, 0.06)', border: '1px solid rgba(22, 163, 74, 0.2)' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#166534', textTransform: 'uppercase' }}>Feasibility Score</span>
+                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#15803D', fontFamily: 'var(--font-mono)', marginTop: '0.2rem' }}>
                   {feasibilityPercentage}%
                 </div>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#166534', marginTop: '0.25rem' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#166534', marginTop: '0.25rem' }}>
                   {feasibilityLabel}
                 </div>
               </div>
@@ -484,9 +473,9 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             {/* Visual 100% Zero-Waste Distribution Bar */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#140A05' }}>Deterministic Budget Allocations</span>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16A34A' }}>Sum: 100.0% (${sandboxBudget.toLocaleString()})</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem', flexWrap: 'wrap', gap: '0.25rem' }}>
+                <span style={{ fontSize: '0.825rem', fontWeight: 700, color: '#140A05' }}>Deterministic Budget Allocations</span>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#16A34A' }}>Sum: 100% (${sandboxBudget.toLocaleString()})</span>
               </div>
 
               {/* Multi-Color Segmented Bar */}
@@ -500,7 +489,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               </div>
 
               {/* Category Breakdown Rows */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem', fontSize: '0.825rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: '0.5rem', fontSize: '0.8rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
                   <span style={{ color: '#4B5563' }}>🏛️ Venue & Setup (32%)</span>
                   <span style={{ fontWeight: 700, color: '#111827' }}>${venueAmt.toLocaleString()}</span>
@@ -544,8 +533,8 @@ export const HomePage: React.FC<HomePageProps> = ({
               className="btn-primary pulse-glow"
               style={{
                 width: '100%',
-                padding: '0.9rem',
-                fontSize: '1rem',
+                padding: '0.85rem',
+                fontSize: '0.95rem',
                 justifyContent: 'center',
                 marginTop: '0.5rem',
               }}
@@ -559,7 +548,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       </section>
 
       {/* 2. Interactive 5-Module Feature Showcase Tour */}
-      <section className="glass-panel" style={{ padding: '2.5rem' }}>
+      <section className="glass-panel responsive-section-padding" style={{ position: 'relative', overflow: 'hidden' }}>
         <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 2rem auto' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
             <Sparkles size={16} color="#EA580C" />
@@ -623,11 +612,11 @@ export const HomePage: React.FC<HomePageProps> = ({
         {/* Tab 1: Budget Showcase */}
         {activeTourTab === 'budget' && (
           <div
+            className="responsive-panel-padding"
             style={{
               background: '#FFFFFF',
               border: '1.5px solid rgba(234, 88, 12, 0.22)',
               borderRadius: 'var(--radius-lg)',
-              padding: '1.75rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '1.25rem',
@@ -651,7 +640,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '0.85rem' }}>
               {[
                 { cat: 'Catering & Beverages', amt: '$6,800', pct: '34%', col: '#EA580C' },
                 { cat: 'Venue & Staging', amt: '$6,400', pct: '32%', col: '#C2410C' },
@@ -694,11 +683,11 @@ export const HomePage: React.FC<HomePageProps> = ({
         {/* Tab 2: Timeline & Live Director */}
         {activeTourTab === 'timeline' && (
           <div
+            className="responsive-panel-padding"
             style={{
               background: '#FFFFFF',
               border: '1.5px solid rgba(234, 88, 12, 0.22)',
               borderRadius: 'var(--radius-lg)',
-              padding: '1.75rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '1.25rem',
@@ -789,11 +778,11 @@ export const HomePage: React.FC<HomePageProps> = ({
         {/* Tab 3: Vendor RFP */}
         {activeTourTab === 'vendors' && (
           <div
+            className="responsive-panel-padding"
             style={{
               background: '#FFFFFF',
               border: '1.5px solid rgba(234, 88, 12, 0.22)',
               borderRadius: 'var(--radius-lg)',
-              padding: '1.75rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '1.25rem',
@@ -854,11 +843,11 @@ export const HomePage: React.FC<HomePageProps> = ({
         {/* Tab 4: Guests & Seating */}
         {activeTourTab === 'guests' && (
           <div
+            className="responsive-panel-padding"
             style={{
               background: '#FFFFFF',
               border: '1.5px solid rgba(234, 88, 12, 0.22)',
               borderRadius: 'var(--radius-lg)',
-              padding: '1.75rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '1.25rem',
@@ -879,7 +868,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '1rem' }}>
               <div style={{ background: 'rgba(251, 247, 240, 0.8)', border: '1.5px solid rgba(234, 88, 12, 0.2)', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
                   <strong style={{ color: '#140A05', fontSize: '0.95rem' }}>Table 1: Immediate Family</strong>
@@ -929,11 +918,11 @@ export const HomePage: React.FC<HomePageProps> = ({
         {/* Tab 5: Weather Plan B */}
         {activeTourTab === 'weather' && (
           <div
+            className="responsive-panel-padding"
             style={{
               background: '#FFFFFF',
               border: '1.5px solid rgba(2, 132, 199, 0.3)',
               borderRadius: 'var(--radius-lg)',
-              padding: '1.75rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '1.25rem',
@@ -954,7 +943,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '1rem' }}>
               <div style={{ background: 'rgba(240, 249, 255, 0.8)', border: '1px solid rgba(2, 132, 199, 0.2)', borderRadius: 'var(--radius-md)', padding: '1.1rem' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0369A1', textTransform: 'uppercase' }}>
                   Simulated Precipitation Radar
@@ -1000,15 +989,11 @@ export const HomePage: React.FC<HomePageProps> = ({
 
       {/* 3. Live Event Readiness Scorecard Calculator Widget */}
       <section
+        className="responsive-section-padding readiness-two-col"
         style={{
           background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.08) 0%, rgba(245, 158, 11, 0.08) 100%)',
           border: '1.5px solid rgba(234, 88, 12, 0.28)',
           borderRadius: 'var(--radius-lg)',
-          padding: '2.5rem',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '2.5rem',
-          alignItems: 'center',
           boxShadow: '0 10px 30px rgba(45, 24, 15, 0.05)',
         }}
       >
@@ -1125,11 +1110,11 @@ export const HomePage: React.FC<HomePageProps> = ({
 
         {/* Right: Dynamic Readiness Gauge & Action */}
         <div
+          className="responsive-panel-padding"
           style={{
             background: '#FFFFFF',
             borderRadius: 'var(--radius-lg)',
             border: '2px solid rgba(234, 88, 12, 0.25)',
-            padding: '2rem',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -1251,7 +1236,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             </button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.25rem' }}>
             {plans.map((plan) => {
               const totalAllocated = plan.budget.items.reduce((sum, item) => sum + item.allocatedAmount, 0);
               const totalSpent = plan.budget.items.reduce((sum, item) => sum + item.spentAmount, 0);
@@ -1319,7 +1304,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(330px, 1fr))', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.5rem' }}>
           {/* Preset 1: Wedding */}
           <div
             onClick={() => onSelectPlanAndOpenDashboard('preset-wedding-01')}
@@ -1404,7 +1389,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       </section>
 
       {/* 4. How Planora Works (3 Simple Steps) */}
-      <section className="glass-panel" style={{ padding: '3rem 2.5rem' }}>
+      <section className="glass-panel responsive-section-padding">
         <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto 2.5rem auto' }}>
           <span className="badge badge-orange" style={{ marginBottom: '0.5rem' }}>
             Intuitive 3-Step Process
@@ -1417,7 +1402,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.75rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '1.75rem' }}>
           {/* Step 1 */}
           <div
             style={{
@@ -1536,7 +1521,12 @@ export const HomePage: React.FC<HomePageProps> = ({
           </p>
         </div>
 
+        <div className="mobile-only-indicator">
+          ↔ Swipe horizontally to compare all features
+        </div>
+
         <div
+          className="comparison-table-scroll"
           style={{
             background: '#FFFFFF',
             border: '1.5px solid rgba(234, 88, 12, 0.25)',
@@ -1544,6 +1534,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             overflowX: 'auto',
             boxShadow: '0 8px 30px rgba(45, 24, 15, 0.06)',
             WebkitOverflowScrolling: 'touch',
+            maxWidth: '100%',
           }}
         >
           <div
@@ -1636,15 +1627,15 @@ export const HomePage: React.FC<HomePageProps> = ({
 
       {/* 6. Option C Hybrid Cloud Sync Banner */}
       <section
+        className="responsive-section-padding"
         style={{
           background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%)',
           border: '1.5px solid rgba(234, 88, 12, 0.28)',
           borderRadius: 'var(--radius-lg)',
-          padding: '2.5rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          gap: '2rem',
+          gap: '1.5rem',
           flexWrap: 'wrap',
         }}
       >

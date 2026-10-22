@@ -105,18 +105,18 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
   };
 
   return (
-    <section className="glass-panel" style={{ padding: '1.75rem 2rem', marginBottom: '2rem' }}>
+    <section className="glass-panel responsive-panel-padding" style={{ marginBottom: '2rem' }}>
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-          gap: '2rem',
+          gap: '1.5rem',
           flexWrap: 'wrap',
         }}
       >
         {/* Left Column: Title & Key Badges */}
-        <div style={{ flex: '1 1 500px' }}>
+        <div style={{ flex: '1 1 300px', minWidth: 0, maxWidth: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.65rem', flexWrap: 'wrap' }}>
             <span
               className="badge"
@@ -384,7 +384,10 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
         {/* Right Column: Financial Health Gauge */}
         <div
           style={{
-            flex: '0 0 320px',
+            flex: '1 1 280px',
+            minWidth: 0,
+            maxWidth: '100%',
+            boxSizing: 'border-box',
             background: 'rgba(255, 255, 255, 0.96)',
             border: '1.5px solid rgba(234, 88, 12, 0.24)',
             borderRadius: 'var(--radius-md)',

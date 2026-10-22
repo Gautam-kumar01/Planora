@@ -40,10 +40,16 @@ export function loadSavedPlans(userId?: string): EventPlan[] {
         });
 
         // Enforce user ownership isolation
+        let userScoped: EventPlan[] = upgraded;
         if (userId) {
-          return upgraded.filter((p) => !p.userId || p.userId === userId).map((p) => ({ ...p, userId }));
+          userScoped = upgraded.filter((p) => !p.userId || p.userId === userId).map((p) => ({ ...p, userId }));
+        } else {
+          userScoped = upgraded.map((p) => ({ ...p, userId: undefined }));
         }
-        return upgraded.filter((p) => !p.userId || p.userId === 'guest');
+
+        if (userScoped.length > 0) {
+          return userScoped;
+        }
       }
     }
 
