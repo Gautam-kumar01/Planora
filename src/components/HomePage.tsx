@@ -173,7 +173,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           }}
         >
           <Sparkles size={16} color="#EA580C" />
-          <span>PromptWars Challenge 5 • Celebration & Event Master Planner</span>
+
         </div>
 
         {/* Main Title */}
@@ -1178,8 +1178,8 @@ export const HomePage: React.FC<HomePageProps> = ({
               {readinessScore >= 85
                 ? 'High Execution Readiness ✨'
                 : readinessScore >= 60
-                ? 'Moderate Readiness (Gaps Detected)'
-                : 'High Risk (Immediate Action Recommended)'}
+                  ? 'Moderate Readiness (Gaps Detected)'
+                  : 'High Risk (Immediate Action Recommended)'}
             </h3>
             <p style={{ fontSize: '0.85rem', color: '#4A2B1A', margin: 0, fontWeight: 500, maxWidth: '340px' }}>
               {readinessScore >= 85

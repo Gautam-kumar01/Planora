@@ -58,7 +58,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAiTransparency }) => {
                 Planora Celebration & Event Planner
               </div>
               <div style={{ fontSize: '0.825rem', color: '#FED7AA', fontWeight: 500 }}>
-                PromptWars 2026 Challenge 5 • Deterministic Financial Core
+
               </div>
             </div>
           </div>
@@ -308,9 +308,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAiTransparency }) => {
             <span>Zero Remote Telemetry</span>
           </div>
 
-          <div style={{ color: '#FED7AA', fontWeight: 600 }}>
-            High-Contrast Accessible Theme • Keyboard Navigable
-          </div>
+
 
           <div>
             © 2026 Planora. Crafted for master celebration planners.
