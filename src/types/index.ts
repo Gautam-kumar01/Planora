@@ -63,6 +63,23 @@ export interface HourlyRunOfShowItem {
   notes?: string;
 }
 
+export interface VendorQuote {
+  id: string;
+  vendorName: string;
+  quoteAmount: number;
+  currency: string;
+  includedServices: string;
+  exclusions?: string;
+  depositRequired?: string;
+  paymentSchedule?: string;
+  cancellationTerms?: string;
+  availabilityConfirmed: boolean | 'unconfirmed';
+  quoteExpiryDate?: string;
+  additionalFees?: string;
+  notes?: string;
+  createdAt?: string;
+}
+
 export interface VendorItem {
   id: string;
   service: string;
@@ -79,6 +96,7 @@ export interface VendorItem {
   depositDueDate?: string;
   balanceDueDate?: string;
   signedDate?: string;
+  quotes?: VendorQuote[];
 }
 
 export interface ActivityIdea {
@@ -182,6 +200,8 @@ export interface EventPlan {
   tables?: TableItem[];
   expenses?: ExpenseRecord[];
   communityChecklist?: CommunityChecklistItem[];
+  resolvedConflictIds?: string[];
+  dismissedConflictIds?: string[];
 }
 
 export interface OnboardingFormValues {
@@ -262,5 +282,43 @@ export interface DatabaseConfig {
   apiKey?: string;
   provider: 'supabase' | 'postgres' | 'neon' | 'custom' | 'none';
   connected: boolean;
+}
+
+export interface PlanImpactSuggestion {
+  id: string;
+  section: 'budget' | 'timeline' | 'vendors' | 'ideas' | 'capacity';
+  targetItemTitle: string;
+  fieldAffected: string;
+  currentValue: string | number;
+  suggestedValue: string | number;
+  rationale: string;
+  isEstimate: boolean;
+  accepted?: boolean;
+}
+
+export interface ChangeImpactAnalysis {
+  changedFields: Array<{
+    field: 'guestCount' | 'totalBudget' | 'eventDate' | 'location' | 'vibe';
+    label: string;
+    oldValue: any;
+    newValue: any;
+  }>;
+  plainLanguageExplanation: string[];
+  suggestions: PlanImpactSuggestion[];
+}
+
+export type ConflictSeverity = 'needs_attention' | 'worth_checking';
+
+export interface PlanConflictFinding {
+  id: string;
+  title: string;
+  severity: ConflictSeverity;
+  category: 'capacity' | 'budget' | 'timeline' | 'vendors' | 'dietary' | 'dates';
+  explanation: string;
+  affectedDetails: string;
+  suggestedNextStep: string;
+  disclaimer?: string;
+  isDismissed?: boolean;
+  isResolved?: boolean;
 }
 

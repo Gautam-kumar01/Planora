@@ -19,10 +19,12 @@ import {
   Printer,
   FileText,
   Globe,
+  ShieldAlert,
 } from 'lucide-react';
 import { EventPlan } from '../types';
 import { formatCurrency, calculatePerGuest } from '../utils/deterministicMath';
 import { PlanCompletenessIndicator } from './PlanCompletenessIndicator';
+import { runPlanConflictAudit } from '../utils/conflictCheckerEngine';
 
 interface EventHeaderProps {
   plan: EventPlan;
@@ -31,6 +33,8 @@ interface EventHeaderProps {
   onOpenAiDocs?: () => void;
   onPrint?: () => void;
   onExportICS?: () => void;
+  onOpenChangeImpact?: () => void;
+  onOpenConflictChecker?: () => void;
 }
 
 export const EventHeader: React.FC<EventHeaderProps> = ({
@@ -40,8 +44,12 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
   onOpenAiDocs,
   onPrint,
   onExportICS,
+  onOpenChangeImpact,
+  onOpenConflictChecker,
 }) => {
   const { basics, budget, updatedAt } = plan;
+
+  const activeConflictCount = runPlanConflictAudit(plan).filter((f) => !f.isDismissed && !f.isResolved).length;
 
   // Calculate Days Remaining or T-Minus
   const calculateDaysLeft = (): { text: string; isPast: boolean } => {
@@ -460,6 +468,67 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+          {onOpenChangeImpact && (
+            <button
+              id="btn-workspace-change-impact"
+              type="button"
+              onClick={onOpenChangeImpact}
+              className="btn-secondary"
+              title="Change event parameters (guests, budget, date, venue) and review downstream impacts"
+              style={{
+                padding: '0.5rem 1.05rem',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                background: '#FFFFFF',
+                boxShadow: '0 2px 6px rgba(45, 24, 15, 0.05)',
+              }}
+            >
+              <Sparkles size={15} color="#C2410C" />
+              <span>Review Plan Impact</span>
+            </button>
+          )}
+
+          {onOpenConflictChecker && (
+            <button
+              id="btn-workspace-conflict-checker"
+              type="button"
+              onClick={onOpenConflictChecker}
+              className="btn-secondary"
+              title="Audit plan for capacity deficits, budget overages, overdue dates, and lead times"
+              style={{
+                padding: '0.5rem 1.05rem',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                background: activeConflictCount > 0 ? 'rgba(254, 243, 199, 0.6)' : '#FFFFFF',
+                borderColor: activeConflictCount > 0 ? 'rgba(234, 88, 12, 0.4)' : 'rgba(234, 88, 12, 0.25)',
+                boxShadow: '0 2px 6px rgba(45, 24, 15, 0.05)',
+              }}
+            >
+              <ShieldAlert size={15} color="#C2410C" />
+              <span>Check My Plan</span>
+              {activeConflictCount > 0 && (
+                <span
+                  className="badge"
+                  style={{
+                    background: '#EA580C',
+                    color: '#FFFFFF',
+                    fontSize: '0.7rem',
+                    padding: '0.1rem 0.4rem',
+                    borderRadius: '99px',
+                  }}
+                >
+                  {activeConflictCount}
+                </span>
+              )}
+            </button>
+          )}
+
           {onOpenShareModal && (
             <button
               id="btn-workspace-share"

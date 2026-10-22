@@ -16,9 +16,12 @@ import {
   FileCheck,
   CalendarClock,
   FileText,
+  Scale,
 } from 'lucide-react';
-import { EventPlan, VendorItem, VendorStatus } from '../types';
+import { EventPlan, VendorItem, VendorStatus, VendorQuote } from '../types';
 import { VendorRfpModal } from './VendorRfpModal';
+import { VendorQuoteComparisonModal } from './VendorQuoteComparisonModal';
+import { formatCurrency } from '../utils/deterministicMath';
 
 interface VendorChecklistProps {
   plan: EventPlan;
@@ -31,6 +34,8 @@ export const VendorChecklist: React.FC<VendorChecklistProps> = ({ plan, onUpdate
   const [showAddModal, setShowAddModal] = useState(false);
   const [isRfpModalOpen, setIsRfpModalOpen] = useState(false);
   const [selectedRfpVendorId, setSelectedRfpVendorId] = useState<string>('');
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const [selectedQuoteVendorId, setSelectedQuoteVendorId] = useState<string>('');
 
   // New vendor modal state
   const [newService, setNewService] = useState('');
@@ -91,6 +96,33 @@ export const VendorChecklist: React.FC<VendorChecklistProps> = ({ plan, onUpdate
     onUpdateVendors([...vendors, newVendor]);
     setNewService('');
     setShowAddModal(false);
+  };
+
+  const handleSaveQuotes = (vendorId: string, updatedQuotes: VendorQuote[]) => {
+    const updated = vendors.map((v) => {
+      if (v.id === vendorId) {
+        const nextStatus: VendorStatus =
+          (v.status === 'to_research' || v.status === 'contacted') && updatedQuotes.length > 0
+            ? 'quote_received'
+            : v.status;
+        return { ...v, quotes: updatedQuotes, status: nextStatus };
+      }
+      return v;
+    });
+    onUpdateVendors(updated);
+  };
+
+  const handleApplyQuotePrice = (vendorId: string, quoteAmount: number) => {
+    const updated = vendors.map((v) => {
+      if (v.id === vendorId) {
+        return {
+          ...v,
+          recommendedBudgetRange: `${formatCurrency(quoteAmount, plan.budget.currency)} (Applied Quote)`,
+        };
+      }
+      return v;
+    });
+    onUpdateVendors(updated);
   };
 
   // Status badge helper
@@ -412,8 +444,45 @@ export const VendorChecklist: React.FC<VendorChecklistProps> = ({ plan, onUpdate
               </div>
             </div>
 
-            {/* 1-Click RFP & Inquiry Generator Action */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.85rem', paddingTop: '0.85rem', borderTop: '1px solid rgba(234, 88, 12, 0.15)' }}>
+            {/* Actions: Compare Quotes & 1-Click RFP */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: '0.85rem',
+                paddingTop: '0.85rem',
+                borderTop: '1px solid rgba(234, 88, 12, 0.15)',
+                flexWrap: 'wrap',
+                gap: '0.5rem',
+              }}
+            >
+              <button
+                id={`btn-compare-quotes-${vendor.id}`}
+                type="button"
+                onClick={() => {
+                  setSelectedQuoteVendorId(vendor.id);
+                  setIsQuoteModalOpen(true);
+                }}
+                className="btn-secondary"
+                title="Enter and neutrally compare proposals from multiple vendors"
+                style={{
+                  fontSize: '0.825rem',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  padding: '0.4rem 0.85rem',
+                  background: '#FFFFFF',
+                  borderColor: 'rgba(234, 88, 12, 0.35)',
+                }}
+              >
+                <Scale size={15} color="#C2410C" />
+                <span>
+                  Compare Quotes {vendor.quotes && vendor.quotes.length > 0 ? `(${vendor.quotes.length})` : ''}
+                </span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => {
@@ -435,7 +504,7 @@ export const VendorChecklist: React.FC<VendorChecklistProps> = ({ plan, onUpdate
                 }}
               >
                 <FileText size={15} color="#EA580C" />
-                <span>Generate RFP & Inquiry Email for {vendor.service}</span>
+                <span>Generate RFP & Inquiry Email</span>
                 <ChevronRight size={14} />
               </button>
             </div>
@@ -525,6 +594,20 @@ export const VendorChecklist: React.FC<VendorChecklistProps> = ({ plan, onUpdate
         plan={plan}
         initialVendorId={selectedRfpVendorId}
       />
+      {/* Vendor Proposal & Quote Comparison Modal */}
+      {isQuoteModalOpen && selectedQuoteVendorId && (
+        <VendorQuoteComparisonModal
+          isOpen={isQuoteModalOpen}
+          onClose={() => {
+            setIsQuoteModalOpen(false);
+            setSelectedQuoteVendorId('');
+          }}
+          vendor={vendors.find((v) => v.id === selectedQuoteVendorId) || vendors[0]}
+          currency={plan.budget.currency}
+          onSaveQuotes={handleSaveQuotes}
+          onApplyQuotePrice={handleApplyQuotePrice}
+        />
+      )}
     </div>
   );
 };

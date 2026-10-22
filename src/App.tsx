@@ -57,6 +57,8 @@ import { Footer } from './components/Footer';
 import { PrintView } from './components/PrintView';
 import { NextBestStepCard } from './components/NextBestStepCard';
 import { CommunityChecklistHub } from './components/CommunityChecklistHub';
+import { ChangeImpactModal } from './components/ChangeImpactModal';
+import { PlanConflictModal } from './components/PlanConflictModal';
 
 export function App() {
   const [plans, setPlans] = useState<EventPlan[]>([]);
@@ -76,6 +78,8 @@ export function App() {
   const [isExpenseLedgerOpen, setIsExpenseLedgerOpen] = useState(false);
   const [isWeatherModalOpen, setIsWeatherModalOpen] = useState(false);
   const [isLiveDirectorOpen, setIsLiveDirectorOpen] = useState(false);
+  const [isChangeImpactOpen, setIsChangeImpactOpen] = useState(false);
+  const [isConflictCheckerOpen, setIsConflictCheckerOpen] = useState(false);
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [wizardInitialValues, setWizardInitialValues] = useState<Partial<OnboardingFormValues> | null>(null);
@@ -122,6 +126,8 @@ export function App() {
         setIsExpenseLedgerOpen(false);
         setIsWeatherModalOpen(false);
         setIsLiveDirectorOpen(false);
+        setIsChangeImpactOpen(false);
+        setIsConflictCheckerOpen(false);
         setIsCopilotOpen(false);
       }
     };
@@ -158,6 +164,13 @@ export function App() {
     const updatedList = plans.map((p) => (p.id === activePlan.id ? updatedPlan : p));
     setPlans(updatedList);
     savePlans(updatedList, currentUser?.id);
+  };
+
+  const handleApplyChangeImpactPlan = (updatedPlan: EventPlan) => {
+    const updatedList = plans.map((p) => (p.id === updatedPlan.id ? updatedPlan : p));
+    setPlans(updatedList);
+    savePlans(updatedList, currentUser?.id);
+    showToast('Applied confirmed changes to plan!');
   };
 
   // Rename Plan
@@ -633,6 +646,8 @@ export function App() {
               onOpenAiTransparency={() => setIsAiTransparencyOpen(true)}
               onOpenShareModal={() => setIsShareModalOpen(true)}
               onOpenAiDocs={() => setIsAiDocsOpen(true)}
+              onOpenChangeImpact={() => setIsChangeImpactOpen(true)}
+              onOpenConflictChecker={() => setIsConflictCheckerOpen(true)}
               onPrint={handlePrint}
               onExportICS={handleExportICS}
             />
@@ -1013,6 +1028,28 @@ export function App() {
           plan={activePlan}
           onUpdateRunOfShow={(updatedRunOfShow) => {
             updateActivePlan({ runOfShow: updatedRunOfShow });
+          }}
+        />
+      )}
+
+      {/* Feature 1: Change Impact Assistant Modal */}
+      {activePlan && (
+        <ChangeImpactModal
+          isOpen={isChangeImpactOpen}
+          onClose={() => setIsChangeImpactOpen(false)}
+          plan={activePlan}
+          onApplyChanges={handleApplyChangeImpactPlan}
+        />
+      )}
+
+      {/* Feature 2: Plan Inconsistency & Conflict Checker Modal */}
+      {activePlan && (
+        <PlanConflictModal
+          isOpen={isConflictCheckerOpen}
+          onClose={() => setIsConflictCheckerOpen(false)}
+          plan={activePlan}
+          onUpdatePlan={(updatedFields) => {
+            updateActivePlan(updatedFields);
           }}
         />
       )}

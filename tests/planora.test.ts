@@ -36,7 +36,10 @@ import {
 import { deleteUserAccount } from '../src/utils/cloudSync';
 import { regenerateIdeasWithAI } from '../src/utils/geminiApi';
 import { SAMPLE_WEDDING_PLAN, SAMPLE_BIRTHDAY_PLAN, SAMPLE_COMMUNITY_PLAN } from '../src/utils/sampleData';
-import { EventPlan, BudgetItem } from '../src/types';
+import { EventPlan, BudgetItem, VendorQuote } from '../src/types';
+import { analyzePlanChangeImpact, applyAcceptedImpactSuggestions } from '../src/utils/changeImpactEngine';
+import { runPlanConflictAudit } from '../src/utils/conflictCheckerEngine';
+import { generateNeutralQuoteComparison } from '../src/utils/vendorQuoteEngine';
 
 describe('Priority 1 — Security, Privacy & Plan Ownership Isolation', () => {
   beforeEach(() => {
@@ -371,3 +374,252 @@ describe('Priority 3 — High-Value Features & Challenge 5 Core Outcomes', () =>
     expect(generousWedding.status).toBe('generous');
   });
 });
+
+describe('Feature 1: Change Impact Assistant', () => {
+  it('analyzes changes to guest count, budget, and date without modifying the plan object automatically', () => {
+    const originalPlan = JSON.parse(JSON.stringify(SAMPLE_WEDDING_PLAN)) as EventPlan;
+    const originalGuestCount = originalPlan.basics.guestCount;
+    const originalBudget = originalPlan.budget.totalBudget;
+
+    const analysis = analyzePlanChangeImpact(originalPlan, {
+      guestCount: originalGuestCount + 50,
+      totalBudget: originalBudget + 5000,
+      eventDate: '2027-10-15',
+    });
+
+    // 1. Changing a plan input shows relevant impacts without changing the plan automatically
+    expect(originalPlan.basics.guestCount).toBe(originalGuestCount);
+    expect(originalPlan.budget.totalBudget).toBe(originalBudget);
+    const guestFieldChange = analysis.changedFields.find((f) => f.field === 'guestCount');
+    expect(guestFieldChange).toBeDefined();
+    expect(guestFieldChange?.newValue).toContain(`${originalGuestCount + 50}`);
+    expect(analysis.plainLanguageExplanation.length).toBeGreaterThan(0);
+    expect(analysis.suggestions.length).toBeGreaterThan(0);
+
+    // Explains impact in plain language
+    const plainText = analysis.plainLanguageExplanation.join(' ');
+    expect(plainText.toLowerCase()).toContain('guest');
+
+    // Label cost and vendor suggestions as estimates
+    for (const sug of analysis.suggestions) {
+      if (sug.section === 'budget' || sug.section === 'vendors') {
+        expect(sug.isEstimate).toBe(true);
+      }
+    }
+  });
+
+  it('accepting one suggested update does not overwrite unrelated user edits', () => {
+    const plan = JSON.parse(JSON.stringify(SAMPLE_WEDDING_PLAN)) as EventPlan;
+    // Add custom user edit in notes and custom task
+    plan.basics.preferences.constraints = 'User constraint that must never be overwritten';
+    plan.budget.items[0].notes = 'User custom catering notes';
+
+    const analysis = analyzePlanChangeImpact(plan, {
+      guestCount: plan.basics.guestCount + 40,
+    });
+
+    // Accept only the first suggestion
+    const firstSuggestion = analysis.suggestions[0];
+    const updatedPlan = applyAcceptedImpactSuggestions(plan, [firstSuggestion], {
+      guestCount: plan.basics.guestCount + 40,
+    });
+
+    // Basics are updated
+    expect(updatedPlan.basics.guestCount).toBe(plan.basics.guestCount + 40);
+    // Unrelated user edits are preserved!
+    expect(updatedPlan.basics.preferences.constraints).toBe('User constraint that must never be overwritten');
+    expect(updatedPlan.budget.items[0].notes).toBe('User custom catering notes');
+    // Ideas are preserved
+    expect(updatedPlan.ideas).toEqual(plan.ideas);
+  });
+
+  it('deterministic budget reconcile updates calculations correctly with application logic', () => {
+    const plan = JSON.parse(JSON.stringify(SAMPLE_WEDDING_PLAN)) as EventPlan;
+    const originalItemsCount = plan.budget.items.length;
+
+    // Change budget items sum intentionally to deviate from totalBudget
+    plan.budget.items[0].allocatedAmount = 1000;
+    const reconciled = reconcileBudget(plan.budget.items, plan.budget.totalBudget);
+
+    // Reconciles and reports total allocated vs unallocated
+    expect(reconciled.totalAllocated + reconciled.unallocated).toBe(plan.budget.totalBudget);
+    expect(reconciled.reconciledItems.length).toBe(originalItemsCount);
+  });
+});
+
+describe('Feature 2: Plan Conflict Checker', () => {
+  it('detects guest count exceeding venue or seating capacity', () => {
+    const plan = JSON.parse(JSON.stringify(SAMPLE_WEDDING_PLAN)) as EventPlan;
+    plan.basics.guestCount = 200;
+    // Tables capacity is only 2 * 10 = 20
+    plan.tables = [
+      { id: 't1', name: 'Table 1', shape: 'round', capacity: 10 },
+      { id: 't2', name: 'Table 2', shape: 'round', capacity: 10 },
+    ];
+
+    const findings = runPlanConflictAudit(plan);
+    const capacityConflict = findings.find((f) => f.id === 'conflict-capacity-table-deficit' || f.category === 'capacity');
+    expect(capacityConflict).toBeDefined();
+    expect(capacityConflict?.severity).toBe('needs_attention');
+    expect(capacityConflict?.suggestedNextStep).toContain('table');
+  });
+
+  it('detects budget allocations not matching total budget', () => {
+    const plan = JSON.parse(JSON.stringify(SAMPLE_WEDDING_PLAN)) as EventPlan;
+    plan.budget.totalBudget = 10000;
+    plan.budget.items = [
+      { id: 'b1', category: 'Catering', allocatedAmount: 8000, actualSpent: 0, priority: 'Essential' },
+      { id: 'b2', category: 'Venue', allocatedAmount: 4000, actualSpent: 0, priority: 'Essential' },
+    ]; // Sum = 12000 vs 10000
+
+    const findings = runPlanConflictAudit(plan);
+    const budgetConflict = findings.find((f) => f.id === 'conflict-budget-overage' || f.category === 'budget');
+    expect(budgetConflict).toBeDefined();
+    expect(budgetConflict?.severity).toBe('needs_attention');
+    expect(budgetConflict?.affectedDetails).toContain('$12,000');
+  });
+
+  it('detects tasks scheduled after event or overdue', () => {
+    const plan = JSON.parse(JSON.stringify(SAMPLE_WEDDING_PLAN)) as EventPlan;
+    plan.basics.eventDate = '2026-06-01';
+    plan.timeline = [
+      {
+        id: 't-sec-1',
+        period: 'Wrap-up',
+        tasks: [
+          {
+            id: 'late-task-1',
+            title: 'Late Caterer Booking',
+            category: 'Vendors',
+            dueDate: '2026-06-15', // After event date!
+            completed: false,
+            priority: 'High',
+          },
+        ],
+      },
+    ];
+
+    const findings = runPlanConflictAudit(plan);
+    const postEventConflict = findings.find((f) => f.id.startsWith('conflict-task-after-event'));
+    expect(postEventConflict).toBeDefined();
+    expect(postEventConflict?.severity).toBe('needs_attention');
+  });
+
+  it('detects guest dietary/allergy requirements that need caterer confirmation', () => {
+    const plan = JSON.parse(JSON.stringify(SAMPLE_WEDDING_PLAN)) as EventPlan;
+    plan.guests = [
+      { id: 'g1', name: 'Alice', rsvpStatus: 'attending', dietary: 'Nut Allergy', plusOnes: 0 },
+    ];
+    // Caterer vendor not booked
+    plan.vendors = [
+      {
+        id: 'v-cater',
+        service: 'Full-Service Catering',
+        urgency: 'Immediate',
+        status: 'to_research',
+        targetLeadTime: '6 months',
+        recommendedBudgetRange: '$4,000 - $6,000',
+        questions: [],
+      },
+    ];
+
+    const findings = runPlanConflictAudit(plan);
+    const allergyConflict = findings.find((f) => f.id === 'conflict-dietary-allergens-unconfirmed');
+    expect(allergyConflict).toBeDefined();
+    expect(allergyConflict?.severity).toBe('worth_checking');
+    expect(allergyConflict?.disclaimer).toContain('Medical & Allergen Notice');
+  });
+
+  it('supports dismissing and resolving findings and persists state', () => {
+    const plan = JSON.parse(JSON.stringify(SAMPLE_WEDDING_PLAN)) as EventPlan;
+    plan.budget.totalBudget = 10000;
+    plan.budget.items = [
+      { id: 'b1', category: 'Catering', allocatedAmount: 8000, actualSpent: 0, priority: 'Essential' },
+      { id: 'b2', category: 'Venue', allocatedAmount: 4000, actualSpent: 0, priority: 'Essential' },
+    ];
+
+    const initialFindings = runPlanConflictAudit(plan);
+    const targetFinding = initialFindings[0];
+    expect(targetFinding.isResolved).toBe(false);
+    expect(targetFinding.isDismissed).toBe(false);
+
+    // Simulate user resolving finding
+    plan.resolvedConflictIds = [targetFinding.id];
+    const afterResolve = runPlanConflictAudit(plan);
+    const resolvedCheck = afterResolve.find((f) => f.id === targetFinding.id);
+    expect(resolvedCheck?.isResolved).toBe(true);
+
+    // Simulate dismissing another finding
+    if (initialFindings[1]) {
+      plan.dismissedConflictIds = [initialFindings[1].id];
+      const afterDismiss = runPlanConflictAudit(plan);
+      const dismissedCheck = afterDismiss.find((f) => f.id === initialFindings[1].id);
+      expect(dismissedCheck?.isDismissed).toBe(true);
+    }
+  });
+
+  it('labels unknown / missing details rather than fabricating facts', () => {
+    const plan = JSON.parse(JSON.stringify(SAMPLE_WEDDING_PLAN)) as EventPlan;
+    plan.tables = []; // No tables configured
+
+    const findings = runPlanConflictAudit(plan);
+    const missingTablesFinding = findings.find((f) => f.id === 'conflict-capacity-unverified');
+    expect(missingTablesFinding).toBeDefined();
+    expect(missingTablesFinding?.title).toContain('Unable to Verify');
+  });
+});
+
+describe('Feature 3: Vendor Quote Comparison', () => {
+  it('generates neutral side-by-side comparison without biased best rankings', () => {
+    const quotes: VendorQuote[] = [
+      {
+        id: 'q1',
+        vendorName: 'Artisan Culinary Co',
+        quoteAmount: 4200,
+        currency: 'USD',
+        depositRequired: '$1,000 non-refundable',
+        paymentSchedule: '50% 30 days prior, 50% day of',
+        cancellationTerms: 'Full refund up to 30 days prior',
+        availabilityConfirmed: true,
+        quoteExpiryDate: '2026-12-01',
+        includedServices: '4-Course Plated Dinner, Tasting for 2, Cutlery & Linens',
+        exclusions: 'Alcohol & Bartending',
+        notes: 'Includes cake cutting service',
+      },
+      {
+        id: 'q2',
+        vendorName: 'Harvest Table Buffet',
+        quoteAmount: 3500,
+        currency: 'USD',
+        includedServices: 'Buffet Setup & Service, Biodegradable Plates',
+        availabilityConfirmed: 'unconfirmed',
+      },
+    ];
+
+    const comparison = generateNeutralQuoteComparison(quotes, 'Catering');
+
+    // 1. Comparison includes neutral price difference note
+    expect(comparison.priceDifferenceNote).toContain('Artisan Culinary Co');
+    expect(comparison.priceDifferenceNote).toContain('Harvest Table Buffet');
+    expect(comparison.priceDifferenceNote).toContain('$700');
+
+    // 2. Neutral advice does NOT declare a vendor as "winner" or "best"
+    const adviceLower = comparison.neutralAdvice.toLowerCase();
+    expect(adviceLower).not.toContain('best');
+    expect(adviceLower).not.toContain('winner');
+    expect(adviceLower).not.toContain('recommend picking');
+
+    // 3. Flags unconfirmed / missing information
+    expect(comparison.missingDetailsList.length).toBeGreaterThan(0);
+    const missingJoined = comparison.missingDetailsList.join(' ');
+    expect(missingJoined).toContain('Harvest Table Buffet');
+    expect(missingJoined).toContain('deposit terms');
+  });
+
+  it('handles empty quotes cleanly without crash', () => {
+    const comparison = generateNeutralQuoteComparison([], 'Catering');
+    expect(comparison.priceDifferenceNote).toBe('No quotes entered yet.');
+    expect(comparison.scopeHighlights.length).toBe(0);
+  });
+});
+
