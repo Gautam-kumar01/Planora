@@ -650,6 +650,7 @@ export function App() {
               onOpenConflictChecker={() => setIsConflictCheckerOpen(true)}
               onPrint={handlePrint}
               onExportICS={handleExportICS}
+              currentUser={currentUser}
             />
 
             {/* Priority 3.1: Next Best Step Card */}
@@ -936,6 +937,11 @@ export function App() {
         onRenamePlan={handleRenamePlan}
         onDuplicatePlan={handleDuplicatePlan}
         onDeletePlan={handleDeletePlan}
+        currentUser={currentUser}
+        onOpenAuthModal={() => {
+          setIsPlanManagerOpen(false);
+          setIsAuthModalOpen(true);
+        }}
       />
 
       {/* Option C: Hybrid Auth & Database Sync Modal */}

@@ -263,7 +263,7 @@ export const AiTransparencyModal: React.FC<AiTransparencyModalProps> = ({ isOpen
 
             <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.85rem' }}>
               <li>
-                <strong>100% Client-Side Persistence:</strong> In Guest Mode, all event plans, notes, and task progress are stored exclusively within your browser's local sandbox (<code>localStorage</code>).
+                <strong>Client-Side Persistence vs. Cloud Sync:</strong> In Guest Mode, all event plans, notes, and task progress are stored within your browser's local sandbox (<code>localStorage</code>) on your current device and will not automatically sync across different browsers or devices. Creating an account or signing in saves and syncs your plans securely to cloud storage.
               </li>
               <li>
                 <strong>No Mandatory Database:</strong> You do not need to provide an external database or account to plan, calculate, and print.

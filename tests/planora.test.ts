@@ -373,6 +373,30 @@ describe('Priority 3 — High-Value Features & Challenge 5 Core Outcomes', () =>
     const generousWedding = assessBudgetFeasibility('wedding', 35000, 100, 'USD');
     expect(generousWedding.status).toBe('generous');
   });
+
+  it('demo wedding plan seating capacity matches 150 guests and booked vendors have signed contracts', () => {
+    // 1. Check guest count matches table capacity (150 guests == 150 seats)
+    expect(SAMPLE_WEDDING_PLAN.basics.guestCount).toBe(150);
+    const totalTableSeats = (SAMPLE_WEDDING_PLAN.tables || []).reduce((sum, t) => sum + (t.capacity || 0), 0);
+    expect(totalTableSeats).toBe(150);
+
+    // 2. Ensure conflict checker does not trigger capacity deficit for demo plan
+    const findings = runPlanConflictAudit(SAMPLE_WEDDING_PLAN);
+    const capacityDeficit = findings.find((f) => f.id === 'conflict-capacity-table-deficit');
+    expect(capacityDeficit).toBeUndefined();
+
+    // 3. Ensure booked venue has signed contract status
+    const venue = SAMPLE_WEDDING_PLAN.vendors.find((v) => v.service.toLowerCase().includes('venue'));
+    expect(venue).toBeDefined();
+    expect(venue?.status).toBe('booked');
+    expect(venue?.contractStatus).toBe('signed');
+
+    // 4. Ensure booked photographer has signed contract status
+    const photographer = SAMPLE_WEDDING_PLAN.vendors.find((v) => v.service.toLowerCase().includes('photographer'));
+    expect(photographer).toBeDefined();
+    expect(photographer?.status).toBe('booked');
+    expect(photographer?.contractStatus).toBe('signed');
+  });
 });
 
 describe('Feature 1: Change Impact Assistant', () => {

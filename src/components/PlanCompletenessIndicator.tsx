@@ -11,6 +11,7 @@ import {
   Briefcase,
   ShieldCheck,
   ChevronDown,
+  Info,
 } from 'lucide-react';
 import { EventPlan } from '../types';
 import { calculatePlanCompleteness } from '../utils/deterministicMath';
@@ -48,17 +49,17 @@ export const PlanCompletenessIndicator: React.FC<PlanCompletenessIndicatorProps>
         type="button"
         onClick={() => setIsOpen(true)}
         className="badge"
-        title="Click to view core planning details checklist"
+        title="Click to view required planning details checklist"
         style={{
           background:
-            completeness.score === 100
+            completeness.completedCount === completeness.totalCount
               ? 'rgba(34, 197, 94, 0.14)'
               : 'rgba(234, 88, 12, 0.12)',
           border:
-            completeness.score === 100
+            completeness.completedCount === completeness.totalCount
               ? '1px solid rgba(34, 197, 94, 0.35)'
               : '1px solid rgba(234, 88, 12, 0.35)',
-          color: completeness.score === 100 ? '#15803D' : '#9A3412',
+          color: completeness.completedCount === completeness.totalCount ? '#15803D' : '#9A3412',
           fontSize: '0.78rem',
           fontWeight: 700,
           cursor: 'pointer',
@@ -69,9 +70,9 @@ export const PlanCompletenessIndicator: React.FC<PlanCompletenessIndicatorProps>
           borderRadius: 'var(--radius-full)',
         }}
       >
-        <ShieldCheck size={14} color={completeness.score === 100 ? '#16A34A' : '#C2410C'} />
+        <ShieldCheck size={14} color={completeness.completedCount === completeness.totalCount ? '#16A34A' : '#C2410C'} />
         <span>
-          Plan Completeness: <strong>{completeness.score}%</strong> ({completeness.completedCount}/{completeness.totalCount})
+          Details entered: <strong>{completeness.completedCount}/{completeness.totalCount}</strong>
         </span>
         <ChevronDown size={12} />
       </button>
@@ -114,11 +115,11 @@ export const PlanCompletenessIndicator: React.FC<PlanCompletenessIndicatorProps>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
                   <ShieldCheck size={20} color="#C2410C" />
                   <h3 id="completeness-dialog-title" style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: '#140A05' }}>
-                    Plan Completeness Tracker
+                    Plan Details Entered ({completeness.completedCount}/{completeness.totalCount})
                   </h3>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.825rem', color: '#78533E', fontWeight: 500 }}>
-                  Evaluates 5 fundamental planning details without blocking your momentum.
+                  Tracks fundamental setup inputs (date, guest count, budget, location, vendors).
                 </p>
               </div>
 
@@ -133,6 +134,27 @@ export const PlanCompletenessIndicator: React.FC<PlanCompletenessIndicatorProps>
               </button>
             </div>
 
+            {/* Crucial Distinction Note: Details Entered vs. Conflict Checker */}
+            <div
+              style={{
+                fontSize: '0.8rem',
+                color: '#78350F',
+                lineHeight: 1.5,
+                padding: '0.75rem 0.95rem',
+                background: 'rgba(254, 243, 199, 0.65)',
+                borderRadius: 'var(--radius-md)',
+                border: '1.5px solid rgba(217, 119, 6, 0.3)',
+                marginBottom: '1.25rem',
+                display: 'flex',
+                gap: '0.55rem',
+              }}
+            >
+              <Info size={16} color="#D97706" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <strong>Important distinction:</strong> Having all details entered ({completeness.completedCount}/{completeness.totalCount}) tracks input completeness only. It does not guarantee zero conflicts. Use <strong>"Check My Plan"</strong> in the top header to audit table capacities, vendor lead times, and budget reconciliation.
+              </div>
+            </div>
+
             {/* Score Progress Bar */}
             <div
               style={{
@@ -144,9 +166,9 @@ export const PlanCompletenessIndicator: React.FC<PlanCompletenessIndicatorProps>
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#573523' }}>Overall Readiness</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#573523' }}>Core Details Provided</span>
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 800, color: '#140A05' }}>
-                  {completeness.score}%
+                  {completeness.completedCount} of {completeness.totalCount} ({completeness.score}%)
                 </span>
               </div>
 

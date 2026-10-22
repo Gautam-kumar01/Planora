@@ -15,7 +15,7 @@ import {
   ShieldCheck,
   Cloud,
 } from 'lucide-react';
-import { EventPlan } from '../types';
+import { EventPlan, UserProfile } from '../types';
 import { formatCurrency } from '../utils/deterministicMath';
 
 interface PlanManagerModalProps {
@@ -27,6 +27,8 @@ interface PlanManagerModalProps {
   onRenamePlan: (id: string, newTitle: string) => void;
   onDuplicatePlan: (id: string) => void;
   onDeletePlan: (id: string) => void;
+  currentUser?: UserProfile | null;
+  onOpenAuthModal?: () => void;
 }
 
 export const PlanManagerModal: React.FC<PlanManagerModalProps> = ({
@@ -38,6 +40,8 @@ export const PlanManagerModal: React.FC<PlanManagerModalProps> = ({
   onRenamePlan,
   onDuplicatePlan,
   onDeletePlan,
+  currentUser,
+  onOpenAuthModal,
 }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitleValue, setEditTitleValue] = useState<string>('');
@@ -111,26 +115,49 @@ export const PlanManagerModal: React.FC<PlanManagerModalProps> = ({
           </button>
         </div>
 
-        {/* Persistence Notice (Section 20) */}
+        {/* Persistence Notice */}
         <div
           style={{
             padding: '0.75rem 1rem',
-            background: 'rgba(234, 88, 12, 0.08)',
-            border: '1px solid rgba(251, 146, 60, 0.25)',
+            background: currentUser ? 'rgba(34, 197, 94, 0.08)' : 'rgba(234, 88, 12, 0.08)',
+            border: currentUser ? '1px solid rgba(34, 197, 94, 0.25)' : '1px solid rgba(251, 146, 60, 0.25)',
             borderRadius: 'var(--radius-md)',
             marginBottom: '1.25rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            gap: '0.75rem',
+            flexWrap: 'wrap',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#111' }}>
-            <ShieldCheck size={16} color="var(--color-orange-600)" />
-            <span>Saved locally in browser. Zero risk of session loss.</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#140A05' }}>
+            {currentUser ? (
+              <>
+                <Cloud size={16} color="#15803D" />
+                <span>Signed in as <strong>{currentUser.fullName}</strong>. Plans save & sync to cloud storage.</span>
+              </>
+            ) : (
+              <>
+                <ShieldCheck size={16} color="var(--color-orange-600)" />
+                <span>Guest Mode: Plans are stored locally in this browser/device only. Sign in to save & sync across devices.</span>
+              </>
+            )}
           </div>
-          <span className="badge badge-orange" style={{ fontSize: '0.65rem' }}>
-            {plans.length} Total Plans
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {!currentUser && onOpenAuthModal && (
+              <button
+                type="button"
+                onClick={onOpenAuthModal}
+                className="btn-secondary"
+                style={{ padding: '0.25rem 0.65rem', fontSize: '0.72rem', fontWeight: 700 }}
+              >
+                Sign In to Sync
+              </button>
+            )}
+            <span className="badge badge-orange" style={{ fontSize: '0.65rem' }}>
+              {plans.length} Total Plans
+            </span>
+          </div>
         </div>
 
         {/* Plans List */}

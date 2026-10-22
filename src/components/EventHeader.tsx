@@ -21,7 +21,7 @@ import {
   Globe,
   ShieldAlert,
 } from 'lucide-react';
-import { EventPlan } from '../types';
+import { EventPlan, UserProfile } from '../types';
 import { formatCurrency, calculatePerGuest } from '../utils/deterministicMath';
 import { PlanCompletenessIndicator } from './PlanCompletenessIndicator';
 import { runPlanConflictAudit } from '../utils/conflictCheckerEngine';
@@ -35,6 +35,7 @@ interface EventHeaderProps {
   onExportICS?: () => void;
   onOpenChangeImpact?: () => void;
   onOpenConflictChecker?: () => void;
+  currentUser?: UserProfile | null;
 }
 
 export const EventHeader: React.FC<EventHeaderProps> = ({
@@ -46,6 +47,7 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
   onExportICS,
   onOpenChangeImpact,
   onOpenConflictChecker,
+  currentUser,
 }) => {
   const { basics, budget, updatedAt } = plan;
 
@@ -155,10 +157,16 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
                 fontSize: '0.75rem',
                 fontWeight: 700,
               }}
-              title="FR-31: Last modified time recorded locally"
+              title={
+                currentUser
+                  ? 'Saved & synchronized with cloud storage.'
+                  : 'Saved in this browser/device only (Guest Mode). Sign in to save and sync across devices.'
+              }
             >
               <CheckCircle size={12} />
-              <span>Saved {formatRelativeTime(updatedAt)}</span>
+              <span>
+                Saved {formatRelativeTime(updatedAt)} {currentUser ? '• Cloud' : '• Local'}
+              </span>
             </span>
 
             {/* Priority 3.2: Plan Completeness Indicator */}

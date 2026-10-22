@@ -438,7 +438,7 @@ export const ChangeImpactModal: React.FC<ChangeImpactModalProps> = ({
         >
           <ShieldCheck size={16} color="#C2410C" style={{ flexShrink: 0 }} />
           <span>
-            <strong>Deterministic Safety Guarantee:</strong> Planora never silently overwrites your customizations. Only the parameters and suggestions you explicitly confirm will be applied. Unrelated plan sections remain preserved.
+            <strong>Non-destructive Safety Design:</strong> Planora never silently overwrites your customizations. Only the parameters and suggestions you explicitly confirm will be applied. Unrelated plan sections remain preserved.
           </span>
         </div>
 

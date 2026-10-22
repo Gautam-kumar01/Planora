@@ -30,7 +30,6 @@ import {
   Send,
   AlertTriangle,
   FileSpreadsheet,
-  ShieldAlert,
 } from 'lucide-react';
 import { EventPlan, UserProfile, EventType, OnboardingFormValues } from '../types';
 import { formatCurrency } from '../utils/deterministicMath';
@@ -638,11 +637,14 @@ export const HomePage: React.FC<HomePageProps> = ({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
               <div>
                 <span className="badge badge-orange" style={{ marginBottom: '0.3rem' }}>
-                  Zero Arithmetic Hallucination Guarantee
+                  App-Calculated Budget Math
                 </span>
                 <h3 style={{ fontSize: '1.35rem', color: '#140A05', fontWeight: 800 }}>
                   Deterministic Category Allocation Engine (Sum == 100%)
                 </h3>
+                <p style={{ fontSize: '0.825rem', color: '#78533E', margin: '0.2rem 0 0 0', fontWeight: 500 }}>
+                  Budget totals are calculated by the app; vendor prices and AI suggestions are estimates and should be reviewed.
+                </p>
               </div>
               <span style={{ fontSize: '0.9rem', color: '#15803D', fontWeight: 800, background: 'rgba(22, 163, 74, 0.1)', padding: '0.35rem 0.85rem', borderRadius: 'var(--radius-full)', border: '1px solid rgba(22, 163, 74, 0.3)' }}>
                 ✓ 100% Balanced ($20,000 Total)
@@ -980,7 +982,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid rgba(2, 132, 199, 0.15)', flexWrap: 'wrap', gap: '0.75rem' }}>
               <p style={{ fontSize: '0.85rem', color: '#6B4226', margin: 0, fontWeight: 500 }}>
-                Never get caught in a downpour unprepared: guaranteed covered alternatives and vendor shift notices.
+                Never get caught in a downpour unprepared: structured covered alternatives and vendor shift notices.
               </p>
               <button
                 type="button"
@@ -1208,14 +1210,14 @@ export const HomePage: React.FC<HomePageProps> = ({
                 eventType: 'wedding',
                 totalBudget: readinessHeadcount * 165,
                 currency: 'USD',
-                title: `Airtight Master Plan (${readinessHeadcount} Guests)`,
+                title: `Structured Master Plan (${readinessHeadcount} Guests)`,
               });
             }}
             className="btn-primary pulse-glow"
             style={{ width: '100%', padding: '0.85rem', justifyContent: 'center', fontSize: '0.95rem' }}
           >
             <Sparkles size={16} />
-            <span>Generate 100% Airtight Master Plan ✨</span>
+            <span>Generate Structured Master Plan ✨</span>
           </button>
         </div>
       </section>
@@ -1232,6 +1234,11 @@ export const HomePage: React.FC<HomePageProps> = ({
               <h2 style={{ fontSize: '1.75rem', color: '#140A05', fontWeight: 800 }}>
                 My Saved Master Plans
               </h2>
+              <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.825rem', color: '#78533E', fontWeight: 500 }}>
+                {currentUser
+                  ? `Signed in as ${currentUser.fullName} • Plans are saved and synchronized to cloud storage.`
+                  : 'Guest Mode: Plans are saved in your current browser/device. Sign in or create an account to sync across devices.'}
+              </p>
             </div>
 
             <button
@@ -1406,7 +1413,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             How Planora Builds Your Master Plan
           </h2>
           <p style={{ fontSize: '0.95rem', color: '#4A2B1A', marginTop: '0.35rem', fontWeight: 500 }}>
-            From scattered thoughts to an airtight master plan with zero mathematical hallucinations.
+            From scattered thoughts to a structured master plan where budget totals reconcile deterministically.
           </p>
         </div>
 
@@ -1475,7 +1482,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               Deterministic AI Synthesis
             </h3>
             <p style={{ fontSize: '0.875rem', color: '#4A2B1A', lineHeight: 1.6, fontWeight: 500 }}>
-              Gemini crafts tailored themes and timelines while our financial engine guarantees category allocations sum precisely to 100%.
+              Gemini crafts tailored themes and creative ideas while application logic reconciles budget category totals to 100%.
             </p>
           </div>
 
@@ -1563,7 +1570,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               capability: 'Deterministic Financial Math',
               sheet: 'Manual formulas required',
               gpt: 'Hallucinates arithmetic errors',
-              planora: 'Strict Sum == 100% guarantee',
+              planora: 'App calculates exact sum to 100%',
             },
             {
               capability: 'Live Trade-off Assistant',

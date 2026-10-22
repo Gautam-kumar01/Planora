@@ -21,11 +21,29 @@ export function loadSavedPlans(userId?: string): EventPlan[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
+        // Upgrade cached demo presets to modern 150-seat layout & aligned contract statuses
+        const upgraded = parsed.map((p) => {
+          if (p.id?.startsWith('preset-wedding-01')) {
+            const currentTableCap = (p.tables || []).reduce((s: number, t: any) => s + (t.capacity || 0), 0);
+            if (currentTableCap < 100) {
+              return {
+                ...p,
+                tables: SAMPLE_WEDDING_PLAN.tables,
+                vendors: p.vendors?.map((v: any) => {
+                  const sampleV = SAMPLE_WEDDING_PLAN.vendors.find((sv) => sv.id === v.id);
+                  return sampleV?.contractStatus ? { ...v, contractStatus: sampleV.contractStatus } : v;
+                }) || p.vendors,
+              };
+            }
+          }
+          return p;
+        });
+
         // Enforce user ownership isolation
         if (userId) {
-          return parsed.filter((p) => !p.userId || p.userId === userId).map((p) => ({ ...p, userId }));
+          return upgraded.filter((p) => !p.userId || p.userId === userId).map((p) => ({ ...p, userId }));
         }
-        return parsed.filter((p) => !p.userId || p.userId === 'guest');
+        return upgraded.filter((p) => !p.userId || p.userId === 'guest');
       }
     }
 
