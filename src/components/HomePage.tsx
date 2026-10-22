@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { EventPlan, UserProfile, EventType, OnboardingFormValues } from '../types';
 import { formatCurrency } from '../utils/deterministicMath';
+import { formatIndianCurrency } from '../utils/indianEventEngine';
 
 interface HomePageProps {
   plans: EventPlan[];
@@ -54,10 +55,38 @@ export const HomePage: React.FC<HomePageProps> = ({
   currentUser,
 }) => {
   // Interactive Sandbox State
+  const [sandboxCurrency, setSandboxCurrency] = useState<'USD' | 'INR'>('INR');
   const [sandboxType, setSandboxType] = useState<EventType>('wedding');
-  const [sandboxGuests, setSandboxGuests] = useState<number>(120);
-  const [sandboxBudget, setSandboxBudget] = useState<number>(20000);
+  const [sandboxGuests, setSandboxGuests] = useState<number>(250);
+  const [sandboxBudget, setSandboxBudget] = useState<number>(2500000); // Default ₹25 Lakhs
   const [sandboxSetting, setSandboxSetting] = useState<'hybrid' | 'indoor' | 'outdoor'>('hybrid');
+
+  const handleCurrencyChange = (curr: 'USD' | 'INR') => {
+    setSandboxCurrency(curr);
+    if (curr === 'INR') {
+      if (sandboxType === 'wedding') {
+        setSandboxBudget(2500000);
+        setSandboxGuests(250);
+      } else if (sandboxType === 'birthday') {
+        setSandboxBudget(150000);
+        setSandboxGuests(40);
+      } else {
+        setSandboxBudget(350000);
+        setSandboxGuests(200);
+      }
+    } else {
+      if (sandboxType === 'wedding') {
+        setSandboxBudget(25000);
+        setSandboxGuests(120);
+      } else if (sandboxType === 'birthday') {
+        setSandboxBudget(750);
+        setSandboxGuests(25);
+      } else {
+        setSandboxBudget(2000);
+        setSandboxGuests(100);
+      }
+    }
+  };
 
   // Interactive 5-Module Feature Showcase Tour State
   const [activeTourTab, setActiveTourTab] = useState<'budget' | 'timeline' | 'vendors' | 'guests' | 'weather'>('budget');
@@ -82,68 +111,124 @@ export const HomePage: React.FC<HomePageProps> = ({
   readinessScore = Math.min(100, Math.max(20, readinessScore));
 
   // Math Calculations
+  const isIndian = sandboxCurrency === 'INR';
   const costPerGuest = Math.round(sandboxBudget / Math.max(1, sandboxGuests));
 
   // Determine Tier and Benchmarks
-  let tierBadgeText = 'Moderate Balanced ($165/guest avg)';
+  let tierBadgeText = '';
   let feasibilityPercentage = 95;
   let feasibilityLabel = 'Optimal Financial Balance';
 
-  if (sandboxType === 'wedding') {
-    if (costPerGuest < 110) {
-      tierBadgeText = 'Economy Tier ($90/guest avg)';
-      feasibilityPercentage = 82;
-      feasibilityLabel = 'Tight - Needs DIY & Savvy Sourcing';
-    } else if (costPerGuest <= 200) {
-      tierBadgeText = 'Moderate Balanced ($165/guest avg)';
-      feasibilityPercentage = 96;
-      feasibilityLabel = 'Optimal Financial Balance';
-    } else if (costPerGuest <= 350) {
-      tierBadgeText = 'Premium Tier ($250/guest avg)';
-      feasibilityPercentage = 98;
-      feasibilityLabel = 'High Quality Vendor Freedom';
+  if (isIndian) {
+    if (sandboxType === 'wedding') {
+      if (costPerGuest < 4000) {
+        tierBadgeText = `Economy Banquet (${formatIndianCurrency(costPerGuest)}/guest avg)`;
+        feasibilityPercentage = 84;
+        feasibilityLabel = 'Community Hall & Standard Veg Buffet';
+      } else if (costPerGuest <= 10000) {
+        tierBadgeText = `Moderate Heritage / AC Banquet (${formatIndianCurrency(costPerGuest)}/guest avg)`;
+        feasibilityPercentage = 96;
+        feasibilityLabel = 'Deluxe Live Counters & Complete Decor';
+      } else if (costPerGuest <= 25000) {
+        tierBadgeText = `Premium Resort / 4-Star (${formatIndianCurrency(costPerGuest)}/guest avg)`;
+        feasibilityPercentage = 98;
+        feasibilityLabel = 'Multi-Day Functions & Artist Performances';
+      } else {
+        tierBadgeText = `Luxury Palace / 5-Star (${formatIndianCurrency(costPerGuest)}/guest avg)`;
+        feasibilityPercentage = 99;
+        feasibilityLabel = 'Bespoke Royal Hospitality & Master Chefs';
+      }
+    } else if (sandboxType === 'birthday') {
+      if (costPerGuest < 1000) {
+        tierBadgeText = `Economy Gathering (${formatIndianCurrency(costPerGuest)}/guest avg)`;
+        feasibilityPercentage = 86;
+        feasibilityLabel = 'Home Decor & Local Caterer';
+      } else if (costPerGuest <= 3000) {
+        tierBadgeText = `Moderate Restaurant (${formatIndianCurrency(costPerGuest)}/guest avg)`;
+        feasibilityPercentage = 95;
+        feasibilityLabel = 'Themed Decor & Cake Station';
+      } else {
+        tierBadgeText = `Premium Party Lawn (${formatIndianCurrency(costPerGuest)}/guest avg)`;
+        feasibilityPercentage = 98;
+        feasibilityLabel = 'DJ, Photo Booth & Multi-Cuisine';
+      }
     } else {
-      tierBadgeText = 'Luxury Tier ($420+/guest avg)';
-      feasibilityPercentage = 99;
-      feasibilityLabel = 'Top Tier Concierge Event';
-    }
-  } else if (sandboxType === 'birthday') {
-    if (costPerGuest < 20) {
-      tierBadgeText = 'Economy Tier ($15/guest avg)';
-      feasibilityPercentage = 84;
-      feasibilityLabel = 'DIY Games & Home Baked Focus';
-    } else if (costPerGuest <= 40) {
-      tierBadgeText = 'Moderate Balanced ($25/guest avg)';
-      feasibilityPercentage = 95;
-      feasibilityLabel = 'Balanced Pizza & Arcade Package';
-    } else {
-      tierBadgeText = 'Premium / Venue Rental ($50+/guest avg)';
-      feasibilityPercentage = 98;
-      feasibilityLabel = 'All-Inclusive Entertainment';
+      if (costPerGuest < 500) {
+        tierBadgeText = `Community Prasad / Langar (${formatIndianCurrency(costPerGuest)}/guest avg)`;
+        feasibilityPercentage = 88;
+        feasibilityLabel = 'Community Sourced & Volunteer Led';
+      } else if (costPerGuest <= 1500) {
+        tierBadgeText = `Cultural Festival (${formatIndianCurrency(costPerGuest)}/guest avg)`;
+        feasibilityPercentage = 95;
+        feasibilityLabel = 'Sound Stage & Refreshment Stalls';
+      } else {
+        tierBadgeText = `Grand Utsav / College Fest (${formatIndianCurrency(costPerGuest)}/guest avg)`;
+        feasibilityPercentage = 98;
+        feasibilityLabel = 'Full Stage Truss, LED Walls & Security';
+      }
     }
   } else {
-    if (costPerGuest < 10) {
-      tierBadgeText = 'Economy Community Grant ($8/guest avg)';
-      feasibilityPercentage = 85;
-      feasibilityLabel = 'Permit & Sanitation Focused';
-    } else if (costPerGuest <= 22) {
-      tierBadgeText = 'Moderate Festival ($14/guest avg)';
-      feasibilityPercentage = 95;
-      feasibilityLabel = 'Live Music & Refreshment Ready';
+    if (sandboxType === 'wedding') {
+      if (costPerGuest < 110) {
+        tierBadgeText = 'Economy Tier ($90/guest avg)';
+        feasibilityPercentage = 82;
+        feasibilityLabel = 'Tight - Needs DIY & Savvy Sourcing';
+      } else if (costPerGuest <= 200) {
+        tierBadgeText = 'Moderate Balanced ($165/guest avg)';
+        feasibilityPercentage = 96;
+        feasibilityLabel = 'Optimal Financial Balance';
+      } else if (costPerGuest <= 350) {
+        tierBadgeText = 'Premium Tier ($250/guest avg)';
+        feasibilityPercentage = 98;
+        feasibilityLabel = 'High Quality Vendor Freedom';
+      } else {
+        tierBadgeText = 'Luxury Tier ($420+/guest avg)';
+        feasibilityPercentage = 99;
+        feasibilityLabel = 'Top Tier Concierge Event';
+      }
+    } else if (sandboxType === 'birthday') {
+      if (costPerGuest < 20) {
+        tierBadgeText = 'Economy Tier ($15/guest avg)';
+        feasibilityPercentage = 84;
+        feasibilityLabel = 'DIY Games & Home Baked Focus';
+      } else if (costPerGuest <= 40) {
+        tierBadgeText = 'Moderate Balanced ($25/guest avg)';
+        feasibilityPercentage = 95;
+        feasibilityLabel = 'Balanced Pizza & Arcade Package';
+      } else {
+        tierBadgeText = 'Premium / Venue Rental ($50+/guest avg)';
+        feasibilityPercentage = 98;
+        feasibilityLabel = 'All-Inclusive Entertainment';
+      }
     } else {
-      tierBadgeText = 'Large Scale Block Party ($25+/guest avg)';
-      feasibilityPercentage = 98;
-      feasibilityLabel = 'Full Stage & Staging Rentals';
+      if (costPerGuest < 10) {
+        tierBadgeText = 'Economy Community Grant ($8/guest avg)';
+        feasibilityPercentage = 85;
+        feasibilityLabel = 'Permit & Sanitation Focused';
+      } else if (costPerGuest <= 22) {
+        tierBadgeText = 'Moderate Festival ($14/guest avg)';
+        feasibilityPercentage = 95;
+        feasibilityLabel = 'Live Music & Refreshment Ready';
+      } else {
+        tierBadgeText = 'Large Scale Block Party ($25+/guest avg)';
+        feasibilityPercentage = 98;
+        feasibilityLabel = 'Full Stage & Staging Rentals';
+      }
     }
   }
 
   // Category distributions strictly summing to 100%
-  const venueAmt = Math.round(sandboxBudget * 0.32);
-  const cateringAmt = Math.round(sandboxBudget * 0.34);
-  const photoAmt = Math.round(sandboxBudget * 0.12);
+  const venueAmt = Math.round(sandboxBudget * (isIndian ? 0.25 : 0.32));
+  const cateringAmt = Math.round(sandboxBudget * (isIndian ? 0.35 : 0.34));
+  const photoAmt = Math.round(sandboxBudget * (isIndian ? 0.10 : 0.12));
+  const attireAmt = Math.round(sandboxBudget * (isIndian ? 0.14 : 0.00));
   const decorAmt = Math.round(sandboxBudget * 0.08);
-  const musicAmt = Math.round(sandboxBudget * 0.06);
-  const contingencyAmt = sandboxBudget - (venueAmt + cateringAmt + photoAmt + decorAmt + musicAmt);
+  const musicAmt = Math.round(sandboxBudget * (isIndian ? 0.00 : 0.06));
+  const contingencyAmt = sandboxBudget - (venueAmt + cateringAmt + photoAmt + attireAmt + decorAmt + musicAmt);
+
+  const formatSandboxAmount = (amt: number) => {
+    return isIndian ? formatIndianCurrency(amt) : `$${amt.toLocaleString()}`;
+  };
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '3.5rem', paddingBottom: '3rem' }}>
       {/* 1. Hero Landing Section */}
@@ -308,9 +393,53 @@ export const HomePage: React.FC<HomePageProps> = ({
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1rem', background: '#FFFFFF', border: '1px solid rgba(234, 88, 12, 0.25)', borderRadius: 'var(--radius-md)', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#16A34A', boxShadow: '0 0 8px #16A34A' }} />
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#140A05' }}>Deterministic Engine: Active</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {/* Currency Mode Selector */}
+            <div style={{ display: 'inline-flex', padding: '0.25rem', background: '#FFFFFF', border: '1.5px solid rgba(234, 88, 12, 0.3)', borderRadius: 'var(--radius-full)', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              <button
+                type="button"
+                id="btn-sandbox-curr-inr"
+                onClick={() => handleCurrencyChange('INR')}
+                style={{
+                  padding: '0.4rem 0.85rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: sandboxCurrency === 'INR' ? 'linear-gradient(135deg, #F97316, #EA580C)' : 'transparent',
+                  color: sandboxCurrency === 'INR' ? '#FFFFFF' : '#4B5563',
+                  boxShadow: sandboxCurrency === 'INR' ? '0 2px 8px rgba(234, 88, 12, 0.3)' : 'none',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                🇮🇳 INR (₹ Lakhs)
+              </button>
+              <button
+                type="button"
+                id="btn-sandbox-curr-usd"
+                onClick={() => handleCurrencyChange('USD')}
+                style={{
+                  padding: '0.4rem 0.85rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: sandboxCurrency === 'USD' ? 'linear-gradient(135deg, #F97316, #EA580C)' : 'transparent',
+                  color: sandboxCurrency === 'USD' ? '#FFFFFF' : '#4B5563',
+                  boxShadow: sandboxCurrency === 'USD' ? '0 2px 8px rgba(234, 88, 12, 0.3)' : 'none',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                💵 USD ($)
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1rem', background: '#FFFFFF', border: '1px solid rgba(234, 88, 12, 0.25)', borderRadius: 'var(--radius-md)', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#16A34A', boxShadow: '0 0 8px #16A34A' }} />
+              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#140A05' }}>Deterministic Engine: Active</span>
+            </div>
           </div>
         </div>
 
@@ -325,9 +454,9 @@ export const HomePage: React.FC<HomePageProps> = ({
               </label>
               <div className="event-type-selector" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
                 {[
-                  { id: 'wedding', label: 'Wedding', icon: Heart, defaultBudget: 25000, defaultGuests: 130 },
-                  { id: 'birthday', label: 'Birthday', icon: Cake, defaultBudget: 750, defaultGuests: 25 },
-                  { id: 'community', label: 'Community Event', icon: Megaphone, defaultBudget: 2000, defaultGuests: 120 },
+                  { id: 'wedding', label: isIndian ? 'Wedding (विवाह)' : 'Wedding', icon: Heart, budgetINR: 2500000, budgetUSD: 25000, guestsINR: 250, guestsUSD: 130 },
+                  { id: 'birthday', label: isIndian ? 'Birthday (जन्मदिन)' : 'Birthday', icon: Cake, budgetINR: 150000, budgetUSD: 750, guestsINR: 40, guestsUSD: 25 },
+                  { id: 'community', label: isIndian ? 'Community (उत्सव)' : 'Community Event', icon: Megaphone, budgetINR: 350000, budgetUSD: 2000, guestsINR: 200, guestsUSD: 120 },
                 ].map((t) => {
                   const Icon = t.icon;
                   const isSelected = sandboxType === t.id;
@@ -337,8 +466,8 @@ export const HomePage: React.FC<HomePageProps> = ({
                       type="button"
                       onClick={() => {
                         setSandboxType(t.id as EventType);
-                        setSandboxBudget(t.defaultBudget);
-                        setSandboxGuests(t.defaultGuests);
+                        setSandboxBudget(isIndian ? t.budgetINR : t.budgetUSD);
+                        setSandboxGuests(isIndian ? t.guestsINR : t.guestsUSD);
                       }}
                       style={{
                         display: 'flex',
@@ -356,7 +485,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                       }}
                     >
                       <Icon size={20} color={isSelected ? '#EA580C' : '#6B7280'} />
-                      <span style={{ fontSize: '0.85rem' }}>{t.label}</span>
+                      <span style={{ fontSize: '0.825rem' }}>{t.label}</span>
                     </button>
                   );
                 })}
@@ -376,7 +505,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               <input
                 type="range"
                 min="10"
-                max={sandboxType === 'wedding' ? 350 : sandboxType === 'birthday' ? 100 : 500}
+                max={isIndian ? (sandboxType === 'wedding' ? 800 : sandboxType === 'birthday' ? 150 : 600) : (sandboxType === 'wedding' ? 350 : sandboxType === 'birthday' ? 100 : 500)}
                 step="5"
                 value={sandboxGuests}
                 onChange={(e) => setSandboxGuests(Number(e.target.value))}
@@ -384,8 +513,8 @@ export const HomePage: React.FC<HomePageProps> = ({
               />
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#6B7280', marginTop: '0.25rem' }}>
                 <span>10 guests</span>
-                <span>Preset: {sandboxType === 'wedding' ? '120' : sandboxType === 'birthday' ? '25' : '100'}</span>
-                <span>{sandboxType === 'wedding' ? '350+' : sandboxType === 'birthday' ? '100' : '500+'}</span>
+                <span>Preset: {isIndian ? (sandboxType === 'wedding' ? '250' : sandboxType === 'birthday' ? '40' : '200') : (sandboxType === 'wedding' ? '120' : sandboxType === 'birthday' ? '25' : '100')}</span>
+                <span>{isIndian ? (sandboxType === 'wedding' ? '800+' : sandboxType === 'birthday' ? '150+' : '600+') : (sandboxType === 'wedding' ? '350+' : sandboxType === 'birthday' ? '100' : '500+')}</span>
               </div>
             </div>
 
@@ -393,25 +522,25 @@ export const HomePage: React.FC<HomePageProps> = ({
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
                 <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#140A05' }}>
-                  3. Total Target Budget (USD)
+                  3. Total Target Budget ({isIndian ? 'INR ₹' : 'USD $'})
                 </label>
                 <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#16A34A', fontFamily: 'var(--font-mono)' }}>
-                  ${sandboxBudget.toLocaleString()}
+                  {formatSandboxAmount(sandboxBudget)}
                 </span>
               </div>
               <input
                 type="range"
-                min={sandboxType === 'birthday' ? 200 : sandboxType === 'community' ? 500 : 3000}
-                max={sandboxType === 'wedding' ? 75000 : sandboxType === 'birthday' ? 5000 : 15000}
-                step={sandboxType === 'birthday' ? 50 : 250}
+                min={isIndian ? (sandboxType === 'birthday' ? 25000 : sandboxType === 'community' ? 50000 : 300000) : (sandboxType === 'birthday' ? 200 : sandboxType === 'community' ? 500 : 3000)}
+                max={isIndian ? (sandboxType === 'wedding' ? 10000000 : sandboxType === 'birthday' ? 500000 : 2500000) : (sandboxType === 'wedding' ? 75000 : sandboxType === 'birthday' ? 5000 : 15000)}
+                step={isIndian ? (sandboxType === 'wedding' ? 50000 : 10000) : (sandboxType === 'birthday' ? 50 : 250)}
                 value={sandboxBudget}
                 onChange={(e) => setSandboxBudget(Number(e.target.value))}
                 style={{ width: '100%', accentColor: '#16A34A', cursor: 'pointer' }}
               />
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#6B7280', marginTop: '0.25rem' }}>
-                <span>{sandboxType === 'birthday' ? '$200' : sandboxType === 'community' ? '$500' : '$3,000'}</span>
-                <span>Average: {sandboxType === 'wedding' ? '$25,000' : sandboxType === 'birthday' ? '$650' : '$1,500'}</span>
-                <span>{sandboxType === 'wedding' ? '$75k+' : sandboxType === 'birthday' ? '$5k' : '$15k'}</span>
+                <span>{isIndian ? (sandboxType === 'birthday' ? '₹25k' : sandboxType === 'community' ? '₹50k' : '₹3L') : (sandboxType === 'birthday' ? '$200' : sandboxType === 'community' ? '$500' : '$3,000')}</span>
+                <span>Average: {isIndian ? (sandboxType === 'wedding' ? '₹25 Lakhs' : sandboxType === 'birthday' ? '₹1.5 Lakhs' : '₹3.5 Lakhs') : (sandboxType === 'wedding' ? '$25,000' : sandboxType === 'birthday' ? '$650' : '$1,500')}</span>
+                <span>{isIndian ? (sandboxType === 'wedding' ? '₹1 Crore' : sandboxType === 'birthday' ? '₹5L' : '₹25L') : (sandboxType === 'wedding' ? '$75k+' : sandboxType === 'birthday' ? '$5k' : '$15k')}</span>
               </div>
             </div>
 
@@ -452,8 +581,8 @@ export const HomePage: React.FC<HomePageProps> = ({
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 130px), 1fr))', gap: '0.75rem' }}>
               <div style={{ padding: '0.85rem', borderRadius: 'var(--radius-md)', background: 'rgba(234, 88, 12, 0.06)', border: '1px solid rgba(234, 88, 12, 0.2)' }}>
                 <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6B4226', textTransform: 'uppercase' }}>Cost Per Guest</span>
-                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#C2410C', fontFamily: 'var(--font-mono)', marginTop: '0.2rem' }}>
-                  ${costPerGuest}
+                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#C2410C', fontFamily: 'var(--font-mono)', marginTop: '0.2rem' }}>
+                  {formatSandboxAmount(costPerGuest)}
                 </div>
                 <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9A3412', marginTop: '0.25rem' }}>
                   {tierBadgeText}
@@ -462,7 +591,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
               <div style={{ padding: '0.85rem', borderRadius: 'var(--radius-md)', background: 'rgba(22, 163, 74, 0.06)', border: '1px solid rgba(22, 163, 74, 0.2)' }}>
                 <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#166534', textTransform: 'uppercase' }}>Feasibility Score</span>
-                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#15803D', fontFamily: 'var(--font-mono)', marginTop: '0.2rem' }}>
+                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#15803D', fontFamily: 'var(--font-mono)', marginTop: '0.2rem' }}>
                   {feasibilityPercentage}%
                 </div>
                 <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#166534', marginTop: '0.25rem' }}>
@@ -475,45 +604,87 @@ export const HomePage: React.FC<HomePageProps> = ({
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem', flexWrap: 'wrap', gap: '0.25rem' }}>
                 <span style={{ fontSize: '0.825rem', fontWeight: 700, color: '#140A05' }}>Deterministic Budget Allocations</span>
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#16A34A' }}>Sum: 100% (${sandboxBudget.toLocaleString()})</span>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#16A34A' }}>Sum: 100% ({formatSandboxAmount(sandboxBudget)})</span>
               </div>
 
               {/* Multi-Color Segmented Bar */}
-              <div style={{ display: 'flex', height: '14px', borderRadius: '99px', overflow: 'hidden', gap: '2px', background: '#E5E7EB', marginBottom: '1rem' }}>
-                <div style={{ width: '32%', background: '#F97316' }} title="Venue (32%)" />
-                <div style={{ width: '34%', background: '#EA580C' }} title="Catering (34%)" />
-                <div style={{ width: '12%', background: '#D97706' }} title="Photography (12%)" />
-                <div style={{ width: '8%', background: '#CA8A04' }} title="Decor (8%)" />
-                <div style={{ width: '6%', background: '#84CC16' }} title="Music (6%)" />
-                <div style={{ width: '8%', background: '#10B981' }} title="Contingency Reserve (8%)" />
-              </div>
+              {isIndian ? (
+                <div style={{ display: 'flex', height: '14px', borderRadius: '99px', overflow: 'hidden', gap: '2px', background: '#E5E7EB', marginBottom: '1rem' }}>
+                  <div style={{ width: '35%', background: '#EA580C' }} title="Catering & Mithai (35%)" />
+                  <div style={{ width: '25%', background: '#F97316' }} title="Venue & Mandap (25%)" />
+                  <div style={{ width: '14%', background: '#CA8A04' }} title="Attire & Jewelry (14%)" />
+                  <div style={{ width: '10%', background: '#D97706' }} title="Photography & Drone (10%)" />
+                  <div style={{ width: '8%', background: '#F59E0B' }} title="Decor & Florals (8%)" />
+                  <div style={{ width: '8%', background: '#10B981' }} title="Emergency Contingency (8%)" />
+                </div>
+              ) : (
+                <div style={{ display: 'flex', height: '14px', borderRadius: '99px', overflow: 'hidden', gap: '2px', background: '#E5E7EB', marginBottom: '1rem' }}>
+                  <div style={{ width: '32%', background: '#F97316' }} title="Venue (32%)" />
+                  <div style={{ width: '34%', background: '#EA580C' }} title="Catering (34%)" />
+                  <div style={{ width: '12%', background: '#D97706' }} title="Photography (12%)" />
+                  <div style={{ width: '8%', background: '#CA8A04' }} title="Decor (8%)" />
+                  <div style={{ width: '6%', background: '#84CC16' }} title="Music (6%)" />
+                  <div style={{ width: '8%', background: '#10B981' }} title="Contingency Reserve (8%)" />
+                </div>
+              )}
 
               {/* Category Breakdown Rows */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: '0.5rem', fontSize: '0.8rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
-                  <span style={{ color: '#4B5563' }}>🏛️ Venue & Setup (32%)</span>
-                  <span style={{ fontWeight: 700, color: '#111827' }}>${venueAmt.toLocaleString()}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
-                  <span style={{ color: '#4B5563' }}>🍽️ Food & Bar (34%)</span>
-                  <span style={{ fontWeight: 700, color: '#111827' }}>${cateringAmt.toLocaleString()}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
-                  <span style={{ color: '#4B5563' }}>📸 Photography (12%)</span>
-                  <span style={{ fontWeight: 700, color: '#111827' }}>${photoAmt.toLocaleString()}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
-                  <span style={{ color: '#4B5563' }}>🌸 Decor & Florals (8%)</span>
-                  <span style={{ fontWeight: 700, color: '#111827' }}>${decorAmt.toLocaleString()}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
-                  <span style={{ color: '#4B5563' }}>🎵 Music & DJ (6%)</span>
-                  <span style={{ fontWeight: 700, color: '#111827' }}>${musicAmt.toLocaleString()}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '6px' }}>
-                  <span style={{ color: '#065F46', fontWeight: 700 }}>🛡️ Contingency (8%)</span>
-                  <span style={{ fontWeight: 800, color: '#065F46' }}>${contingencyAmt.toLocaleString()}</span>
-                </div>
+                {isIndian ? (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
+                      <span style={{ color: '#4B5563' }}>🍽️ Catering & Mithai (35%)</span>
+                      <span style={{ fontWeight: 700, color: '#111827' }}>{formatSandboxAmount(cateringAmt)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
+                      <span style={{ color: '#4B5563' }}>🏛️ Venue & Mandap (25%)</span>
+                      <span style={{ fontWeight: 700, color: '#111827' }}>{formatSandboxAmount(venueAmt)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
+                      <span style={{ color: '#4B5563' }}>👗 Attire & Jewelry (14%)</span>
+                      <span style={{ fontWeight: 700, color: '#111827' }}>{formatSandboxAmount(attireAmt)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
+                      <span style={{ color: '#4B5563' }}>📸 Photography & Drone (10%)</span>
+                      <span style={{ fontWeight: 700, color: '#111827' }}>{formatSandboxAmount(photoAmt)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
+                      <span style={{ color: '#4B5563' }}>🌸 Decor & Ambience (8%)</span>
+                      <span style={{ fontWeight: 700, color: '#111827' }}>{formatSandboxAmount(decorAmt)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '6px' }}>
+                      <span style={{ color: '#065F46', fontWeight: 700 }}>🛡️ Contingency (8%)</span>
+                      <span style={{ fontWeight: 800, color: '#065F46' }}>{formatSandboxAmount(contingencyAmt)}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
+                      <span style={{ color: '#4B5563' }}>🏛️ Venue & Setup (32%)</span>
+                      <span style={{ fontWeight: 700, color: '#111827' }}>${venueAmt.toLocaleString()}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
+                      <span style={{ color: '#4B5563' }}>🍽️ Food & Bar (34%)</span>
+                      <span style={{ fontWeight: 700, color: '#111827' }}>${cateringAmt.toLocaleString()}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
+                      <span style={{ color: '#4B5563' }}>📸 Photography (12%)</span>
+                      <span style={{ fontWeight: 700, color: '#111827' }}>${photoAmt.toLocaleString()}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
+                      <span style={{ color: '#4B5563' }}>🌸 Decor & Florals (8%)</span>
+                      <span style={{ fontWeight: 700, color: '#111827' }}>${decorAmt.toLocaleString()}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: '#F9FAFB', borderRadius: '6px' }}>
+                      <span style={{ color: '#4B5563' }}>🎵 Music & DJ (6%)</span>
+                      <span style={{ fontWeight: 700, color: '#111827' }}>${musicAmt.toLocaleString()}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '6px' }}>
+                      <span style={{ color: '#065F46', fontWeight: 700 }}>🛡️ Contingency (8%)</span>
+                      <span style={{ fontWeight: 800, color: '#065F46' }}>${contingencyAmt.toLocaleString()}</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -525,9 +696,11 @@ export const HomePage: React.FC<HomePageProps> = ({
                   eventType: sandboxType,
                   guestCount: sandboxGuests,
                   totalBudget: sandboxBudget,
-                  currency: 'USD',
+                  currency: sandboxCurrency,
                   venueSetting: sandboxSetting,
-                  title: `${sandboxType === 'wedding' ? 'Enchanted' : sandboxType === 'birthday' ? 'Exciting' : 'Grand'} ${sandboxType.toUpperCase()} Celebration`,
+                  title: isIndian
+                    ? `${sandboxType === 'wedding' ? 'Shubh Vivah (शुभ विवाह)' : sandboxType === 'birthday' ? 'Janamdin Utsav (जन्मदिन उत्सव)' : 'Samudayik Utsav (सामुदायिक उत्सव)'} Master Plan`
+                    : `${sandboxType === 'wedding' ? 'Enchanted' : sandboxType === 'birthday' ? 'Exciting' : 'Grand'} ${sandboxType.toUpperCase()} Celebration`,
                 });
               }}
               className="btn-primary pulse-glow"
@@ -540,7 +713,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               }}
             >
               <Wand2 size={18} />
-              <span>Turn Sandbox into Master Plan ✨</span>
+              <span>{isIndian ? 'Turn Sandbox into Indian Master Plan ✨' : 'Turn Sandbox into Master Plan ✨'}</span>
               <ArrowRight size={17} />
             </button>
           </div>

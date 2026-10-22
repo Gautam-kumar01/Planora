@@ -1,6 +1,7 @@
 // Sample Presets for Weddings, Birthdays, and Community Events based on PRD Personas
 
 import { EventPlan } from '../types';
+import { initializeIndianEventConfig } from './indianEventEngine';
 
 export const SAMPLE_WEDDING_PLAN: EventPlan = {
   id: 'preset-wedding-01',
@@ -384,6 +385,8 @@ export const SAMPLE_WEDDING_PLAN: EventPlan = {
     { id: 'gst-12', name: 'Marcus Brody', group: 'colleagues', rsvpStatus: 'pending', plusOnes: 1, dietary: 'None', notes: 'RSVP pending flight confirmation' },
     { id: 'gst-13', name: 'Chloe Dubois', group: 'friends', rsvpStatus: 'declined', plusOnes: 0, dietary: 'None', notes: 'Overseas attending conference' },
   ],
+  indianIntelligence: initializeIndianEventConfig('wedding', 150, '2027-05-15'),
+  language: 'en',
 };
 
 export const SAMPLE_BIRTHDAY_PLAN: EventPlan = {

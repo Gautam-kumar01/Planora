@@ -59,6 +59,7 @@ import { NextBestStepCard } from './components/NextBestStepCard';
 import { CommunityChecklistHub } from './components/CommunityChecklistHub';
 import { ChangeImpactModal } from './components/ChangeImpactModal';
 import { PlanConflictModal } from './components/PlanConflictModal';
+import { IndianEventIntelligenceModal } from './components/IndianEventIntelligenceModal';
 
 export function App() {
   const [plans, setPlans] = useState<EventPlan[]>([]);
@@ -80,6 +81,7 @@ export function App() {
   const [isLiveDirectorOpen, setIsLiveDirectorOpen] = useState(false);
   const [isChangeImpactOpen, setIsChangeImpactOpen] = useState(false);
   const [isConflictCheckerOpen, setIsConflictCheckerOpen] = useState(false);
+  const [isIndianIntelligenceOpen, setIsIndianIntelligenceOpen] = useState(false);
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [wizardInitialValues, setWizardInitialValues] = useState<Partial<OnboardingFormValues> | null>(null);
@@ -129,6 +131,7 @@ export function App() {
         setIsChangeImpactOpen(false);
         setIsConflictCheckerOpen(false);
         setIsCopilotOpen(false);
+        setIsIndianIntelligenceOpen(false);
       }
     };
 
@@ -520,6 +523,15 @@ export function App() {
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onOpenAiTransparency={() => setIsAiTransparencyOpen(true)}
         onOpenShareModal={() => setIsShareModalOpen(true)}
+        onOpenIndianIntelligence={() => setIsIndianIntelligenceOpen(true)}
+        onToggleLanguage={() => {
+          if (activePlan) {
+            const nextLang = activePlan.language === 'hi' ? 'en' : 'hi';
+            updateActivePlan({ language: nextLang });
+            showToast(nextLang === 'hi' ? 'योजना हिंदी में सेट की गई' : 'Plan switched to English');
+          }
+        }}
+        language={activePlan?.language || 'en'}
       />
 
       {/* Main Container */}
@@ -648,6 +660,12 @@ export function App() {
               onOpenAiDocs={() => setIsAiDocsOpen(true)}
               onOpenChangeImpact={() => setIsChangeImpactOpen(true)}
               onOpenConflictChecker={() => setIsConflictCheckerOpen(true)}
+              onOpenIndianIntelligence={() => setIsIndianIntelligenceOpen(true)}
+              onToggleLanguage={() => {
+                const nextLang = activePlan.language === 'hi' ? 'en' : 'hi';
+                updateActivePlan({ language: nextLang });
+                showToast(nextLang === 'hi' ? 'योजना हिंदी में सेट की गई' : 'Plan switched to English');
+              }}
               onPrint={handlePrint}
               onExportICS={handleExportICS}
               currentUser={currentUser}
@@ -1056,6 +1074,19 @@ export function App() {
           plan={activePlan}
           onUpdatePlan={(updatedFields) => {
             updateActivePlan(updatedFields);
+          }}
+        />
+      )}
+
+      {/* Indian Event Intelligence Modal (भारतीय इवेंट इंटेलिजेंस) */}
+      {activePlan && (
+        <IndianEventIntelligenceModal
+          isOpen={isIndianIntelligenceOpen}
+          onClose={() => setIsIndianIntelligenceOpen(false)}
+          plan={activePlan}
+          onUpdatePlan={(updatedFields) => {
+            updateActivePlan(updatedFields);
+            showToast('Updated Indian Event Intelligence configuration');
           }}
         />
       )}

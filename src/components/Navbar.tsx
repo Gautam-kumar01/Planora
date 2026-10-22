@@ -39,6 +39,9 @@ interface NavbarProps {
   onOpenAuthModal: () => void;
   onOpenAiTransparency: () => void;
   onOpenShareModal?: () => void;
+  onOpenIndianIntelligence?: () => void;
+  onToggleLanguage?: () => void;
+  language?: 'en' | 'hi';
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -60,6 +63,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAuthModal,
   onOpenAiTransparency,
   onOpenShareModal,
+  onOpenIndianIntelligence,
+  onToggleLanguage,
+  language = 'en',
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -280,6 +286,30 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Right Actions: Option C Cloud Sync Pill & AI Copilot Drawer */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            {onOpenIndianIntelligence && (
+              <button
+                id="btn-nav-indian-intelligence"
+                type="button"
+                onClick={onOpenIndianIntelligence}
+                className="btn-ghost"
+                title="Indian Event Intelligence (Bharat Mode): Multi-day functions, pure veg/Jain catering & permits"
+                style={{
+                  padding: '0.38rem 0.75rem',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  background: 'linear-gradient(135deg, rgba(255, 153, 51, 0.2), rgba(19, 136, 8, 0.2))',
+                  border: '1px solid rgba(251, 146, 60, 0.4)',
+                  borderRadius: 'var(--radius-full)',
+                  color: '#FED7AA',
+                }}
+              >
+                <span>🇮🇳 {language === 'hi' ? 'भारत मोड' : 'Bharat Mode'}</span>
+              </button>
+            )}
+
             <button
               onClick={onOpenAuthModal}
               className="btn-ghost"
@@ -498,6 +528,30 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Plans ({plans.length})</span>
             </button>
           </div>
+
+          {/* Bharat Mode button on Mobile */}
+          {onOpenIndianIntelligence && (
+            <button
+              onClick={() => handleMobileNav(onOpenIndianIntelligence)}
+              className="btn-ghost"
+              style={{
+                width: '100%',
+                justifyContent: 'center',
+                padding: '0.65rem',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                background: 'linear-gradient(135deg, rgba(255, 153, 51, 0.2), rgba(19, 136, 8, 0.2))',
+                border: '1px solid rgba(251, 146, 60, 0.4)',
+                borderRadius: 'var(--radius-sm)',
+                color: '#FED7AA',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              <span>🇮🇳 {language === 'hi' ? 'भारतीय इवेंट इंटेलिजेंस (भारत मोड)' : 'Indian Event Intelligence (Bharat Mode)'}</span>
+            </button>
+          )}
 
           {/* Cloud Sync & Auth status on Mobile */}
           <button

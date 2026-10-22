@@ -202,6 +202,8 @@ export interface EventPlan {
   communityChecklist?: CommunityChecklistItem[];
   resolvedConflictIds?: string[];
   dismissedConflictIds?: string[];
+  indianIntelligence?: IndianEventConfig;
+  language?: 'en' | 'hi';
 }
 
 export interface OnboardingFormValues {
@@ -321,4 +323,85 @@ export interface PlanConflictFinding {
   isDismissed?: boolean;
   isResolved?: boolean;
 }
+
+// ==========================================
+// Indian Event Intelligence Architecture
+// ==========================================
+
+export type IndianFunctionType =
+  | 'roka'
+  | 'mehendi'
+  | 'haldi'
+  | 'sangeet'
+  | 'wedding_pheras'
+  | 'reception'
+  | 'college_fest'
+  | 'community_utsav'
+  | 'birthday_puja';
+
+export interface IndianFunctionItem {
+  id: string;
+  type: IndianFunctionType;
+  title: string;
+  hindiTitle?: string;
+  date?: string;
+  startTime?: string;
+  endTime?: string;
+  venueName?: string;
+  dressCode?: string;
+  expectedGuests: number;
+  ritualNotes?: string;
+  isCompleted?: boolean;
+}
+
+export type IndianCateringDiet = 'pure_veg' | 'jain_veg' | 'swaminarayan' | 'mixed_veg_nonveg' | 'halal_certified';
+
+export interface IndianCateringConfig {
+  dietType: IndianCateringDiet;
+  vegPercentage: number;
+  nonVegPercentage: number;
+  jainGuestCount: number;
+  platePriceEstimate: number;
+  liveChaatCounters: boolean;
+  mithaiLiveCounters: boolean;
+  beveragePaanCounter: boolean;
+  unannouncedBufferPercent: number; // default 10%
+  notes?: string;
+}
+
+export type PermitVerificationStatus = 'verified' | 'to_verify' | 'not_applicable';
+
+export interface IndianPermitItem {
+  id: string;
+  title: string;
+  hindiTitle?: string;
+  authority: string;
+  status: PermitVerificationStatus;
+  estimatedFeeInr?: number;
+  guidance: string;
+  isMandatory: boolean;
+  sourceType: 'statutory_norm' | 'vendor_claim' | 'custom_entry';
+  documentNumber?: string;
+  verifiedAt?: string;
+}
+
+export interface IndianBackupConfig {
+  hasDualDGSet: boolean;
+  pandalWaterproofing: boolean;
+  summerMistFans: boolean;
+  winterPatioHeaters: boolean;
+  elderlyWheelchairAccess: boolean;
+  elderlyDiningProximity: boolean;
+}
+
+export interface IndianEventConfig {
+  isEnabled: boolean;
+  region: 'North' | 'South' | 'West' | 'East' | 'Central';
+  language: 'en' | 'hi';
+  functions: IndianFunctionItem[];
+  catering: IndianCateringConfig;
+  permits: IndianPermitItem[];
+  backups: IndianBackupConfig;
+}
+
 

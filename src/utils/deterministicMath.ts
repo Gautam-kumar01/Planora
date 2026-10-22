@@ -47,15 +47,48 @@ export const DEFAULT_BUDGET_SPLITS: Record<EventType, DefaultCategorySplit[]> = 
   ],
 };
 
+export const INDIAN_BUDGET_SPLITS: Record<EventType, DefaultCategorySplit[]> = {
+  wedding: [
+    { category: 'Venue & Accommodation', percentage: 28, notes: 'Banquets/lawns, outstation guest rooms, milni reception' },
+    { category: 'Catering, Chaat & Mithai', percentage: 26, notes: 'Multi-cuisine banquet, live chaat bazaar, mithai & beverages' },
+    { category: 'Mandap, Stage & Floral Decor', percentage: 13, notes: 'Vedic mandap, floral stage, thematic entrance & lighting' },
+    { category: 'Photography & Cinematography', percentage: 9, notes: 'Pre-wedding shoot, candid & traditional video, drone, albums' },
+    { category: 'Bridal & Groom Attire & Jewelry', percentage: 8, notes: 'Lehengas, sherwani, safa, bridal styling & jewelry' },
+    { category: 'DJ, Dhol & Sangeet Setup', percentage: 5, notes: 'Dhol walas, DJ sound rig, LED screen, sangeet choreography' },
+    { category: 'Mehendi & Bridal Makeup', percentage: 3, notes: 'Professional bridal mehndi artists & salon styling team' },
+    { category: 'Shagun, Favors & Welcome Gifts', percentage: 3, notes: 'Welcome hampers, shagun envelopes, guest return favors' },
+    { category: 'Baraat, Logistics & Pandit Ji', percentage: 2, notes: 'Ghodi/vintage car, brass band, veda pandit dakshina & samagri' },
+    { category: 'Contingency Reserve (Buffer)', percentage: 3, notes: 'Buffer for extra plates (10% rule) & seasonal weather', isContingency: true },
+  ],
+  birthday: [
+    { category: 'Food, Chaat & Custom Theme Cake', percentage: 36, notes: 'Catering buffet, live chaat, custom multi-tier cake' },
+    { category: 'Banquet / Venue Rental', percentage: 26, notes: 'Clubhouse hall or lawn rental with basic lighting' },
+    { category: 'DJ, Sound & Party Games', percentage: 16, notes: 'Sound setup, DJ, game host, magic show or arcade' },
+    { category: 'Theme Decor, Balloons & Return Gifts', percentage: 14, notes: 'Theme backdrop, balloon styling, customized return favors' },
+    { category: 'Contingency Reserve', percentage: 8, notes: 'Buffer for unannounced relatives and extra food supplies', isContingency: true },
+  ],
+  community: [
+    { category: 'Stage, Lighting & Line Array Sound', percentage: 28, notes: 'Main performance stage, trusses, line array speakers' },
+    { category: 'Celebrity Artist / Cultural Band', percentage: 26, notes: 'Guest performers, orchestra, folk dancers & anchor' },
+    { category: 'Food Counters & Drinking Water', percentage: 18, notes: 'Prasad / langar distribution or student food stalls' },
+    { category: 'Security, Barricading & Police Bandobast', percentage: 10, notes: 'Bouncers, metal detectors, police coordination' },
+    { category: 'Permits & Municipal Licenses', percentage: 6, notes: 'Sound NOC, fire clearance, municipal permissions' },
+    { category: 'Publicity, Banners & Passes', percentage: 5, notes: 'Directional hoardings, stage passes, digital badges' },
+    { category: 'Contingency Reserve', percentage: 7, notes: 'Reserve for backup generator diesel & volunteer safety', isContingency: true },
+  ],
+};
+
 /**
  * Generates an initial mathematically balanced budget for an event type and total budget.
  * Reconciles rounding differences so Sum(items) === totalBudget.
  */
 export function generateDeterministicBudget(
   eventType: EventType,
-  totalBudget: number
+  totalBudget: number,
+  isIndianMode = false
 ): BudgetItem[] {
-  const splits = DEFAULT_BUDGET_SPLITS[eventType] || DEFAULT_BUDGET_SPLITS.wedding;
+  const source = isIndianMode ? INDIAN_BUDGET_SPLITS : DEFAULT_BUDGET_SPLITS;
+  const splits = source[eventType] || source.wedding;
   let runningTotal = 0;
 
   const items: BudgetItem[] = splits.map((split, index) => {
@@ -111,9 +144,25 @@ export function reconcileBudget(items: BudgetItem[], totalBudget: number): {
 }
 
 /**
- * Formats currency nicely with international currency codes
+ * Formats currency nicely with international currency codes, supporting Indian Lakhs and Crores
  */
 export function formatCurrency(amount: number, currency = 'USD'): string {
+  if (isNaN(amount) || amount === null || amount === undefined) {
+    return currency === 'INR' ? '₹0' : '$0';
+  }
+
+  if (currency === 'INR') {
+    try {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 0,
+      }).format(amount);
+    } catch {
+      return `₹${amount.toLocaleString('en-IN')}`;
+    }
+  }
+
   try {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',

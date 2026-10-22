@@ -20,6 +20,7 @@ import {
   FileText,
   Globe,
   ShieldAlert,
+  Languages,
 } from 'lucide-react';
 import { EventPlan, UserProfile } from '../types';
 import { formatCurrency, calculatePerGuest } from '../utils/deterministicMath';
@@ -35,6 +36,8 @@ interface EventHeaderProps {
   onExportICS?: () => void;
   onOpenChangeImpact?: () => void;
   onOpenConflictChecker?: () => void;
+  onOpenIndianIntelligence?: () => void;
+  onToggleLanguage?: () => void;
   currentUser?: UserProfile | null;
 }
 
@@ -47,11 +50,16 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
   onExportICS,
   onOpenChangeImpact,
   onOpenConflictChecker,
+  onOpenIndianIntelligence,
+  onToggleLanguage,
   currentUser,
 }) => {
   const { basics, budget, updatedAt } = plan;
 
   const activeConflictCount = runPlanConflictAudit(plan).filter((f) => !f.isDismissed && !f.isResolved).length;
+
+  const unverifiedPermitsCount =
+    plan.indianIntelligence?.permits.filter((p) => p.status === 'to_verify' && p.isMandatory).length || 0;
 
   // Calculate Days Remaining or T-Minus
   const calculateDaysLeft = (): { text: string; isPast: boolean } => {
@@ -537,6 +545,69 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
                   {activeConflictCount}
                 </span>
               )}
+            </button>
+          )}
+
+          {onOpenIndianIntelligence && (
+            <button
+              id="btn-workspace-indian-intelligence"
+              type="button"
+              onClick={onOpenIndianIntelligence}
+              className="btn-secondary"
+              title="Indian Event Intelligence: Multi-day functions, pure veg/Jain catering, statutory permits & power backup"
+              style={{
+                padding: '0.5rem 1.05rem',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                background: 'linear-gradient(135deg, rgba(255, 153, 51, 0.12), rgba(19, 136, 8, 0.12))',
+                borderColor: 'rgba(234, 88, 12, 0.35)',
+                color: '#9A3412',
+                boxShadow: '0 2px 6px rgba(45, 24, 15, 0.05)',
+              }}
+            >
+              <span>🇮🇳 {plan.language === 'hi' ? 'भारतीय इंटेलिजेंस' : 'Indian Intelligence'}</span>
+              {unverifiedPermitsCount > 0 && (
+                <span
+                  className="badge"
+                  style={{
+                    background: '#F59E0B',
+                    color: '#78350F',
+                    fontSize: '0.7rem',
+                    padding: '0.1rem 0.4rem',
+                    borderRadius: '99px',
+                    fontWeight: 800,
+                  }}
+                  title={`${unverifiedPermitsCount} statutory permits to verify`}
+                >
+                  {unverifiedPermitsCount} {plan.language === 'hi' ? 'सत्याप्य' : 'to verify'}
+                </span>
+              )}
+            </button>
+          )}
+
+          {onToggleLanguage && (
+            <button
+              id="btn-workspace-language-toggle"
+              type="button"
+              onClick={onToggleLanguage}
+              className="btn-secondary"
+              title="Toggle English / हिंदी Plan Language"
+              style={{
+                padding: '0.5rem 0.85rem',
+                fontSize: '0.825rem',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                background: '#FFFFFF',
+                boxShadow: '0 2px 6px rgba(45, 24, 15, 0.05)',
+              }}
+            >
+              <Languages size={15} color="#C2410C" />
+              <span>{plan.language === 'hi' ? 'English' : 'हिंदी'}</span>
             </button>
           )}
 
