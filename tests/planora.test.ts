@@ -492,8 +492,8 @@ describe('Feature 2: Plan Conflict Checker', () => {
     const plan = JSON.parse(JSON.stringify(SAMPLE_WEDDING_PLAN)) as EventPlan;
     plan.budget.totalBudget = 10000;
     plan.budget.items = [
-      { id: 'b1', category: 'Catering', allocatedAmount: 8000, actualSpent: 0, priority: 'Essential' },
-      { id: 'b2', category: 'Venue', allocatedAmount: 4000, actualSpent: 0, priority: 'Essential' },
+      { id: 'b1', category: 'Catering', allocatedAmount: 8000, spentAmount: 0, percentage: 80 },
+      { id: 'b2', category: 'Venue', allocatedAmount: 4000, spentAmount: 0, percentage: 40 },
     ]; // Sum = 12000 vs 10000
 
     const findings = runPlanConflictAudit(plan);
@@ -558,8 +558,8 @@ describe('Feature 2: Plan Conflict Checker', () => {
     const plan = JSON.parse(JSON.stringify(SAMPLE_WEDDING_PLAN)) as EventPlan;
     plan.budget.totalBudget = 10000;
     plan.budget.items = [
-      { id: 'b1', category: 'Catering', allocatedAmount: 8000, actualSpent: 0, priority: 'Essential' },
-      { id: 'b2', category: 'Venue', allocatedAmount: 4000, actualSpent: 0, priority: 'Essential' },
+      { id: 'b1', category: 'Catering', allocatedAmount: 8000, spentAmount: 0, percentage: 80 },
+      { id: 'b2', category: 'Venue', allocatedAmount: 4000, spentAmount: 0, percentage: 40 },
     ];
 
     const initialFindings = runPlanConflictAudit(plan);
