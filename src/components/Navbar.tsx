@@ -221,46 +221,63 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Center: Event Selector Dropdown & Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                background: 'rgba(45, 24, 15, 0.95)',
-                border: '1px solid rgba(251, 146, 60, 0.38)',
-                borderRadius: 'var(--radius-full)',
-                padding: '0.35rem 0.85rem',
-                gap: '0.4rem',
-              }}
-            >
-              <Layers size={15} color="#FB923C" />
-              <select
-                aria-label="Select Active Event Plan"
-                value={activePlan?.id || ''}
-                onChange={(e) => onSelectPlan(e.target.value)}
+            {plans.length > 0 ? (
+              <div
                 style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#FFFFFF',
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
-                  outline: 'none',
-                  cursor: 'pointer',
-                  maxWidth: '190px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: 'rgba(45, 24, 15, 0.95)',
+                  border: '1px solid rgba(251, 146, 60, 0.38)',
+                  borderRadius: 'var(--radius-full)',
+                  padding: '0.35rem 0.85rem',
+                  gap: '0.4rem',
                 }}
               >
-                {plans.map((p) => (
-                  <option
-                    key={p.id}
-                    value={p.id}
-                    style={{ background: '#1c130d', color: '#fff7ed' }}
-                  >
-                    {p.basics.title} ({p.basics.eventType.toUpperCase()})
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={13} color="#FED7AA" />
-            </div>
+                <Layers size={15} color="#FB923C" />
+                <select
+                  aria-label="Select Active Event Plan"
+                  value={activePlan?.id || ''}
+                  onChange={(e) => onSelectPlan(e.target.value)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#FFFFFF',
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    outline: 'none',
+                    cursor: 'pointer',
+                    maxWidth: '190px',
+                  }}
+                >
+                  {plans.map((p) => (
+                    <option
+                      key={p.id}
+                      value={p.id}
+                      style={{ background: '#1c130d', color: '#fff7ed' }}
+                    >
+                      {p.basics.title} ({p.basics.eventType.toUpperCase()})
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={13} color="#FED7AA" />
+              </div>
+            ) : (
+              <button
+                onClick={onOpenWizard}
+                className="btn-primary"
+                style={{
+                  padding: '0.35rem 0.85rem',
+                  fontSize: '0.8rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                }}
+              >
+                <PlusCircle size={14} />
+                <span>+ Create Plan</span>
+              </button>
+            )}
 
             <button
               id="btn-manage-plans"
@@ -461,52 +478,70 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Active Plan Selector on Mobile */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <span style={{ fontSize: '0.75rem', color: '#FED7AA', fontWeight: 700, textTransform: 'uppercase' }}>
-              Active Master Plan
-            </span>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                background: 'rgba(45, 24, 15, 0.95)',
-                border: '1px solid rgba(251, 146, 60, 0.38)',
-                borderRadius: 'var(--radius-sm)',
-                padding: '0.5rem 0.75rem',
-                gap: '0.5rem',
-              }}
-            >
-              <Layers size={16} color="#FB923C" />
-              <select
-                aria-label="Select Active Event Plan"
-                value={activePlan?.id || ''}
-                onChange={(e) => {
-                  onSelectPlan(e.target.value);
-                  setIsMobileMenuOpen(false);
-                }}
+          {plans.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+              <span style={{ fontSize: '0.75rem', color: '#FED7AA', fontWeight: 700, textTransform: 'uppercase' }}>
+                Active Master Plan
+              </span>
+              <div
                 style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#FFFFFF',
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: '0.9rem',
-                  fontWeight: 700,
-                  outline: 'none',
-                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: 'rgba(45, 24, 15, 0.95)',
+                  border: '1px solid rgba(251, 146, 60, 0.38)',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '0.5rem 0.75rem',
+                  gap: '0.5rem',
                 }}
               >
-                {plans.map((p) => (
-                  <option
-                    key={p.id}
-                    value={p.id}
-                    style={{ background: '#1c130d', color: '#fff7ed' }}
-                  >
-                    {p.basics.title} ({p.basics.eventType.toUpperCase()})
-                  </option>
-                ))}
-              </select>
+                <Layers size={16} color="#FB923C" />
+                <select
+                  aria-label="Select Active Event Plan"
+                  value={activePlan?.id || ''}
+                  onChange={(e) => {
+                    onSelectPlan(e.target.value);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#FFFFFF',
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    outline: 'none',
+                    width: '100%',
+                  }}
+                >
+                  {plans.map((p) => (
+                    <option
+                      key={p.id}
+                      value={p.id}
+                      style={{ background: '#1c130d', color: '#fff7ed' }}
+                    >
+                      {p.basics.title} ({p.basics.eventType.toUpperCase()})
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
+          ) : (
+            <button
+              onClick={() => handleMobileNav(onOpenWizard)}
+              className="btn-primary"
+              style={{
+                padding: '0.65rem',
+                fontSize: '0.85rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                justifyContent: 'center',
+              }}
+            >
+              <PlusCircle size={15} />
+              <span>Create Your First Event Plan</span>
+            </button>
+          )}
 
           {/* Action buttons on mobile */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>

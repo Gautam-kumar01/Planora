@@ -629,3 +629,241 @@ export function initializeIndianEventConfig(
     backups: generateDefaultIndianBackups(),
   };
 }
+
+/**
+ * Standard Indian Wedding Service Partner / Vendor Templates
+ */
+export interface VendorTemplateItem {
+  id: string;
+  service: string;
+  hindiTitle?: string;
+  urgency: 'Immediate' | 'Standard' | 'Flexible';
+  targetLeadTime: string;
+  recommendedBudgetRange: string;
+  questions: string[];
+}
+
+export const INDIAN_VENDOR_TEMPLATES: Record<string, VendorTemplateItem> = {
+  mandap_decor: {
+    id: 'v-in-decor',
+    service: 'Mandap, Stage & Floral Decor',
+    hindiTitle: 'मंडप, जयमाला स्टेज व पुष्प सज्जा',
+    urgency: 'Immediate',
+    targetLeadTime: '6-9 months prior',
+    recommendedBudgetRange: '₹2,50,000 - ₹6,00,000 (15% - 20% of budget)',
+    questions: [
+      'Do you provide fire-retardant fabric and proper smoke ventilation for the sacred havan kund pheras?',
+      'Are fresh vs artificial flowers clearly itemized for the entrance walkway and stage backdrop?',
+      'What is your strike-down and setup turnaround time between evening Sangeet and morning Haldi?',
+    ],
+  },
+  catering_halwai: {
+    id: 'v-in-catering',
+    service: 'Royal Catering, Halwai & Live Counters',
+    hindiTitle: 'शाही कैटरिंग, हलवाई व लाइव चाट काउंटर',
+    urgency: 'Immediate',
+    targetLeadTime: '6-9 months prior',
+    recommendedBudgetRange: '₹6,00,000 - ₹12,00,000 (30% - 38% of budget)',
+    questions: [
+      'Can you guarantee strictly segregated kitchen preparation areas and serving utensils for Jain and Pure Veg food?',
+      'How do you manage the +10% unannounced buffer plates during peak baarat arrival rush?',
+      'Are live interactive stations (chaat, hot jalebi-rabdi, kulfi, tandoor, kulhad chai) included in base pricing?',
+    ],
+  },
+  photography: {
+    id: 'v-in-photo',
+    service: 'Wedding Photography & Cinematic Film',
+    hindiTitle: 'वेडिंग फोटोग्राफी, सिनेमैटिक फिल्म व ड्रोन',
+    urgency: 'Immediate',
+    targetLeadTime: '6-9 months prior',
+    recommendedBudgetRange: '₹1,50,000 - ₹3,50,000 (8% - 12% of budget)',
+    questions: [
+      'Does your team cover all multi-day rituals (Haldi, Mehendi, Sangeet, Baraat, Pheras, Reception) with dedicated candid photographers?',
+      'Can you deliver a 1-minute cinematic teaser reel within 48 hours for immediate social media sharing?',
+      'Do you provide raw 4K footage and what is the turnaround timeline for the physical handcrafted album?',
+    ],
+  },
+  mehendi: {
+    id: 'v-in-mehendi',
+    service: 'Bridal & Guest Mehendi Artists',
+    hindiTitle: 'ब्राइडल व गेस्ट मेहंदी आर्टिस्ट टीम',
+    urgency: 'Standard',
+    targetLeadTime: '3-5 months prior',
+    recommendedBudgetRange: '₹25,000 - ₹65,000',
+    questions: [
+      'Is 100% certified organic, chemical-free henna used to ensure dark rich color without skin irritation?',
+      'How many assistant artists will accompany the lead to apply henna for 50+ female guests without long queues?',
+      'Does the bridal package include full elbow-length arms and feet with customized personalized wedding story motifs?',
+    ],
+  },
+  dhol_dj: {
+    id: 'v-in-dhol-dj',
+    service: 'Baraat Brass Band, Dhol Walas & DJ Sound',
+    hindiTitle: 'बारात ब्रास बैंड, ढोल ताशा व संगीत डीजे',
+    urgency: 'Standard',
+    targetLeadTime: '4-6 months prior',
+    recommendedBudgetRange: '₹50,000 - ₹1,50,000',
+    questions: [
+      'How many Punjabi dhol walas and brass band players are provided for the groom’s baraat procession?',
+      'Do you comply with the 10:00 PM outdoor statutory sound curfew and smoothly transition to indoor acoustic DJ?',
+      'Can you provide wireless clip-on microphones and sound balance for the Pandit Ji during the sacred pheras?',
+    ],
+  },
+  makeup_artist: {
+    id: 'v-in-mua',
+    service: 'Bridal Makeup & Hair Styling (MUA)',
+    hindiTitle: 'ब्राइडल मेकअप, हेयर स्टाइलिंग व ड्रेपिंग',
+    urgency: 'Immediate',
+    targetLeadTime: '5-8 months prior',
+    recommendedBudgetRange: '₹35,000 - ₹85,000',
+    questions: [
+      'Are pre-wedding makeup and hair trial sessions included in the package?',
+      'Does the artist stay on-site for look changes between morning Pheras and evening Reception?',
+      'Is professional heavy lehenga and dupatta pinning / draping assistance included for the bride and mother?',
+    ],
+  },
+  pandit_ji: {
+    id: 'v-in-pandit',
+    service: 'Vedic Pandit Ji / Officiant',
+    hindiTitle: 'विद्वान पंडित जी / वैदिक पुरोहित',
+    urgency: 'Standard',
+    targetLeadTime: '2-4 months prior',
+    recommendedBudgetRange: '₹15,000 - ₹35,000',
+    questions: [
+      'Will you provide the complete list of puja samagri (havan samagri, gangajal, kalash, coconut) well in advance?',
+      'Can you explain the significance of the 7 sacred pheras in bilingual Hindi/English so all attendees feel connected?',
+      'What is the exact auspicious lagna muhurat window for the varmala and pheras?',
+    ],
+  },
+  generator_backup: {
+    id: 'v-in-dg',
+    service: 'Silent DG Generator & Power Backup',
+    hindiTitle: 'साइलेंट डीजी सेट व आपातकालीन बिजली बैकअप',
+    urgency: 'Standard',
+    targetLeadTime: '2-3 months prior',
+    recommendedBudgetRange: '₹30,000 - ₹65,000',
+    questions: [
+      'What is the kVA capacity of the silent DG set and does it support simultaneous AC + heavy stage illumination?',
+      'Is an automated changeover switch installed to prevent even a 2-second blackout during the sacred pheras?',
+      'Is dedicated diesel fuel and a licensed technician on standby throughout the 12-hour ceremony?',
+    ],
+  },
+};
+
+export const GENERAL_VENDOR_TEMPLATES: Record<string, VendorTemplateItem> = {
+  venue: {
+    id: 'v-gen-venue',
+    service: 'Reception & Ceremony Venue',
+    urgency: 'Immediate',
+    targetLeadTime: '9-12 months prior',
+    recommendedBudgetRange: '35% - 45% of total budget',
+    questions: [
+      'What is your cancellation and date postponement policy?',
+      'Are tables, chairs, and standard linens included in the venue rental fee?',
+      'What are the sound curfew and alcohol licensing restrictions?',
+    ],
+  },
+  catering: {
+    id: 'v-gen-catering',
+    service: 'Catering & Beverage Bar Team',
+    urgency: 'Immediate',
+    targetLeadTime: '6-8 months prior',
+    recommendedBudgetRange: '25% - 35% of total budget',
+    questions: [
+      'Can we schedule a private tasting before signing the contract?',
+      'How do you accommodate severe allergies and vegan/vegetarian guests?',
+      'What is your server and bartender staffing ratio per 50 guests?',
+    ],
+  },
+  photography: {
+    id: 'v-gen-photo',
+    service: 'Professional Event Photographer',
+    urgency: 'Immediate',
+    targetLeadTime: '6-9 months prior',
+    recommendedBudgetRange: '10% - 15% of total budget',
+    questions: [
+      'How many hours of coverage are included and do you bring a second shooter?',
+      'What is the turnaround time for the full edited high-res digital gallery?',
+      'Have you shot at our venue or in similar ambient lighting conditions?',
+    ],
+  },
+  dj_sound: {
+    id: 'v-gen-dj',
+    service: 'DJ & Sound Production',
+    urgency: 'Standard',
+    targetLeadTime: '4-6 months prior',
+    recommendedBudgetRange: '6% - 10% of total budget',
+    questions: [
+      'Do you provide all sound equipment, wireless microphones, and dance floor lighting?',
+      'Can we submit a strict "must-play" and "do-not-play" song list?',
+      'What backup audio equipment do you bring in case of technical malfunction?',
+    ],
+  },
+  florals_decor: {
+    id: 'v-gen-decor',
+    service: 'Florals, Styling & Event Rentals',
+    urgency: 'Standard',
+    targetLeadTime: '4-6 months prior',
+    recommendedBudgetRange: '8% - 12% of total budget',
+    questions: [
+      'Can you create centerpiece samples before final approval?',
+      'Do you handle delivery, setup, and late-night breakdown / removal?',
+      'Can ceremony florals be repurposed for the reception dinner tables?',
+    ],
+  },
+  bakery: {
+    id: 'v-gen-bakery',
+    service: 'Specialty Cake & Dessert Station',
+    urgency: 'Flexible',
+    targetLeadTime: '2-4 months prior',
+    recommendedBudgetRange: '2% - 4% of total budget',
+    questions: [
+      'Do you offer tasting boxes for flavor and filling selection?',
+      'What is your delivery window and setup protocol for delicate multi-tier cakes?',
+      'Are allergen-friendly (gluten-free, nut-free, vegan) cupcakes available?',
+    ],
+  },
+  transport: {
+    id: 'v-gen-shuttle',
+    service: 'Guest Shuttle & Transportation',
+    urgency: 'Flexible',
+    targetLeadTime: '3-4 months prior',
+    recommendedBudgetRange: '3% - 5% of total budget',
+    questions: [
+      'What is the vehicle fleet size and passenger capacity per shuttle run?',
+      'Are drivers commercially licensed with real-time GPS tracking?',
+      'What is the overtime rate if reception dancing runs 30 minutes late?',
+    ],
+  },
+  coordinator: {
+    id: 'v-gen-coordinator',
+    service: 'Day-of Event Coordinator',
+    urgency: 'Standard',
+    targetLeadTime: '4-6 months prior',
+    recommendedBudgetRange: '5% - 8% of total budget',
+    questions: [
+      'How many weeks prior to the event do you take over vendor management?',
+      'Do you run the rehearsal and manage the minute-by-minute run-of-show?',
+      'How many assistant coordinators will be on-site on the event day?',
+    ],
+  },
+};
+
+/**
+ * Generates default service partners for Indian Celebrations
+ */
+export function generateDefaultIndianVendors(
+  guestCount = 250,
+  totalBudgetINR = 2500000
+): import('../types').VendorItem[] {
+  return Object.values(INDIAN_VENDOR_TEMPLATES).map((tmpl, idx) => ({
+    id: `vnd-in-${idx + 1}`,
+    service: tmpl.service,
+    urgency: tmpl.urgency,
+    status: 'to_research' as const,
+    targetLeadTime: tmpl.targetLeadTime,
+    recommendedBudgetRange: tmpl.recommendedBudgetRange,
+    questions: tmpl.questions,
+  }));
+}
+

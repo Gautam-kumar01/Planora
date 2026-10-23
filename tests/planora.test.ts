@@ -90,6 +90,27 @@ describe('Priority 1 — Security, Privacy & Plan Ownership Isolation', () => {
     expect(loadedB.some((p) => p.id === 'plan-a-1')).toBe(false);
   });
 
+  it('guarantees new logged-in user gets an empty plans list with ZERO pre-built presets', () => {
+    // New user with no saved plans
+    const freshUserPlans = loadSavedPlans('new-registered-user-999');
+    expect(freshUserPlans).toEqual([]);
+    expect(freshUserPlans.length).toBe(0);
+  });
+
+  it('strictly excludes preset templates from logged-in user storage and access', () => {
+    // Presets cannot be accessed by logged in users
+    expect(canUserAccessPlan(SAMPLE_WEDDING_PLAN, 'user-123')).toBe(false);
+    expect(canUserAccessPlan(SAMPLE_BIRTHDAY_PLAN, 'user-123')).toBe(false);
+    expect(canUserAccessPlan(SAMPLE_COMMUNITY_PLAN, 'user-123')).toBe(false);
+
+    // If an attempt is made to save preset plans into a user session, they are filtered out
+    savePlans([SAMPLE_WEDDING_PLAN, { ...SAMPLE_BIRTHDAY_PLAN, id: 'custom-bday-1' }], 'user-123');
+    const loaded = loadSavedPlans('user-123');
+    expect(loaded.length).toBe(1);
+    expect(loaded[0].id).toBe('custom-bday-1');
+    expect(loaded[0].userId).toBe('user-123');
+  });
+
   it('supports deleting an individual plan', () => {
     const plans: EventPlan[] = [
       { ...SAMPLE_WEDDING_PLAN, id: 'plan-del-1', userId: 'user-test' },

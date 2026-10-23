@@ -9,6 +9,9 @@ import {
   initializeIndianEventConfig,
   HINDI_TERMS,
   createCustomIndianRitual,
+  INDIAN_VENDOR_TEMPLATES,
+  GENERAL_VENDOR_TEMPLATES,
+  generateDefaultIndianVendors,
 } from '../src/utils/indianEventEngine';
 import {
   INDIAN_BUDGET_SPLITS,
@@ -191,4 +194,47 @@ describe('Priority Indian Event Intelligence — Multi-Day Functions & Statutory
     expect(customRitual.type).toBe('custom_ritual');
     expect(customRitual.id.startsWith('fn-custom_ritual-')).toBe(true);
   });
+
+  it('provides culturally complete Indian vendor templates with 3 vetting questions each', () => {
+    const templates = Object.values(INDIAN_VENDOR_TEMPLATES);
+    expect(templates.length).toBe(8);
+
+    const keys = Object.keys(INDIAN_VENDOR_TEMPLATES);
+    expect(keys).toContain('mandap_decor');
+    expect(keys).toContain('catering_halwai');
+    expect(keys).toContain('photography');
+    expect(keys).toContain('mehendi');
+    expect(keys).toContain('dhol_dj');
+    expect(keys).toContain('makeup_artist');
+    expect(keys).toContain('pandit_ji');
+    expect(keys).toContain('generator_backup');
+
+    templates.forEach((tmpl) => {
+      expect(tmpl.service.length).toBeGreaterThan(0);
+      expect(tmpl.targetLeadTime.length).toBeGreaterThan(0);
+      expect(tmpl.recommendedBudgetRange.length).toBeGreaterThan(0);
+      expect(tmpl.questions.length).toBe(3);
+      expect(['Immediate', 'Standard', 'Flexible']).toContain(tmpl.urgency);
+    });
+  });
+
+  it('generates 8 structured default Indian vendors with to_research status', () => {
+    const defaultVendors = generateDefaultIndianVendors(300, 3000000);
+    expect(defaultVendors.length).toBe(8);
+    expect(defaultVendors.every((v) => v.status === 'to_research')).toBe(true);
+    expect(defaultVendors.every((v) => v.questions.length === 3)).toBe(true);
+    expect(defaultVendors.some((v) => v.service.includes('Mandap'))).toBe(true);
+    expect(defaultVendors.some((v) => v.service.includes('Halwai') || v.service.includes('Catering'))).toBe(true);
+    expect(defaultVendors.some((v) => v.service.includes('Mehendi'))).toBe(true);
+    expect(defaultVendors.some((v) => v.service.includes('Pandit'))).toBe(true);
+  });
+
+  it('provides general vendor templates for non-Indian celebrations', () => {
+    const templates = Object.values(GENERAL_VENDOR_TEMPLATES);
+    expect(templates.length).toBe(8);
+    expect(templates.some((t) => t.service.includes('Venue'))).toBe(true);
+    expect(templates.some((t) => t.service.includes('Photographer'))).toBe(true);
+    expect(templates.some((t) => t.service.includes('Cake') || t.service.includes('Dessert'))).toBe(true);
+  });
 });
+

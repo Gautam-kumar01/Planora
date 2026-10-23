@@ -6,6 +6,7 @@ import {
   generateDefaultIndianCatering,
   generateDefaultIndianPermits,
   generateDefaultIndianBackups,
+  generateDefaultIndianVendors,
 } from './indianEventEngine';
 
 export async function generateEventPlanWithAI(formData: OnboardingFormValues): Promise<EventPlan> {
@@ -382,15 +383,17 @@ function reconcileAndSanitizePlan(aiData: any, formData: OnboardingFormValues): 
     location: r.location || 'Main Area',
   }));
 
-  const vendors = (aiData.vendorChecklist || []).map((v: any, vIdx: number) => ({
-    id: `vnd-${vIdx + 1}`,
-    service: v.service || 'Service Partner',
-    urgency: v.urgency || 'Standard',
-    status: 'to_research',
-    targetLeadTime: v.targetLeadTime || '3-6 months prior',
-    recommendedBudgetRange: v.recommendedBudgetRange || '$500 - $1,500',
-    questions: Array.isArray(v.keyQuestions) ? v.keyQuestions.slice(0, 3) : ['What is your standard contract cancellation policy?'],
-  }));
+  const vendors = (aiData.vendorChecklist && aiData.vendorChecklist.length > 0)
+    ? aiData.vendorChecklist.map((v: any, vIdx: number) => ({
+        id: `vnd-${vIdx + 1}`,
+        service: v.service || 'Service Partner',
+        urgency: v.urgency || 'Standard',
+        status: 'to_research',
+        targetLeadTime: v.targetLeadTime || '3-6 months prior',
+        recommendedBudgetRange: v.recommendedBudgetRange || `${formData.currency || 'USD'} 500 - 1,500`,
+        questions: Array.isArray(v.keyQuestions) ? v.keyQuestions.slice(0, 3) : ['What is your standard contract cancellation policy?'],
+      }))
+    : generateDefaultVendors(formData.eventType, formData.currency, formData.isIndianWeddingPlan, formData.guestCount, formData.totalBudget);
 
   return {
     id: `plan-${Date.now()}`,
@@ -566,7 +569,7 @@ export function generateDeterministicPlan(formData: OnboardingFormValues): Event
     },
     timeline: generateDefaultTimeline(formData.eventType),
     runOfShow: generateDefaultRunOfShow(formData.eventType),
-    vendors: generateDefaultVendors(formData.eventType),
+    vendors: generateDefaultVendors(formData.eventType, formData.currency, formData.isIndianWeddingPlan, formData.guestCount, formData.totalBudget),
     ideas: generateDefaultIdeas(formData.eventType, formData.vibe),
     indianIntelligence: buildIndianIntelligenceConfig(formData),
   };
@@ -693,7 +696,17 @@ function generateDefaultRunOfShow(eventType: string) {
   }
 }
 
-function generateDefaultVendors(eventType: string) {
+function generateDefaultVendors(
+  eventType: string,
+  currency?: string,
+  isIndian?: boolean,
+  guestCount?: number,
+  totalBudget?: number
+) {
+  if (eventType === 'wedding' && (isIndian || currency === 'INR')) {
+    return generateDefaultIndianVendors(guestCount || 250, totalBudget || 2500000);
+  }
+
   if (eventType === 'wedding') {
     return [
       {

@@ -140,7 +140,7 @@ export async function loginUser(email: string, password?: string): Promise<UserP
 
   // Auto-sync current user plans to cloud cache
   const localPlans = loadSavedPlans(user.id);
-  await syncPlansToCloud(localPlans);
+  await syncPlansToCloud(localPlans, user.id);
 
   return user;
 }
@@ -191,7 +191,7 @@ export async function registerUser(name: string, email: string, password?: strin
   setCurrentUser(user);
 
   const localPlans = loadSavedPlans(user.id);
-  await syncPlansToCloud(localPlans);
+  await syncPlansToCloud(localPlans, user.id);
 
   return user;
 }
@@ -215,7 +215,7 @@ export async function loginWithDemoSession(): Promise<UserProfile> {
 
   setCurrentUser(user);
   const localPlans = loadSavedPlans(user.id);
-  await syncPlansToCloud(localPlans);
+  await syncPlansToCloud(localPlans, user.id);
   return user;
 }
 
@@ -230,6 +230,7 @@ export async function deleteUserAccount(userId: string): Promise<boolean> {
     purgeUserData(userId);
     logoutUser();
     localStorage.removeItem(STORAGE_KEY_CLOUD_SYNC_CACHE);
+    localStorage.removeItem(`${STORAGE_KEY_CLOUD_SYNC_CACHE}_${userId}`);
     return true;
   } catch (err) {
     console.error('Failed to delete account:', err);
@@ -238,10 +239,11 @@ export async function deleteUserAccount(userId: string): Promise<boolean> {
 }
 
 // 4. Cloud Plan Synchronization
-export async function syncPlansToCloud(plans: EventPlan[]): Promise<boolean> {
+export async function syncPlansToCloud(plans: EventPlan[], userId?: string): Promise<boolean> {
   try {
-    // Cache cloud copy in LocalStorage
-    localStorage.setItem(STORAGE_KEY_CLOUD_SYNC_CACHE, JSON.stringify(plans));
+    // Cache cloud copy in LocalStorage scoped to user
+    const cacheKey = userId ? `${STORAGE_KEY_CLOUD_SYNC_CACHE}_${userId}` : STORAGE_KEY_CLOUD_SYNC_CACHE;
+    localStorage.setItem(cacheKey, JSON.stringify(plans));
 
     const config = getDatabaseConfig();
     if (config.databaseUrl) {
@@ -268,9 +270,10 @@ export async function syncPlansToCloud(plans: EventPlan[]): Promise<boolean> {
   }
 }
 
-export async function fetchPlansFromCloud(): Promise<EventPlan[] | null> {
+export async function fetchPlansFromCloud(userId?: string): Promise<EventPlan[] | null> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY_CLOUD_SYNC_CACHE);
+    const cacheKey = userId ? `${STORAGE_KEY_CLOUD_SYNC_CACHE}_${userId}` : STORAGE_KEY_CLOUD_SYNC_CACHE;
+    const raw = localStorage.getItem(cacheKey);
     if (!raw) return null;
     return JSON.parse(raw);
   } catch {

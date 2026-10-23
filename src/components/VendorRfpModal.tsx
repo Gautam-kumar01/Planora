@@ -12,6 +12,7 @@ import {
   Users,
   DollarSign,
   AlertCircle,
+  MessageCircle,
 } from 'lucide-react';
 import { EventPlan, VendorItem } from '../types';
 import { formatCurrency } from '../utils/deterministicMath';
@@ -48,6 +49,27 @@ export const VendorRfpModal: React.FC<VendorRfpModalProps> = ({
     ? formatCurrency(matchingBudgetItem.allocatedAmount, plan.budget.currency)
     : currentVendor?.recommendedBudgetRange || 'Flexible Market Rate';
 
+  // Ceremonies and catering enhancements for Indian / multi-day celebrations
+  const ceremoniesSection =
+    plan.indianIntelligence?.functions && plan.indianIntelligence.functions.length > 0
+      ? `\n\nMULTI-DAY CEREMONIES & SCHEDULE BREAKDOWN:\n` +
+        plan.indianIntelligence.functions
+          .map(
+            (fn, idx) =>
+              `${idx + 1}. ${fn.title} (${fn.startTime || 'TBD'} - ${fn.endTime || 'TBD'}) | Venue: ${fn.venueName || 'Main Venue'} | Expected Guests: ${fn.expectedGuests || plan.basics.guestCount} [Attire: ${fn.dressCode || 'Traditional Festive'}]`
+          )
+          .join('\n')
+      : '';
+
+  const cateringSection =
+    plan.indianIntelligence?.catering
+      ? `\n\nCATERING & DIETARY SPECIFICATIONS:\n• Dietary Norm: ${plan.indianIntelligence.catering.dietType.replace('_', ' ').toUpperCase()}\n• Pure Veg Allocation: ${plan.indianIntelligence.catering.vegPercentage}%\n• Jain Meal Plates: ${plan.indianIntelligence.catering.jainGuestCount} guests\n• Live Food Counters: ${[
+          plan.indianIntelligence.catering.liveChaatCounters ? 'Live Chaat' : null,
+          plan.indianIntelligence.catering.mithaiLiveCounters ? 'Fresh Mithai' : null,
+          plan.indianIntelligence.catering.beveragePaanCounter ? 'Culinary Paan' : null,
+        ].filter(Boolean).join(', ') || 'Standard Buffet'}`
+      : '';
+
   // Construct the Professional Email Template
   const emailSubject = `Inquiry & Availability RFP: ${currentVendor?.service || 'Event Services'} for ${plan.basics.title}`;
   
@@ -62,7 +84,7 @@ Here are the key parameters of our event:
 • Expected Guest Headcount: ${plan.basics.guestCount} guests
 • Aesthetic / Atmosphere: ${plan.basics.preferences?.vibe || 'Festive & Elegant'}
 • Dietary & Special Notes: ${plan.basics.preferences?.dietaryNotes || 'Standard crowd-pleasing options'}
-• Accessibility & Timing Needs: ${plan.basics.preferences?.accessibilityNeeds || 'None'} / ${plan.basics.preferences?.constraints || 'Standard hours'}
+• Accessibility & Timing Needs: ${plan.basics.preferences?.accessibilityNeeds || 'None'} / ${plan.basics.preferences?.constraints || 'Standard hours'}${ceremoniesSection}${cateringSection}
 
 FINANCIAL SCOPE & BUDGET CEILING:
 Our structured financial allocation for this category is approximately ${allocatedBudgetAmount}.
@@ -81,6 +103,24 @@ Warm regards,
 Event Planning Team / Host
 ${plan.basics.title}
 Generated via Planora Master Planner`;
+
+  const whatsappBody = `*Event Inquiry: ${currentVendor?.service || 'Service Partner'}*
+Title: ${plan.basics.title}
+Date: ${plan.basics.eventDate || 'Flexible'}
+Location: ${plan.basics.location || 'Local Area'}
+Guest Count: ${plan.basics.guestCount}
+Budget Allocation: ${allocatedBudgetAmount}
+
+Hi ${currentVendor?.contactName || `${currentVendor?.service || 'Vendor'} Team`}, we are finalizing our event partners and would love to check your availability and request an itemized proposal.
+
+Key Question: ${(currentVendor?.questions && currentVendor.questions[0]) || 'What are your package options and payment milestones?'}
+
+Looking forward to hearing from you!`;
+
+  const phoneDigits = (currentVendor?.contactPhone || currentVendor?.contactEmail || '').replace(/[^0-9]/g, '');
+  const whatsappUrl = phoneDigits.length >= 10
+    ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(whatsappBody)}`
+    : `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappBody)}`;
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(`Subject: ${emailSubject}\n\n${emailBody}`);
@@ -239,7 +279,29 @@ Generated via Planora Master Planner`;
                       style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', textDecoration: 'none' }}
                     >
                       <Mail size={14} />
-                      <span>Open in Mail App</span>
+                      <span>Open Mail App</span>
+                    </a>
+
+                    <a
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-secondary"
+                      style={{
+                        padding: '0.4rem 0.85rem',
+                        fontSize: '0.8rem',
+                        background: '#25D366',
+                        color: '#FFFFFF',
+                        borderColor: '#16A34A',
+                        fontWeight: 700,
+                        textDecoration: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.35rem',
+                      }}
+                    >
+                      <MessageCircle size={14} />
+                      <span>WhatsApp</span>
                     </a>
                   </div>
                 </div>

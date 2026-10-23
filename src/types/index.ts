@@ -90,6 +90,7 @@ export interface VendorItem {
   notes?: string;
   contactName?: string;
   contactEmail?: string;
+  contactPhone?: string;
   questions: string[]; // Top 3 interview questions
   contractStatus?: 'needed' | 'reviewing' | 'signed' | 'completed';
   depositAmount?: number;

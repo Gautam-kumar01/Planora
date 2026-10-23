@@ -72,6 +72,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
   const [showVendorExplainer, setShowVendorExplainer] = useState(true);
 
   // Aggregated Portfolio Metrics across all user plans
+  const currency = plans[0]?.budget?.currency || 'INR';
   const totalBudgetManaged = plans.reduce((acc, p) => acc + (p.budget?.totalBudget || 0), 0);
   const totalActualSpent = plans.reduce(
     (acc, p) => acc + (p.budget?.items?.reduce((s, it) => s + (it.spentAmount || 0), 0) || 0),
@@ -234,7 +235,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
               Total Budget Managed
             </div>
             <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#C2410C', marginTop: '0.3rem' }}>
-              {formatCurrency(totalBudgetManaged, 'USD')}
+              {formatCurrency(totalBudgetManaged, currency)}
             </div>
             <div style={{ fontSize: '0.8rem', color: '#78533E', fontWeight: 500, marginTop: '0.2rem' }}>
               Deterministic 100% arithmetic
@@ -253,7 +254,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
               Total Paid Out & Logged
             </div>
             <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#15803D', marginTop: '0.3rem' }}>
-              {formatCurrency(totalActualSpent, 'USD')}
+              {formatCurrency(totalActualSpent, currency)}
             </div>
             <div style={{ fontSize: '0.8rem', color: '#78533E', fontWeight: 500, marginTop: '0.2rem' }}>
               Verified receipt audit trail

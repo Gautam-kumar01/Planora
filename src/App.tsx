@@ -27,11 +27,13 @@ import {
   savePlans,
   getActivePlanId,
   setActivePlanId,
+  canUserAccessPlan,
+  isPresetPlan,
 } from './utils/storage';
 import { getCurrentUser, logoutUser } from './utils/cloudSync';
 import { generateEventPlanWithAI } from './utils/geminiApi';
 import { downloadCalendarICS } from './utils/calendarExport';
-import { SAMPLE_WEDDING_PLAN } from './utils/sampleData';
+import { SAMPLE_WEDDING_PLAN, ALL_PRESET_PLANS } from './utils/sampleData';
 import { Navbar } from './components/Navbar';
 import { HomePage } from './components/HomePage';
 import { UserDashboard } from './components/UserDashboard';
@@ -90,16 +92,23 @@ export function App() {
   // User Authentication & Cloud State (Option C: Hybrid)
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(getCurrentUser());
 
-  // Initialize from LocalStorage
+  // Initialize from LocalStorage with strict user isolation
   useEffect(() => {
     const user = getCurrentUser();
     setCurrentUser(user);
-    const loaded = loadSavedPlans(user?.id);
-    setPlans(loaded);
-    const activeId = getActivePlanId(loaded);
-    setActiveId(activeId);
     if (user) {
+      const userPlans = loadSavedPlans(user.id);
+      setPlans(userPlans);
+      const activeId = getActivePlanId(userPlans, user.id);
+      setActiveId(activeId);
+      setActivePlanId(activeId, user.id);
       setCurrentView('user-hub');
+    } else {
+      const guestPlans = loadSavedPlans();
+      setPlans(guestPlans);
+      const activeId = getActivePlanId(guestPlans);
+      setActiveId(activeId);
+      setActivePlanId(activeId);
     }
   }, []);
 
@@ -144,13 +153,21 @@ export function App() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Get active plan object
-  const activePlan = plans.find((p) => p.id === activePlanId) || plans[0] || null;
+  // Get active plan object - strictly verify user authorization
+  const activePlan =
+    plans.find((p) => p.id === activePlanId && canUserAccessPlan(p, currentUser?.id)) ||
+    plans.find((p) => canUserAccessPlan(p, currentUser?.id)) ||
+    null;
 
   // Switch Plan & Open Dashboard
   const handleSelectPlan = (id: string) => {
+    const targetPlan = plans.find((p) => p.id === id);
+    if (targetPlan && !canUserAccessPlan(targetPlan, currentUser?.id)) {
+      showToast('Access Denied: You cannot view another user’s event plan.');
+      return;
+    }
     setActiveId(id);
-    setActivePlanId(id);
+    setActivePlanId(id, currentUser?.id);
     setCurrentView('dashboard');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     showToast('Loaded event workspace');
@@ -178,6 +195,11 @@ export function App() {
 
   // Rename Plan
   const handleRenamePlan = (id: string, newTitle: string) => {
+    const planToRename = plans.find((p) => p.id === id);
+    if (planToRename && !canUserAccessPlan(planToRename, currentUser?.id)) {
+      showToast('Access Denied: Cannot rename this plan.');
+      return;
+    }
     const updatedList = plans.map((p) => {
       if (p.id === id) {
         return {
@@ -196,7 +218,10 @@ export function App() {
   // Duplicate Plan
   const handleDuplicatePlan = (id: string) => {
     const planToClone = plans.find((p) => p.id === id);
-    if (!planToClone) return;
+    if (!planToClone || !canUserAccessPlan(planToClone, currentUser?.id)) {
+      showToast('Access Denied: Cannot duplicate this plan.');
+      return;
+    }
 
     const clonedPlan: EventPlan = {
       ...planToClone,
@@ -214,37 +239,39 @@ export function App() {
     setPlans(updatedList);
     savePlans(updatedList, currentUser?.id);
     setActiveId(clonedPlan.id);
-    setActivePlanId(clonedPlan.id);
+    setActivePlanId(clonedPlan.id, currentUser?.id);
     setCurrentView('dashboard');
     showToast(`Created duplicate of "${planToClone.basics.title}"`);
   };
 
-  // Delete Plan (Priority 1.4)
+  // Delete Plan
   const handleDeletePlan = (id: string) => {
-    const updatedList = plans.filter((p) => p.id !== id);
-    if (updatedList.length === 0) {
-      const freshStarter: EventPlan = {
-        ...SAMPLE_WEDDING_PLAN,
-        id: `plan-${Date.now()}`,
-        userId: currentUser?.id,
-        basics: {
-          ...SAMPLE_WEDDING_PLAN.basics,
-          title: 'My New Event Plan',
-        },
-      };
-      setPlans([freshStarter]);
-      savePlans([freshStarter], currentUser?.id);
-      setActiveId(freshStarter.id);
-      setActivePlanId(freshStarter.id);
-      showToast('Plan deleted. Initialized fresh celebration draft.');
+    const planToDelete = plans.find((p) => p.id === id);
+    if (planToDelete && !canUserAccessPlan(planToDelete, currentUser?.id)) {
+      showToast('Access Denied: Cannot delete this plan.');
       return;
     }
 
+    const updatedList = plans.filter((p) => p.id !== id);
     setPlans(updatedList);
     savePlans(updatedList, currentUser?.id);
+
+    if (updatedList.length === 0) {
+      setActiveId('');
+      setActivePlanId('', currentUser?.id);
+      if (currentUser) {
+        setCurrentView('user-hub');
+      } else {
+        setCurrentView('home');
+      }
+      showToast('Event plan deleted.');
+      return;
+    }
+
     if (activePlanId === id) {
-      setActiveId(updatedList[0].id);
-      setActivePlanId(updatedList[0].id);
+      const nextId = updatedList[0].id;
+      setActiveId(nextId);
+      setActivePlanId(nextId, currentUser?.id);
     }
     showToast('Plan deleted successfully.');
   };
@@ -333,7 +360,7 @@ export function App() {
       setPlans(updatedList);
       savePlans(updatedList, currentUser?.id);
       setActiveId(newPlan.id);
-      setActivePlanId(newPlan.id);
+      setActivePlanId(newPlan.id, currentUser?.id);
       setIsWizardOpen(false);
       setCurrentView('dashboard');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -553,15 +580,32 @@ export function App() {
 
       {/* Main Container */}
       <main className="app-container" style={{ flex: '1 0 auto', width: '100%', maxWidth: '100%', minWidth: 0 }}>
-        {/* VIEW 1: DEDICATED FULL-FEATURED HOMEPAGE */}
+        {/* VIEW 1: DEDICATED FULL-FEATURED HOMEPAGE (SHOWS DEMO TEMPLATES) */}
         {currentView === 'home' && (
           <HomePage
-            plans={plans}
+            plans={ALL_PRESET_PLANS}
             onOpenWizard={(initialValues) => {
               setWizardInitialValues(initialValues || null);
               setIsWizardOpen(true);
             }}
-            onSelectPlanAndOpenDashboard={handleSelectPlan}
+            onSelectPlanAndOpenDashboard={(planId) => {
+              if (currentUser) {
+                // If logged in, selecting a demo template prompts them to start their own plan
+                const template = ALL_PRESET_PLANS.find((p) => p.id === planId) || ALL_PRESET_PLANS[0];
+                setWizardInitialValues({
+                  eventType: template.basics.eventType,
+                  title: `My ${template.basics.title}`,
+                  totalBudget: template.basics.totalBudget,
+                  guestCount: template.basics.guestCount,
+                  currency: template.basics.currency,
+                  vibe: template.basics.preferences.vibe,
+                });
+                setIsWizardOpen(true);
+                showToast(`Started customized draft from "${template.basics.title}" template`);
+              } else {
+                handleSelectPlan(planId);
+              }
+            }}
             onOpenPlanManager={() => setIsPlanManagerOpen(true)}
             onOpenAuthModal={() => setIsAuthModalOpen(true)}
             onNavigateUserDashboard={() => {
@@ -600,7 +644,9 @@ export function App() {
               setCurrentUser(null);
               const guestPlans = loadSavedPlans();
               setPlans(guestPlans);
-              setActiveId(getActivePlanId(guestPlans));
+              const guestActiveId = getActivePlanId(guestPlans);
+              setActiveId(guestActiveId);
+              setActivePlanId(guestActiveId);
               setCurrentView('home');
               showToast('Signed out (switched to Guest Mode)');
             }}
@@ -611,7 +657,7 @@ export function App() {
             onGoToEventWorkspace={(planId) => {
               if (planId) {
                 setActiveId(planId);
-                setActivePlanId(planId);
+                setActivePlanId(planId, currentUser?.id);
               }
               setCurrentView('dashboard');
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -933,6 +979,65 @@ export function App() {
           </div>
         )}
 
+        {/* VIEW 3 FALLBACK: DASHBOARD WITH NO ACTIVE PLAN */}
+        {currentView === 'dashboard' && !activePlan && (
+          <div
+            className="glass-panel"
+            style={{
+              padding: '4rem 2rem',
+              textAlign: 'center',
+              maxWidth: '560px',
+              margin: '3rem auto',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '1.25rem',
+            }}
+          >
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                background: 'rgba(234, 88, 12, 0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Calendar size={30} color="#EA580C" />
+            </div>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#140A05', margin: 0 }}>
+              No Active Event Plan
+            </h3>
+            <p style={{ fontSize: '0.9rem', color: '#78533E', margin: 0, lineHeight: 1.5 }}>
+              You don't have an active event plan open. Please create your personalized celebration plan or choose one from your dashboard.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <button
+                onClick={() => setIsWizardOpen(true)}
+                className="btn-primary"
+                style={{ padding: '0.65rem 1.4rem' }}
+              >
+                <Sparkles size={16} />
+                <span>Create Event Plan</span>
+              </button>
+              {currentUser && (
+                <button
+                  onClick={() => {
+                    setCurrentView('user-hub');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="btn-secondary"
+                  style={{ padding: '0.65rem 1.25rem' }}
+                >
+                  <span>Go to My Dashboard</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Print-Only Layout Component */}
         {activePlan && <PrintView plan={activePlan} />}
       </main>
@@ -989,13 +1094,17 @@ export function App() {
           if (user) {
             const userPlans = loadSavedPlans(user.id);
             setPlans(userPlans);
-            setActiveId(getActivePlanId(userPlans));
+            const activeId = getActivePlanId(userPlans, user.id);
+            setActiveId(activeId);
+            setActivePlanId(activeId, user.id);
             setCurrentView('user-hub');
             showToast(`Welcome to your dashboard, ${user.fullName}`);
           } else {
             const guestPlans = loadSavedPlans();
             setPlans(guestPlans);
-            setActiveId(getActivePlanId(guestPlans));
+            const activeId = getActivePlanId(guestPlans);
+            setActiveId(activeId);
+            setActivePlanId(activeId);
             setCurrentView('home');
             showToast('Signed out (switched to Guest Mode)');
           }
