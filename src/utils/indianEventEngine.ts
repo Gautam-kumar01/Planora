@@ -56,11 +56,17 @@ export const HINDI_TERMS: Record<string, string> = {
 
   // Functions / Rituals
   roka: 'रोका / सगाई (Ring Ceremony)',
+  engagement: 'सगाई व अंगूठी समारोह (Engagement)',
+  tilak: 'तिलक व शगुन रस्म (Tilak Ceremony)',
   mehendi: 'मेहंदी की रस्म (Mehendi & Henna)',
   haldi: 'हल्दी समारोह (Haldi & Pithi)',
-  sangeet: 'संगीत व कॉकटेल संध्या (Sangeet Night)',
-  wedding_pheras: 'बारात, जयमाला व सात फेरे (Main Shaadi)',
+  sangeet: 'संगीत संध्या (Sangeet Night)',
+  cocktail: 'कॉकटेल व संगीत संध्या (Cocktail & DJ)',
+  baraat: 'भव्य बारात प्रस्थान व अगवानी (Baraat)',
+  wedding_pheras: 'जयमाला व पवित्र सात फेरे (Main Shaadi)',
+  vidaai: 'भावुक विदाई की रस्म (Vidaai Ceremony)',
   reception: 'विवाह प्रीतिभोज (Grand Reception)',
+  custom_ritual: 'विशिष्ट पारिवारिक रस्म (Custom Ritual)',
   college_fest: 'वार्षिक सांस्कृतिक महोत्सव (College Fest)',
   community_utsav: 'सामुदायिक पूजा / उत्सव (Community Utsav)',
   birthday_puja: 'जन्मदिन पूजन व उत्सव (Birthday Bash)',
@@ -94,6 +100,180 @@ export const HINDI_TERMS: Record<string, string> = {
   permit_verification_notice: 'अनुमतियां और वेंडर मूल्य वर्तमान विश्वसनीय स्रोत से सत्यापित करें।',
   unannounced_buffer_notice: 'भारतीय शादियों में 10% अप्रत्याशित अतिथियों के लिए अतिरिक्त भोजन सुरक्षित किया जाता है।',
 };
+
+export interface RitualTemplateInfo {
+  type: import('../types').IndianFunctionType;
+  title: string;
+  hindiTitle: string;
+  startTime: string;
+  endTime: string;
+  venueName: string;
+  dressCode: string;
+  defaultGuestRatio: number;
+  ritualNotes: string;
+}
+
+export const INDIAN_RITUAL_TEMPLATES: Record<string, RitualTemplateInfo> = {
+  haldi: {
+    type: 'haldi',
+    title: 'Phoolon Ki Haldi Ceremony',
+    hindiTitle: 'फूलों की हल्दी व पिठी समारोह',
+    startTime: '10:00 AM',
+    endTime: '01:00 PM',
+    venueName: 'Sunlit Terrace Garden / Lawn',
+    dressCode: 'Sunlit Ochre & Pastel Yellow',
+    defaultGuestRatio: 0.5,
+    ritualNotes: 'Organic kasturi haldi, fresh yellow marigold petals shower, dhol walas, fresh coconut water station.',
+  },
+  mehendi: {
+    type: 'mehendi',
+    title: 'Mehendi & Henna Magic',
+    hindiTitle: 'मेहंदी की रस्म एवं लोक संगीत',
+    startTime: '03:00 PM',
+    endTime: '08:00 PM',
+    venueName: 'Poolside Lawn / Courtyard',
+    dressCode: 'Bright Yellows, Greens & Floral Attire',
+    defaultGuestRatio: 0.45,
+    ritualNotes: 'Bangles station, 4 professional mehendi artists, live chaat counter, traditional dholki folk songs.',
+  },
+  sangeet: {
+    type: 'sangeet',
+    title: 'Musical Sangeet & Dance Night',
+    hindiTitle: 'भव्य संगीत संध्या व नृत्य प्रतियोगिता',
+    startTime: '07:30 PM',
+    endTime: '11:30 PM',
+    venueName: 'Main Grand Ballroom',
+    dressCode: 'Glamorous Indo-Western / Sequins',
+    defaultGuestRatio: 0.85,
+    ritualNotes: 'Choreographed family dance entries, LED backdrop stage, DJ & live percussionist, 10 PM sound compliance.',
+  },
+  cocktail: {
+    type: 'cocktail',
+    title: 'Cocktail Gala & DJ Bash',
+    hindiTitle: 'कॉकटेल संध्या व डीजे नाइट',
+    startTime: '08:00 PM',
+    endTime: '12:00 AM',
+    venueName: 'Skyline Terrace / Lounge',
+    dressCode: 'Evening Formals / Tuxedos & Gowns',
+    defaultGuestRatio: 0.7,
+    ritualNotes: 'Curated signature beverages, live acoustic band, finger food pass-arounds, LED dance floor.',
+  },
+  wedding_pheras: {
+    type: 'wedding_pheras',
+    title: 'Baraat, Varmala & Sacred Pheras',
+    hindiTitle: 'भव्य बारात, वरमाला व सात फेरे',
+    startTime: '05:00 PM',
+    endTime: '11:00 PM',
+    venueName: 'Palace Mandap Lawn & Temple Pavilion',
+    dressCode: 'Regal Traditional (Sherwani / Lehengas)',
+    defaultGuestRatio: 1.0,
+    ritualNotes: 'Groom procession (Ghodi/Vintage car), Milni garlands, Varmala on elevated stage, Vedic pheras, Vidaai.',
+  },
+  reception: {
+    type: 'reception',
+    title: 'Grand Wedding Reception',
+    hindiTitle: 'भव्य विवाह प्रीतिभोज व स्वागत समारोह',
+    startTime: '07:30 PM',
+    endTime: '11:30 PM',
+    venueName: 'Royal Banquet Hall',
+    dressCode: 'Formal Black Tie / Silk Sarees',
+    defaultGuestRatio: 1.0,
+    ritualNotes: 'Formal receiving line, stage photography sessions, multi-regional banquet dinner with live dessert counters.',
+  },
+  roka: {
+    type: 'roka',
+    title: 'Auspicious Roka & Shagun Ceremony',
+    hindiTitle: 'शुभ रोका व सगाई शगुन समारोह',
+    startTime: '11:00 AM',
+    endTime: '03:00 PM',
+    venueName: 'Intimate Banquet / Home',
+    dressCode: 'Graceful Traditional Indian',
+    defaultGuestRatio: 0.35,
+    ritualNotes: 'Shagun exchange, priest blessings, dry fruit gifting, intimate festive lunch buffet.',
+  },
+  engagement: {
+    type: 'engagement',
+    title: 'Ring Exchange Ceremony',
+    hindiTitle: 'सगाई व अंगूठी समारोह',
+    startTime: '06:30 PM',
+    endTime: '10:30 PM',
+    venueName: 'Heritage Courtyard / Banquet',
+    dressCode: 'Pastel Formals & Indo-Western',
+    defaultGuestRatio: 0.6,
+    ritualNotes: 'Ring exchange on stage, ceremonial cake cutting, family photo sessions, dinner buffet.',
+  },
+  baraat: {
+    type: 'baraat',
+    title: 'Baraat Procession & Swagat',
+    hindiTitle: 'भव्य बारात प्रस्थान एवं स्वागत',
+    startTime: '04:30 PM',
+    endTime: '07:00 PM',
+    venueName: 'Main Entrance & Courtyard',
+    dressCode: 'Sherwani with Safa / Turban',
+    defaultGuestRatio: 1.0,
+    ritualNotes: 'Vintage car / Ghodi procession, brass band & Dhol Tasha, Milni welcoming with garland exchange.',
+  },
+  tilak: {
+    type: 'tilak',
+    title: 'Tilak & Sagai Ceremony',
+    hindiTitle: 'पारंपरिक तिलक एवं शगुन रस्म',
+    startTime: '04:00 PM',
+    endTime: '07:30 PM',
+    venueName: 'Traditional Courtyard / Hall',
+    dressCode: 'Classic Kurta Pajama / Sarees',
+    defaultGuestRatio: 0.4,
+    ritualNotes: 'Traditional tilak by bride’s family, gift offerings, auspicious aarti, sweets distribution.',
+  },
+  vidaai: {
+    type: 'vidaai',
+    title: 'Vidaai & Doli Departure',
+    hindiTitle: 'भावुक विदाई व डोली प्रस्थान',
+    startTime: '11:00 PM',
+    endTime: '12:00 AM',
+    venueName: 'Mandap Portico Exit',
+    dressCode: 'Traditional Indian',
+    defaultGuestRatio: 0.6,
+    ritualNotes: 'Rice tossing ritual, elder blessings, decorated car/doli departure ceremony.',
+  },
+  custom_ritual: {
+    type: 'custom_ritual',
+    title: 'Custom Cultural Ritual',
+    hindiTitle: 'विशिष्ट पारिवारिक रस्म व पूजन',
+    startTime: '04:00 PM',
+    endTime: '07:30 PM',
+    venueName: 'Ceremony Hall / Lawn',
+    dressCode: 'Traditional Festive Attire',
+    defaultGuestRatio: 0.5,
+    ritualNotes: 'Custom family rituals, regional traditions, special catering and photography arrangements.',
+  },
+};
+
+/**
+ * Creates a new custom Indian ceremony function with smart defaults
+ */
+export function createCustomIndianRitual(
+  type: import('../types').IndianFunctionType = 'haldi',
+  targetDate?: string,
+  totalGuests = 150
+): import('../types').IndianFunctionItem {
+  const template = INDIAN_RITUAL_TEMPLATES[type] || INDIAN_RITUAL_TEMPLATES.custom_ritual;
+  const guestCount = Math.max(10, Math.round(totalGuests * (template.defaultGuestRatio || 0.5)));
+
+  return {
+    id: `fn-${type}-${Date.now()}`,
+    type: template.type,
+    title: template.title,
+    hindiTitle: template.hindiTitle,
+    date: targetDate || new Date().toISOString().split('T')[0],
+    startTime: template.startTime,
+    endTime: template.endTime,
+    venueName: template.venueName,
+    dressCode: template.dressCode,
+    expectedGuests: guestCount,
+    ritualNotes: template.ritualNotes,
+    isCompleted: false,
+  };
+}
 
 /**
  * Default Indian Multi-Day Function Sequences

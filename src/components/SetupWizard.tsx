@@ -23,8 +23,25 @@ import {
   Clock,
   Loader2,
   Lightbulb,
+  UtensilsCrossed,
+  Trash2,
+  Plus,
 } from 'lucide-react';
-import { EventType, DateType, OnboardingFormValues } from '../types';
+import {
+  EventType,
+  DateType,
+  OnboardingFormValues,
+  IndianFunctionItem,
+  IndianFunctionType,
+  IndianCateringDiet,
+} from '../types';
+import {
+  HINDI_TERMS,
+  INDIAN_RITUAL_TEMPLATES,
+  createCustomIndianRitual,
+  generateDefaultIndianFunctions,
+  formatIndianCurrency,
+} from '../utils/indianEventEngine';
 
 interface SetupWizardProps {
   isOpen: boolean;
@@ -39,6 +56,12 @@ const BENCHMARK_COST_PER_GUEST: Record<EventType, Record<'economy' | 'moderate' 
   wedding: { economy: 90, moderate: 165, premium: 250, luxury: 420 },
   birthday: { economy: 15, moderate: 25, premium: 45, luxury: 80 },
   community: { economy: 8, moderate: 14, premium: 22, luxury: 40 },
+};
+
+const BENCHMARK_COST_PER_GUEST_INR: Record<EventType, Record<'economy' | 'moderate' | 'premium' | 'luxury', number>> = {
+  wedding: { economy: 3000, moderate: 6500, premium: 15000, luxury: 35000 },
+  birthday: { economy: 600, moderate: 1500, premium: 3000, luxury: 6000 },
+  community: { economy: 250, moderate: 600, premium: 1200, luxury: 2500 },
 };
 
 export const SetupWizard: React.FC<SetupWizardProps> = ({
@@ -69,9 +92,30 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
     constraints: 'Outdoor music curfew at 10:30 PM',
   });
 
+  const [isIndianPlan, setIsIndianPlan] = useState<boolean>(
+    Boolean(initialFormValues?.isIndianWeddingPlan || initialFormValues?.currency === 'INR')
+  );
+  const [indianFunctions, setIndianFunctions] = useState<IndianFunctionItem[]>(
+    initialFormValues?.indianFunctions && initialFormValues.indianFunctions.length > 0
+      ? initialFormValues.indianFunctions
+      : generateDefaultIndianFunctions('wedding', 250, '2027-06-20')
+  );
+  const [indianDiet, setIndianDiet] = useState<IndianCateringDiet>(
+    initialFormValues?.indianCateringDiet || 'pure_veg'
+  );
+  const [editingFunctionId, setEditingFunctionId] = useState<string | null>(null);
+
   // Pre-fill from homepage sandbox if provided
   useEffect(() => {
     if (initialFormValues) {
+      const isIndian = Boolean(initialFormValues.isIndianWeddingPlan || initialFormValues.currency === 'INR');
+      setIsIndianPlan(isIndian);
+      if (initialFormValues.indianFunctions && initialFormValues.indianFunctions.length > 0) {
+        setIndianFunctions(initialFormValues.indianFunctions);
+      }
+      if (initialFormValues.indianCateringDiet) {
+        setIndianDiet(initialFormValues.indianCateringDiet);
+      }
       setForm((prev) => ({
         ...prev,
         ...initialFormValues,
@@ -79,6 +123,39 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
       }));
     }
   }, [initialFormValues]);
+
+  // Handlers for Indian Wedding Functions
+  const handleAddRitual = (type: IndianFunctionType = 'haldi') => {
+    const newFn = createCustomIndianRitual(type, form.eventDate, form.guestCount);
+    setIndianFunctions((prev) => [...prev, newFn]);
+    setEditingFunctionId(newFn.id);
+  };
+
+  const handleDeleteRitual = (id: string) => {
+    setIndianFunctions((prev) => prev.filter((f) => f.id !== id));
+  };
+
+  const handleUpdateRitual = (id: string, updates: Partial<IndianFunctionItem>) => {
+    setIndianFunctions((prev) => prev.map((f) => (f.id === id ? { ...f, ...updates } : f)));
+  };
+
+  const handleSelectRitualType = (id: string, newType: IndianFunctionType) => {
+    const template = INDIAN_RITUAL_TEMPLATES[newType];
+    if (template) {
+      handleUpdateRitual(id, {
+        type: newType,
+        title: template.title,
+        hindiTitle: template.hindiTitle,
+        startTime: template.startTime,
+        endTime: template.endTime,
+        venueName: template.venueName,
+        dressCode: template.dressCode,
+        ritualNotes: template.ritualNotes,
+      });
+    } else {
+      handleUpdateRitual(id, { type: newType });
+    }
+  };
 
   // Synthesis Animation State
   const [synthesisProgress, setSynthesisProgress] = useState(15);
@@ -199,7 +276,8 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
   };
 
   const handleBudgetTierChange = (tier: 'economy' | 'moderate' | 'premium' | 'luxury') => {
-    const costPerGuest = BENCHMARK_COST_PER_GUEST[form.eventType][tier];
+    const table = form.currency === 'INR' ? BENCHMARK_COST_PER_GUEST_INR : BENCHMARK_COST_PER_GUEST;
+    const costPerGuest = table[form.eventType][tier];
     const estimatedTotal = Math.round(costPerGuest * form.guestCount);
     setForm((prev) => ({
       ...prev,
@@ -224,13 +302,17 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
     e.preventDefault();
     await onSubmit({
       ...form,
-      title: form.title.trim() || `${form.eventType.toUpperCase()} Celebration`,
+      title: form.title.trim() || (isIndianPlan ? 'Grand Indian Wedding Celebration' : `${form.eventType.toUpperCase()} Celebration`),
+      currency: isIndianPlan ? 'INR' : form.currency,
+      isIndianWeddingPlan: isIndianPlan,
+      indianFunctions: isIndianPlan ? indianFunctions : undefined,
+      indianCateringDiet: isIndianPlan ? indianDiet : undefined,
     });
   };
 
   return (
     <div className="modal-backdrop">
-      <div className="modal-content" style={{ padding: '2rem' }}>
+      <div className={`modal-content wizard-modal-card ${isIndianPlan ? 'wizard-indian-card' : ''}`}>
         {/* Header */}
         <div
           style={{
@@ -592,6 +674,82 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
                 </div>
               </div>
 
+              {/* Bharat Mode / Indian Wedding Intelligence Toggle */}
+              <div
+                onClick={() => {
+                  const next = !isIndianPlan;
+                  setIsIndianPlan(next);
+                  if (next) {
+                    setForm((prev) => ({
+                      ...prev,
+                      currency: 'INR',
+                      eventType: 'wedding',
+                      guestCount: prev.guestCount < 100 ? 250 : prev.guestCount,
+                      totalBudget: prev.totalBudget < 50000 ? 2500000 : prev.totalBudget,
+                      title: prev.title && prev.title !== 'Untitled Event' ? prev.title : 'Grand Indian Wedding Celebration',
+                    }));
+                  }
+                }}
+                className="glass-card-interactive"
+                style={{
+                  padding: '0.9rem 1.15rem',
+                  borderRadius: 'var(--radius-md)',
+                  background: isIndianPlan
+                    ? 'linear-gradient(135deg, rgba(255, 247, 237, 0.98) 0%, rgba(254, 243, 199, 0.95) 100%)'
+                    : 'rgba(255, 255, 255, 0.85)',
+                  border: isIndianPlan ? '2px solid #EA580C' : '1px solid rgba(234, 88, 12, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '1rem',
+                  cursor: 'pointer',
+                  boxShadow: isIndianPlan ? '0 4px 15px rgba(234, 88, 12, 0.15)' : 'none',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                  <div
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '10px',
+                      background: 'linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #138808 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <span style={{ fontSize: '1.25rem' }}>🇮🇳</span>
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+                      <strong style={{ fontSize: '0.95rem', color: '#140A05' }}>
+                        Plan Indian Wedding / Cultural Celebrations (शुभ विवाह)
+                      </strong>
+                      <span className="badge badge-orange" style={{ fontSize: '0.65rem' }}>
+                        Bharat Mode
+                      </span>
+                    </div>
+                    <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.78rem', color: '#6B4226', lineHeight: 1.4 }}>
+                      Multi-day ceremonies (Haldi, Mehendi, Sangeet, Pheras), Pure Veg / Jain catering buffer & INR budget
+                    </p>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    width: '22px',
+                    height: '22px',
+                    borderRadius: '50%',
+                    border: isIndianPlan ? '6px solid #EA580C' : '2px solid #9CA3AF',
+                    background: '#FFFFFF',
+                    flexShrink: 0,
+                    transition: 'all 0.2s ease',
+                  }}
+                />
+              </div>
+
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 700, color: '#140A05' }}>
                   Event Title / Name
@@ -718,6 +876,400 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
                   onChange={(e) => setForm({ ...form, location: e.target.value })}
                 />
               </div>
+
+              {/* Indian Multi-Day Ceremonies & Rituals Manager (When Indian Wedding is Active) */}
+              {isIndianPlan && (
+                <div
+                  style={{
+                    padding: '1.25rem',
+                    background: 'rgba(255, 255, 255, 0.98)',
+                    border: '1.5px solid rgba(234, 88, 12, 0.3)',
+                    borderRadius: 'var(--radius-md)',
+                    boxShadow: '0 4px 20px rgba(45, 24, 15, 0.06)',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '1.15rem' }}>🇮🇳</span>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#140A05', margin: 0 }}>
+                          Multi-Day Wedding Ceremonies & Rituals ({indianFunctions.length})
+                        </h3>
+                      </div>
+                      <p style={{ fontSize: '0.8rem', color: '#6B4226', margin: '0.25rem 0 0 0' }}>
+                        Customize your Haldi, Mehendi, Sangeet, Pheras etc. with timings, venues, dress codes & family customs.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleAddRitual('custom_ritual')}
+                      className="btn-secondary"
+                      style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                    >
+                      <Plus size={14} />
+                      <span>Add Custom Ceremony</span>
+                    </button>
+                  </div>
+
+                  {/* 1-Click Quick-Add Ritual Chips */}
+                  <div style={{ background: 'rgba(251, 247, 240, 0.75)', border: '1px solid rgba(234, 88, 12, 0.2)', borderRadius: 'var(--radius-sm)', padding: '0.65rem 0.85rem', marginBottom: '1rem' }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9A3412', textTransform: 'uppercase', marginBottom: '0.35rem', letterSpacing: '0.04em' }}>
+                      ⚡ Quick-Add Ceremonies (1-Click):
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                      {[
+                        { type: 'haldi' as const, label: '🌼 Haldi' },
+                        { type: 'mehendi' as const, label: '🌿 Mehendi' },
+                        { type: 'sangeet' as const, label: '💃 Sangeet' },
+                        { type: 'cocktail' as const, label: '🍸 Cocktail' },
+                        { type: 'roka' as const, label: '💍 Roka' },
+                        { type: 'engagement' as const, label: '💎 Ring Ceremony' },
+                        { type: 'baraat' as const, label: '🥁 Baraat' },
+                        { type: 'wedding_pheras' as const, label: '🔥 Pheras' },
+                        { type: 'reception' as const, label: '👑 Reception' },
+                        { type: 'vidaai' as const, label: '🌸 Vidaai' },
+                        { type: 'custom_ritual' as const, label: '✨ Custom Ritual' },
+                      ].map((rit) => (
+                        <button
+                          key={rit.type}
+                          type="button"
+                          onClick={() => handleAddRitual(rit.type)}
+                          className="btn-ghost"
+                          style={{
+                            padding: '0.28rem 0.65rem',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            background: '#FFFFFF',
+                            border: '1px solid rgba(234, 88, 12, 0.25)',
+                            borderRadius: '99px',
+                            color: '#9A3412',
+                            boxShadow: '0 1px 3px rgba(45, 24, 15, 0.05)',
+                          }}
+                        >
+                          <Plus size={11} style={{ marginRight: '0.2rem' }} />
+                          <span>{rit.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Ceremony Functions List */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', maxHeight: '420px', overflowY: 'auto', paddingRight: '0.25rem' }}>
+                    {indianFunctions.map((fn, index) => {
+                      const isEditing = editingFunctionId === fn.id;
+
+                      return (
+                        <div
+                          key={fn.id}
+                          style={{
+                            border: isEditing ? '2px solid #EA580C' : '1.5px solid rgba(234, 88, 12, 0.22)',
+                            borderRadius: 'var(--radius-md)',
+                            background: isEditing ? '#FFFFFF' : 'rgba(251, 247, 240, 0.55)',
+                            padding: isEditing ? '1.15rem' : '0.9rem 1.1rem',
+                            boxShadow: isEditing ? '0 8px 25px rgba(234, 88, 12, 0.12)' : 'none',
+                            transition: 'all 0.2s ease',
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.65rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                              <span
+                                style={{
+                                  width: '28px',
+                                  height: '28px',
+                                  borderRadius: '50%',
+                                  background: 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)',
+                                  color: '#FFFFFF',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '0.8rem',
+                                  fontWeight: 800,
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {index + 1}
+                              </span>
+                              <div>
+                                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#140A05' }}>
+                                  {fn.title}
+                                </div>
+                                <div style={{ fontSize: '0.75rem', color: '#9A3412', fontWeight: 600 }}>
+                                  {fn.hindiTitle || HINDI_TERMS[fn.type] || fn.type}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                              <button
+                                type="button"
+                                onClick={() => setEditingFunctionId(isEditing ? null : fn.id)}
+                                className="btn-secondary"
+                                style={{ padding: '0.3rem 0.75rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                              >
+                                <Edit3 size={12} />
+                                <span>{isEditing ? 'Close Editor' : 'Edit Details'}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteRitual(fn.id)}
+                                className="btn-ghost"
+                                style={{ padding: '0.3rem', color: '#DC2626' }}
+                                title="Remove ceremony"
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Preview row when NOT editing */}
+                          {!isEditing && (
+                            <div>
+                              <div
+                                style={{
+                                  marginTop: '0.65rem',
+                                  paddingTop: '0.55rem',
+                                  borderTop: '1px solid rgba(234, 88, 12, 0.12)',
+                                  display: 'flex',
+                                  gap: '1rem',
+                                  flexWrap: 'wrap',
+                                  fontSize: '0.78rem',
+                                  color: '#4A2B1A',
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                  <Calendar size={13} color="#EA580C" />
+                                  <span>{fn.date || 'Date TBD'} ({fn.startTime || 'Start'} - {fn.endTime || 'End'})</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                  <MapPin size={13} color="#EA580C" />
+                                  <span>{fn.venueName || 'Venue TBD'}</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                  <Users size={13} color="#EA580C" />
+                                  <span>{fn.expectedGuests} Guests</span>
+                                </div>
+                                {fn.dressCode && (
+                                  <div style={{ color: '#6B4226', fontWeight: 500 }}>
+                                    <strong>Dress Code:</strong> {fn.dressCode}
+                                  </div>
+                                )}
+                              </div>
+
+                              {fn.ritualNotes && (
+                                <div
+                                  style={{
+                                    marginTop: '0.5rem',
+                                    padding: '0.4rem 0.65rem',
+                                    background: 'rgba(251, 247, 240, 0.85)',
+                                    borderLeft: '3px solid #EA580C',
+                                    borderRadius: '4px',
+                                    fontSize: '0.75rem',
+                                    color: '#5A331E',
+                                    lineHeight: 1.4,
+                                  }}
+                                >
+                                  <strong>Custom Rituals & Notes: </strong>
+                                  {fn.ritualNotes}
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Spacious In-Place Ceremony Editor */}
+                          {isEditing && (
+                            <div
+                              style={{
+                                marginTop: '1rem',
+                                paddingTop: '0.85rem',
+                                borderTop: '1.5px dashed rgba(234, 88, 12, 0.25)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '0.85rem',
+                              }}
+                            >
+                              {/* Ceremony Type Selector */}
+                              <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.25rem' }}>
+                                  Ceremony Type (Select to auto-fill smart ritual defaults)
+                                </label>
+                                <select
+                                  value={fn.type}
+                                  onChange={(e) => handleSelectRitualType(fn.id, e.target.value as IndianFunctionType)}
+                                  className="glass-input"
+                                  style={{ width: '100%', padding: '0.5rem', fontSize: '0.85rem', fontWeight: 600, background: '#FFF' }}
+                                >
+                                  <option value="haldi">🌼 Haldi & Pithi (हल्दी समारोह)</option>
+                                  <option value="mehendi">🌿 Mehendi & Henna (मेहंदी की रस्म)</option>
+                                  <option value="sangeet">💃 Sangeet & Dance Night (संगीत संध्या)</option>
+                                  <option value="cocktail">🍸 Cocktail & DJ Party (कॉकटेल संध्या)</option>
+                                  <option value="roka">💍 Roka & Shagun (रोका समारोह)</option>
+                                  <option value="engagement">💎 Ring Exchange & Engagement (सगाई)</option>
+                                  <option value="tilak">🚩 Tilak & Sagai (तिलक रस्म)</option>
+                                  <option value="baraat">🥁 Baraat Procession (बारात प्रस्थान)</option>
+                                  <option value="wedding_pheras">🔥 Varmala & Sacred Pheras (सात फेरे)</option>
+                                  <option value="reception">👑 Grand Reception (विवाह प्रीतिभोज)</option>
+                                  <option value="vidaai">🌸 Vidaai & Doli (विदाई रस्म)</option>
+                                  <option value="custom_ritual">✨ Custom Cultural Ritual (विशेष पारिवारिक रस्म)</option>
+                                </select>
+                              </div>
+
+                              {/* Row 1: English & Hindi Titles */}
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                                <div>
+                                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
+                                    Ceremony Title (English)
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={fn.title}
+                                    onChange={(e) => handleUpdateRitual(fn.id, { title: e.target.value })}
+                                    className="glass-input"
+                                    placeholder="e.g. Phoolon Ki Haldi Ceremony"
+                                    style={{ width: '100%', padding: '0.5rem', fontSize: '0.85rem' }}
+                                  />
+                                </div>
+                                <div>
+                                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
+                                    Hindi Title (हिंदी शीर्षक)
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={fn.hindiTitle || ''}
+                                    onChange={(e) => handleUpdateRitual(fn.id, { hindiTitle: e.target.value })}
+                                    className="glass-input"
+                                    placeholder="जैसे: फूलों की हल्दी व पिठी समारोह"
+                                    style={{ width: '100%', padding: '0.5rem', fontSize: '0.85rem' }}
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Row 2: Date, Start Time & End Time */}
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem' }}>
+                                <div>
+                                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
+                                    Date
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={fn.date || ''}
+                                    onChange={(e) => handleUpdateRitual(fn.id, { date: e.target.value })}
+                                    className="glass-input"
+                                    style={{ width: '100%', padding: '0.5rem', fontSize: '0.85rem' }}
+                                  />
+                                </div>
+                                <div>
+                                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
+                                    Start Time
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={fn.startTime || ''}
+                                    onChange={(e) => handleUpdateRitual(fn.id, { startTime: e.target.value })}
+                                    className="glass-input"
+                                    placeholder="e.g. 10:00 AM"
+                                    style={{ width: '100%', padding: '0.5rem', fontSize: '0.85rem' }}
+                                  />
+                                </div>
+                                <div>
+                                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
+                                    End Time
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={fn.endTime || ''}
+                                    onChange={(e) => handleUpdateRitual(fn.id, { endTime: e.target.value })}
+                                    className="glass-input"
+                                    placeholder="e.g. 01:00 PM"
+                                    style={{ width: '100%', padding: '0.5rem', fontSize: '0.85rem' }}
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Row 3: Venue, Guests, Dress Code */}
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.75rem' }}>
+                                <div>
+                                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
+                                    Venue / Mandap / Lawn
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={fn.venueName || ''}
+                                    onChange={(e) => handleUpdateRitual(fn.id, { venueName: e.target.value })}
+                                    className="glass-input"
+                                    placeholder="e.g. Sunlit Terrace Garden / Banquet"
+                                    style={{ width: '100%', padding: '0.5rem', fontSize: '0.85rem' }}
+                                  />
+                                </div>
+                                <div>
+                                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
+                                    Expected Guests
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={fn.expectedGuests}
+                                    onChange={(e) => handleUpdateRitual(fn.id, { expectedGuests: parseInt(e.target.value) || 0 })}
+                                    className="glass-input"
+                                    style={{ width: '100%', padding: '0.5rem', fontSize: '0.85rem' }}
+                                  />
+                                </div>
+                                <div>
+                                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
+                                    Dress Code Theme
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={fn.dressCode || ''}
+                                    onChange={(e) => handleUpdateRitual(fn.id, { dressCode: e.target.value })}
+                                    className="glass-input"
+                                    placeholder="e.g. Sunlit Yellow & Pastel Ochre"
+                                    style={{ width: '100%', padding: '0.5rem', fontSize: '0.85rem' }}
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Row 4: Spacious Custom Ritual Details & Traditions */}
+                              <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
+                                  Custom Ritual Notes, Traditions & Family Roles
+                                </label>
+                                <textarea
+                                  rows={3}
+                                  value={fn.ritualNotes || ''}
+                                  onChange={(e) => handleUpdateRitual(fn.id, { ritualNotes: e.target.value })}
+                                  className="glass-input"
+                                  placeholder="e.g. Flower shower petals, 4 mehendi artists, entry choreography, Pandit ji Dakshina, special family rituals..."
+                                  style={{ width: '100%', padding: '0.6rem', fontSize: '0.825rem', lineHeight: 1.45, resize: 'vertical' }}
+                                />
+                              </div>
+
+                              {/* Editor Action Buttons */}
+                              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', paddingTop: '0.35rem' }}>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteRitual(fn.id)}
+                                  className="btn-ghost"
+                                  style={{ color: '#DC2626', fontSize: '0.78rem', padding: '0.35rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                                >
+                                  <Trash2 size={13} />
+                                  <span>Remove Ceremony</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingFunctionId(null)}
+                                  className="btn-primary"
+                                  style={{ padding: '0.35rem 0.85rem', fontSize: '0.78rem' }}
+                                >
+                                  <span>Done</span>
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -946,6 +1498,47 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
                   />
                 </div>
               </div>
+
+              {/* Indian Wedding Catering Preference (When Indian Wedding is Active) */}
+              {isIndianPlan && (
+                <div style={{ marginTop: '0.25rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 700, color: '#140A05', fontSize: '0.9rem' }}>
+                    🇮🇳 Indian Catering Preference (खानपान व थाली प्राथमिकता)
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.65rem', marginBottom: '0.65rem' }}>
+                    {[
+                      { id: 'pure_veg' as const, title: '🟢 Pure Vegetarian', desc: '100% vegetarian satvik kitchen & separate buffet counters' },
+                      { id: 'jain_veg' as const, title: '🟡 Jain Vegetarian', desc: 'No onion, garlic, or underground root vegetables' },
+                      { id: 'swaminarayan' as const, title: '🟠 Swaminarayan Diet', desc: 'Traditional satvik preparation without onion or garlic' },
+                      { id: 'mixed_veg_nonveg' as const, title: '🔴 Standard Mixed', desc: 'Strictly segregated veg & non-veg live kitchen stations' },
+                    ].map((diet) => (
+                      <button
+                        key={diet.id}
+                        type="button"
+                        onClick={() => setIndianDiet(diet.id)}
+                        className="btn-secondary"
+                        style={{
+                          padding: '0.75rem',
+                          textAlign: 'left',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.25rem',
+                          background: indianDiet === diet.id ? 'linear-gradient(135deg, rgba(234, 88, 12, 0.12), rgba(245, 158, 11, 0.12))' : '#FFFFFF',
+                          border: indianDiet === diet.id ? '2px solid #EA580C' : '1px solid rgba(234, 88, 12, 0.2)',
+                          color: '#140A05',
+                          borderRadius: 'var(--radius-sm)',
+                        }}
+                      >
+                        <strong style={{ fontSize: '0.85rem' }}>{diet.title}</strong>
+                        <span style={{ fontSize: '0.72rem', color: '#6B4226', lineHeight: 1.35 }}>{diet.desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: '0.78rem', color: '#92400E', background: 'rgba(254, 243, 199, 0.75)', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                    ⚡ <strong>Automatic +10% Unannounced Guest Buffer:</strong> Caterers will be instructed with {Math.round(form.guestCount * 1.10)} plate guarantees to ensure food never runs short during peak baarat arrivals.
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -982,7 +1575,10 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
                     </button>
                   </div>
                   <div style={{ fontWeight: 700, color: '#111' }}>{form.title || 'Untitled Event'}</div>
-                  <span className="badge badge-orange" style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>{form.eventType}</span>
+                  <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
+                    <span className="badge badge-orange" style={{ fontSize: '0.65rem' }}>{form.eventType}</span>
+                    {isIndianPlan && <span className="badge badge-amber" style={{ fontSize: '0.65rem' }}>🇮🇳 Bharat Mode</span>}
+                  </div>
                 </div>
 
                 {/* Scale & Setting */}
@@ -1010,7 +1606,7 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
                     </button>
                   </div>
                   <div style={{ fontWeight: 700, color: 'var(--color-orange-700)', fontFamily: 'var(--font-mono)' }}>
-                    {form.currency} {form.totalBudget.toLocaleString()}
+                    {form.currency === 'INR' ? formatIndianCurrency(form.totalBudget) : `${form.currency} ${form.totalBudget.toLocaleString()}`}
                   </div>
                   <div style={{ fontSize: '0.8rem', color: '#555' }}>
                     {form.budgetStatus === 'needs_help' ? `Auto-Estimated (${form.budgetTier})` : 'User Defined'}
@@ -1030,6 +1626,58 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
                     {form.priorities.slice(0, 3).join(', ')}
                   </div>
                 </div>
+
+                {/* Indian Wedding Ceremonies & Bharat Intelligence Summary Card */}
+                {isIndianPlan && (
+                  <div
+                    style={{
+                      gridColumn: '1 / -1',
+                      background: 'linear-gradient(135deg, rgba(255, 247, 237, 0.98) 0%, rgba(254, 243, 199, 0.92) 100%)',
+                      padding: '1rem 1.15rem',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1.5px solid rgba(234, 88, 12, 0.35)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                        <span style={{ fontSize: '1.1rem' }}>🇮🇳</span>
+                        <span style={{ fontSize: '0.85rem', color: '#9A3412', textTransform: 'uppercase', fontWeight: 800 }}>
+                          Indian Wedding Ceremonies & Catering Protocol ({indianFunctions.length} Functions)
+                        </span>
+                      </div>
+                      <button type="button" onClick={() => setCurrentStep(2)} className="btn-ghost" style={{ padding: '0.2rem' }}>
+                        <Edit3 size={13} color="var(--color-orange-600)" />
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginTop: '0.5rem' }}>
+                      {indianFunctions.map((fn, idx) => (
+                        <span
+                          key={fn.id || idx}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                            padding: '0.25rem 0.65rem',
+                            borderRadius: '99px',
+                            background: '#FFFFFF',
+                            border: '1px solid rgba(234, 88, 12, 0.3)',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            color: '#140A05',
+                          }}
+                        >
+                          <span>{fn.title}</span>
+                          <span style={{ color: '#EA580C', fontSize: '0.7rem' }}>({fn.expectedGuests} guests)</span>
+                        </span>
+                      ))}
+                    </div>
+
+                    <div style={{ fontSize: '0.78rem', color: '#6B4226', marginTop: '0.65rem', fontWeight: 600 }}>
+                      🍽️ Catering: {indianDiet === 'pure_veg' ? 'Pure Vegetarian (Satvik)' : indianDiet === 'jain_veg' ? 'Jain Vegetarian' : indianDiet === 'swaminarayan' ? 'Swaminarayan Diet' : 'Standard Mixed'} • Guaranteed +10% unannounced buffer ({Math.round(form.guestCount * 1.10)} plates)
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

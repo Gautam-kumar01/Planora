@@ -224,6 +224,9 @@ export interface OnboardingFormValues {
   dietaryNotes: string;
   accessibilityNeeds: string;
   constraints: string;
+  isIndianWeddingPlan?: boolean;
+  indianFunctions?: IndianFunctionItem[];
+  indianCateringDiet?: IndianCateringDiet;
 }
 
 export interface CopilotMessage {
@@ -330,11 +333,17 @@ export interface PlanConflictFinding {
 
 export type IndianFunctionType =
   | 'roka'
+  | 'engagement'
+  | 'tilak'
   | 'mehendi'
   | 'haldi'
   | 'sangeet'
+  | 'cocktail'
+  | 'baraat'
   | 'wedding_pheras'
+  | 'vidaai'
   | 'reception'
+  | 'custom_ritual'
   | 'college_fest'
   | 'community_utsav'
   | 'birthday_puja';

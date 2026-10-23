@@ -316,6 +316,34 @@ export const HomePage: React.FC<HomePageProps> = ({
             <ArrowRight size={18} />
           </button>
 
+          <button
+            id="btn-home-indian-wedding"
+            onClick={() =>
+              onOpenWizard({
+                eventType: 'wedding',
+                currency: 'INR',
+                isIndianWeddingPlan: true,
+                guestCount: 250,
+                totalBudget: 2500000,
+                title: 'Grand Indian Wedding Celebration (शुभ विवाह)',
+              })
+            }
+            className="btn-secondary"
+            style={{
+              padding: '0.85rem 1.8rem',
+              fontSize: '1rem',
+              background: 'linear-gradient(135deg, rgba(255, 153, 51, 0.12) 0%, rgba(255, 255, 255, 0.98) 50%, rgba(19, 136, 8, 0.12) 100%)',
+              border: '1.5px solid #EA580C',
+              color: '#9A3412',
+              fontWeight: 800,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+            }}
+          >
+            <span>🇮🇳 Plan Indian Wedding (शुभ विवाह)</span>
+          </button>
+
           {currentUser && onNavigateUserDashboard ? (
             <button
               id="btn-home-go-dashboard"
@@ -698,6 +726,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   totalBudget: sandboxBudget,
                   currency: sandboxCurrency,
                   venueSetting: sandboxSetting,
+                  isIndianWeddingPlan: isIndian,
                   title: isIndian
                     ? `${sandboxType === 'wedding' ? 'Shubh Vivah (शुभ विवाह)' : sandboxType === 'birthday' ? 'Janamdin Utsav (जन्मदिन उत्सव)' : 'Samudayik Utsav (सामुदायिक उत्सव)'} Master Plan`
                     : `${sandboxType === 'wedding' ? 'Enchanted' : sandboxType === 'birthday' ? 'Exciting' : 'Grand'} ${sandboxType.toUpperCase()} Celebration`,

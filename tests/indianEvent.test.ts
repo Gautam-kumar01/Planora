@@ -8,6 +8,7 @@ import {
   generateDefaultIndianBackups,
   initializeIndianEventConfig,
   HINDI_TERMS,
+  createCustomIndianRitual,
 } from '../src/utils/indianEventEngine';
 import {
   INDIAN_BUDGET_SPLITS,
@@ -175,5 +176,19 @@ describe('Priority Indian Event Intelligence — Multi-Day Functions & Statutory
     expect(HINDI_TERMS.pure_veg).toContain('शुद्ध शाकाहारी');
     expect(HINDI_TERMS.jain_veg).toContain('जैन');
     expect(HINDI_TERMS.dg_backup).toContain('साइलेंट डीजी');
+    expect(HINDI_TERMS.cocktail).toContain('कॉकटेल');
+    expect(HINDI_TERMS.baraat).toContain('बारात');
+  });
+
+  it('supports creating custom rituals with pre-filled cultural templates', () => {
+    const cocktailRitual = createCustomIndianRitual('cocktail', '2027-06-20', 180);
+    expect(cocktailRitual.type).toBe('cocktail');
+    expect(cocktailRitual.title).toContain('Cocktail');
+    expect(cocktailRitual.expectedGuests).toBe(Math.round(180 * 0.7)); // 70% guest ratio for cocktail
+    expect(cocktailRitual.venueName).toBeDefined();
+
+    const customRitual = createCustomIndianRitual('custom_ritual', '2027-06-20', 100);
+    expect(customRitual.type).toBe('custom_ritual');
+    expect(customRitual.id.startsWith('fn-custom_ritual-')).toBe(true);
   });
 });

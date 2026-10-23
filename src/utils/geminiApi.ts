@@ -1,6 +1,12 @@
-import { EventPlan, OnboardingFormValues, PersonalizedIdeas, ThemeConcept } from '../types';
+import { EventPlan, OnboardingFormValues, PersonalizedIdeas, ThemeConcept, IndianEventConfig } from '../types';
 import { generateDeterministicBudget } from './deterministicMath';
 import { getStoredApiKey, isOpenRouterKey } from './storage';
+import {
+  generateDefaultIndianFunctions,
+  generateDefaultIndianCatering,
+  generateDefaultIndianPermits,
+  generateDefaultIndianBackups,
+} from './indianEventEngine';
 
 export async function generateEventPlanWithAI(formData: OnboardingFormValues): Promise<EventPlan> {
   const apiKey = getStoredApiKey();
@@ -436,6 +442,42 @@ function reconcileAndSanitizePlan(aiData: any, formData: OnboardingFormValues): 
       decorAndAtmosphere: [{ title: 'Ambient Lighting', description: 'Warm incandescent mood glow' }],
       diyHacks: ['Combine decor pieces across multiple focal tables to optimize budget.'],
     },
+    indianIntelligence: buildIndianIntelligenceConfig(formData),
+  };
+}
+
+function buildIndianIntelligenceConfig(formData: OnboardingFormValues): IndianEventConfig | undefined {
+  const isIndian =
+    Boolean(formData.isIndianWeddingPlan) ||
+    formData.currency === 'INR' ||
+    (Array.isArray(formData.indianFunctions) && formData.indianFunctions.length > 0) ||
+    formData.location?.toLowerCase().includes('india') ||
+    formData.location?.toLowerCase().includes('delhi') ||
+    formData.location?.toLowerCase().includes('mumbai') ||
+    formData.location?.toLowerCase().includes('jaipur') ||
+    formData.location?.toLowerCase().includes('bengaluru') ||
+    formData.location?.toLowerCase().includes('hyderabad');
+
+  if (!isIndian) return undefined;
+
+  const functions =
+    Array.isArray(formData.indianFunctions) && formData.indianFunctions.length > 0
+      ? formData.indianFunctions
+      : generateDefaultIndianFunctions(formData.eventType, formData.guestCount, formData.eventDate);
+
+  const catering = generateDefaultIndianCatering(formData.eventType, formData.guestCount);
+  if (formData.indianCateringDiet) {
+    catering.dietType = formData.indianCateringDiet;
+  }
+
+  return {
+    isEnabled: true,
+    region: 'North',
+    language: 'en',
+    functions,
+    catering,
+    permits: generateDefaultIndianPermits(formData.eventType),
+    backups: generateDefaultIndianBackups(),
   };
 }
 
@@ -526,6 +568,7 @@ export function generateDeterministicPlan(formData: OnboardingFormValues): Event
     runOfShow: generateDefaultRunOfShow(formData.eventType),
     vendors: generateDefaultVendors(formData.eventType),
     ideas: generateDefaultIdeas(formData.eventType, formData.vibe),
+    indianIntelligence: buildIndianIntelligenceConfig(formData),
   };
 }
 

@@ -306,7 +306,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   color: '#FED7AA',
                 }}
               >
-                <span>🇮🇳 {language === 'hi' ? 'भारत मोड' : 'Bharat Mode'}</span>
+                <span>🇮🇳 {language === 'hi' ? 'शुभ विवाह (Bharat)' : 'Indian Wedding'}</span>
               </button>
             )}
 
@@ -549,7 +549,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 gap: '0.5rem',
               }}
             >
-              <span>🇮🇳 {language === 'hi' ? 'भारतीय इवेंट इंटेलिजेंस (भारत मोड)' : 'Indian Event Intelligence (Bharat Mode)'}</span>
+              <span>🇮🇳 {language === 'hi' ? 'भारतीय विवाह व इवेंट इंटेलिजेंस (शुभ विवाह)' : 'Plan Indian Wedding (शुभ विवाह)'}</span>
             </button>
           )}
 

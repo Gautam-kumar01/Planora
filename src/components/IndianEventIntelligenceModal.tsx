@@ -18,11 +18,14 @@ import {
   MapPin,
   Users,
   Languages,
+  Edit3,
+  Check,
 } from 'lucide-react';
 import {
   EventPlan,
   IndianEventConfig,
   IndianFunctionItem,
+  IndianFunctionType,
   IndianPermitItem,
   IndianCateringConfig,
   IndianBackupConfig,
@@ -36,6 +39,8 @@ import {
   generateDefaultIndianPermits,
   generateDefaultIndianCatering,
   generateDefaultIndianBackups,
+  createCustomIndianRitual,
+  INDIAN_RITUAL_TEMPLATES,
 } from '../utils/indianEventEngine';
 
 interface IndianEventIntelligenceModalProps {
@@ -86,27 +91,32 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
     onClose();
   };
 
-  // Add a new ritual / function
-  const handleAddFunction = () => {
-    const newFn: IndianFunctionItem = {
-      id: `fn-${Date.now()}`,
-      type: 'sangeet',
-      title: 'New Cultural Celebration',
-      hindiTitle: 'नया सांस्कृतिक कार्यक्रम',
-      date: plan.basics.eventDate || new Date().toISOString().split('T')[0],
-      startTime: '06:00 PM',
-      endTime: '10:00 PM',
-      venueName: 'Main Banquet Hall',
-      dressCode: 'Traditional Indian',
-      expectedGuests: plan.basics.guestCount,
-      ritualNotes: 'Sequence family performances and guest dining schedule.',
-      isCompleted: false,
-    };
+  // Add a new ritual / function with smart defaults
+  const handleAddFunction = (type: IndianFunctionType = 'haldi') => {
+    const newFn = createCustomIndianRitual(type, plan.basics.eventDate, plan.basics.guestCount);
     setConfig((prev) => ({
       ...prev,
       functions: [...prev.functions, newFn],
     }));
     setEditingFunctionId(newFn.id);
+  };
+
+  const handleSelectRitualType = (fnId: string, newType: IndianFunctionType) => {
+    const template = INDIAN_RITUAL_TEMPLATES[newType];
+    if (template) {
+      handleUpdateFunction(fnId, {
+        type: newType,
+        title: template.title,
+        hindiTitle: template.hindiTitle,
+        startTime: template.startTime,
+        endTime: template.endTime,
+        venueName: template.venueName,
+        dressCode: template.dressCode,
+        ritualNotes: template.ritualNotes,
+      });
+    } else {
+      handleUpdateFunction(fnId, { type: newType });
+    }
   };
 
   const handleDeleteFunction = (id: string) => {
@@ -142,44 +152,22 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
   const isHindi = config.language === 'hi';
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div
-        className="modal-card"
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          maxWidth: '920px',
-          width: '95%',
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          padding: '0',
-          overflow: 'hidden',
-          borderRadius: 'var(--radius-lg)',
-        }}
-      >
+    <div className="indian-modal-backdrop" onClick={onClose}>
+      <div className="indian-modal-card" onClick={(e) => e.stopPropagation()}>
         {/* Modal Top Bar */}
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #1C130D 0%, #2D180F 100%)',
-            padding: '1.25rem 1.75rem',
-            borderBottom: '1px solid rgba(251, 146, 60, 0.25)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            color: '#FFFFFF',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+        <div className="indian-modal-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
             <div
               style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
                 background: 'linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #138808 100%)',
                 padding: '2px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                flexShrink: 0,
               }}
             >
               <div
@@ -187,33 +175,33 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
                   width: '100%',
                   height: '100%',
                   background: '#1C130D',
-                  borderRadius: '10px',
+                  borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Sparkles size={20} color="#FF9933" />
+                <Sparkles size={18} color="#FF9933" />
               </div>
             </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: '#FFFFFF' }}>
+            <div style={{ minWidth: 0, overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+                <h2 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {isHindi ? 'भारतीय इवेंट इंटेलिजेंस' : 'Indian Event Intelligence'}
                 </h2>
-                <span className="badge badge-orange" style={{ fontSize: '0.7rem' }}>
+                <span className="badge badge-orange" style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem' }}>
                   🇮🇳 Bharat Mode
                 </span>
               </div>
-              <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: '#FED7AA' }}>
+              <p style={{ margin: '0.15rem 0 0 0', fontSize: '0.75rem', color: '#FED7AA', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {isHindi
-                  ? 'बहु-दिवसीय समारोह, शुद्ध शाकाहारी/जैन कैटरिंग, कानूनी अनुमतियां व बैकअप व्यवस्था'
+                  ? 'बहु-दिवसीय समारोह, शुद्ध शाकाहारी/जैन कैटरिंग, कानूनी अनुमतियां व बैकअप'
                   : 'Multi-day rituals, pure veg/Jain catering math, statutory permits & backup protocols'}
               </p>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
             {/* Language Quick Toggle */}
             <button
               type="button"
@@ -246,18 +234,8 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div
-          className="tab-bar"
-          style={{
-            background: 'rgba(251, 247, 240, 0.8)',
-            borderBottom: '1px solid rgba(234, 88, 12, 0.15)',
-            padding: '0.5rem 1.5rem',
-            display: 'flex',
-            gap: '0.5rem',
-            overflowX: 'auto',
-          }}
-        >
+        {/* Tab Navigation (Horizontal Touch Scroll, Never Breaks Layout) */}
+        <div className="indian-tab-bar">
           <button
             onClick={() => setActiveTab('functions')}
             className={`btn-ghost ${activeTab === 'functions' ? 'tab-active' : ''}`}
@@ -268,6 +246,8 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
               borderRadius: 'var(--radius-sm)',
               background: activeTab === 'functions' ? '#EA580C' : 'transparent',
               color: activeTab === 'functions' ? '#FFFFFF' : '#6B4226',
+              flex: '0 0 auto',
+              whiteSpace: 'nowrap',
             }}
           >
             <Calendar size={15} style={{ marginRight: '0.35rem' }} />
@@ -284,6 +264,8 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
               borderRadius: 'var(--radius-sm)',
               background: activeTab === 'catering' ? '#EA580C' : 'transparent',
               color: activeTab === 'catering' ? '#FFFFFF' : '#6B4226',
+              flex: '0 0 auto',
+              whiteSpace: 'nowrap',
             }}
           >
             <UtensilsCrossed size={15} style={{ marginRight: '0.35rem' }} />
@@ -300,6 +282,8 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
               borderRadius: 'var(--radius-sm)',
               background: activeTab === 'permits' ? '#EA580C' : 'transparent',
               color: activeTab === 'permits' ? '#FFFFFF' : '#6B4226',
+              flex: '0 0 auto',
+              whiteSpace: 'nowrap',
             }}
           >
             <ShieldCheck size={15} style={{ marginRight: '0.35rem' }} />
@@ -330,6 +314,8 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
               borderRadius: 'var(--radius-sm)',
               background: activeTab === 'backup' ? '#EA580C' : 'transparent',
               color: activeTab === 'backup' ? '#FFFFFF' : '#6B4226',
+              flex: '0 0 auto',
+              whiteSpace: 'nowrap',
             }}
           >
             <Zap size={15} style={{ marginRight: '0.35rem' }} />
@@ -338,24 +324,25 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
         </div>
 
         {/* Modal Scrollable Body */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '1.75rem', background: '#FFFFFF' }}>
+        <div className="indian-modal-body">
           {/* TAB 1: MULTI-DAY FUNCTIONS */}
           {activeTab === 'functions' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
                 <div>
                   <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#140A05', margin: 0 }}>
                     {isHindi ? 'भारतीय विवाह व सांस्कृतिक अनुक्रम' : 'Multi-Event Ceremony Sequencing'}
                   </h3>
                   <p style={{ fontSize: '0.85rem', color: '#6B4226', margin: '0.2rem 0 0 0' }}>
                     {isHindi
-                      ? 'मेहंदी, हल्दी, संगीत, बारात, फेरे और रिसेप्शन की अलग-अलग व्यवस्था और अतिथि संख्या।'
-                      : 'Schedule Mehendi, Haldi, Sangeet, Baraat, Pheras & Reception with distinct headcounts and dress codes.'}
+                      ? 'अपनी आवश्यकता अनुसार हल्दी, मेहंदी, संगीत, फेरे आदि रस्में जोड़ें व विस्तार से विवरण भरें।'
+                      : 'Customize rituals like Haldi, Mehendi, Sangeet, Pheras & Reception with headcounts, venues & traditions.'}
                   </p>
                 </div>
 
                 <button
-                  onClick={handleAddFunction}
+                  type="button"
+                  onClick={() => handleAddFunction('custom_ritual')}
                   className="btn-secondary"
                   style={{ padding: '0.45rem 0.9rem', fontSize: '0.825rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                 >
@@ -364,6 +351,49 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
                 </button>
               </div>
 
+              {/* 1-Click Quick Add Popular Indian Wedding Ceremonies */}
+              <div style={{ background: 'rgba(251, 247, 240, 0.75)', border: '1px solid rgba(234, 88, 12, 0.2)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1rem', marginBottom: '1.25rem' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9A3412', textTransform: 'uppercase', marginBottom: '0.5rem', letterSpacing: '0.04em' }}>
+                  ⚡ {isHindi ? 'त्वरित समारोह जोड़ें (1-Click Add Ritual)' : 'Quick-Add Indian Wedding Ceremonies'}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
+                  {[
+                    { type: 'haldi' as const, label: isHindi ? '🌼 हल्दी (Haldi)' : '🌼 Haldi Ceremony' },
+                    { type: 'mehendi' as const, label: isHindi ? '🌿 मेहंदी (Mehendi)' : '🌿 Mehendi & Henna' },
+                    { type: 'sangeet' as const, label: isHindi ? '💃 संगीत (Sangeet)' : '💃 Sangeet & Dance' },
+                    { type: 'cocktail' as const, label: isHindi ? '🍸 कॉकटेल (Cocktail)' : '🍸 Cocktail & DJ' },
+                    { type: 'roka' as const, label: isHindi ? '💍 रोका / सगाई (Roka)' : '💍 Roka / Shagun' },
+                    { type: 'engagement' as const, label: isHindi ? '💎 अंगूठी रस्म (Engagement)' : '💎 Ring Ceremony' },
+                    { type: 'baraat' as const, label: isHindi ? '🥁 बारात (Baraat)' : '🥁 Baraat Procession' },
+                    { type: 'wedding_pheras' as const, label: isHindi ? '🔥 सात फेरे (Sacred Pheras)' : '🔥 Sacred Pheras' },
+                    { type: 'reception' as const, label: isHindi ? '👑 प्रीतिभोज (Reception)' : '👑 Grand Reception' },
+                    { type: 'vidaai' as const, label: isHindi ? '🌸 विदाई (Vidaai)' : '🌸 Vidaai Ceremony' },
+                    { type: 'custom_ritual' as const, label: isHindi ? '✨ अन्य रस्म (Custom)' : '✨ Custom Ritual' },
+                  ].map((ritual) => (
+                    <button
+                      key={ritual.type}
+                      type="button"
+                      onClick={() => handleAddFunction(ritual.type)}
+                      className="btn-ghost"
+                      style={{
+                        padding: '0.35rem 0.75rem',
+                        fontSize: '0.78rem',
+                        fontWeight: 600,
+                        background: '#FFFFFF',
+                        border: '1px solid rgba(234, 88, 12, 0.25)',
+                        borderRadius: '99px',
+                        color: '#9A3412',
+                        boxShadow: '0 1px 3px rgba(45, 24, 15, 0.05)',
+                      }}
+                    >
+                      <Plus size={12} style={{ marginRight: '0.25rem' }} />
+                      <span>{ritual.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Ceremony Functions List */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {config.functions.map((fn, index) => {
                   const isEditing = editingFunctionId === fn.id;
@@ -372,26 +402,29 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
                     <div
                       key={fn.id}
                       style={{
-                        border: '1.5px solid rgba(234, 88, 12, 0.22)',
+                        border: isEditing ? '2px solid #EA580C' : '1.5px solid rgba(234, 88, 12, 0.22)',
                         borderRadius: 'var(--radius-md)',
-                        background: 'rgba(251, 247, 240, 0.4)',
-                        padding: '1.25rem',
+                        background: isEditing ? '#FFFFFF' : 'rgba(251, 247, 240, 0.45)',
+                        padding: isEditing ? '1.25rem' : '1.15rem',
+                        boxShadow: isEditing ? '0 8px 25px rgba(234, 88, 12, 0.12)' : 'none',
+                        transition: 'all 0.2s ease',
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                           <span
                             style={{
-                              width: '28px',
-                              height: '28px',
+                              width: '30px',
+                              height: '30px',
                               borderRadius: '50%',
-                              background: '#EA580C',
+                              background: 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)',
                               color: '#FFFFFF',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              fontSize: '0.8rem',
+                              fontSize: '0.85rem',
                               fontWeight: 800,
+                              flexShrink: 0,
                             }}
                           >
                             {index + 1}
@@ -410,16 +443,17 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
                           <button
                             type="button"
                             onClick={() => setEditingFunctionId(isEditing ? null : fn.id)}
-                            className="btn-ghost"
-                            style={{ padding: '0.3rem 0.65rem', fontSize: '0.78rem' }}
+                            className="btn-secondary"
+                            style={{ padding: '0.35rem 0.8rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                           >
-                            {isEditing ? (isHindi ? 'पूर्ण' : 'Done') : isHindi ? 'संपादित करें' : 'Edit'}
+                            <Edit3 size={13} />
+                            <span>{isEditing ? (isHindi ? 'पूर्ण' : 'Close Editor') : isHindi ? 'संपादित करें' : 'Edit Details'}</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDeleteFunction(fn.id)}
                             className="btn-ghost"
-                            style={{ padding: '0.3rem', color: '#DC2626' }}
+                            style={{ padding: '0.35rem', color: '#DC2626' }}
                             title="Delete"
                           >
                             <Trash2 size={16} />
@@ -427,111 +461,251 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
                         </div>
                       </div>
 
-                      {/* Summary Row */}
+                      {/* Summary Row when NOT editing */}
                       {!isEditing && (
-                        <div
-                          style={{
-                            marginTop: '0.85rem',
-                            paddingTop: '0.75rem',
-                            borderTop: '1px solid rgba(234, 88, 12, 0.12)',
-                            display: 'flex',
-                            gap: '1.5rem',
-                            flexWrap: 'wrap',
-                            fontSize: '0.825rem',
-                            color: '#4A2B1A',
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                            <Calendar size={14} color="#EA580C" />
-                            <span>{fn.date || 'Date TBD'} ({fn.startTime} - {fn.endTime})</span>
+                        <div>
+                          <div
+                            style={{
+                              marginTop: '0.85rem',
+                              paddingTop: '0.75rem',
+                              borderTop: '1px solid rgba(234, 88, 12, 0.12)',
+                              display: 'flex',
+                              gap: '1.25rem',
+                              flexWrap: 'wrap',
+                              fontSize: '0.825rem',
+                              color: '#4A2B1A',
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                              <Calendar size={14} color="#EA580C" />
+                              <span>{fn.date || 'Date TBD'} ({fn.startTime || 'Start'} - {fn.endTime || 'End'})</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                              <MapPin size={14} color="#EA580C" />
+                              <span>{fn.venueName || 'Venue TBD'}</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                              <Users size={14} color="#EA580C" />
+                              <span>{fn.expectedGuests} {isHindi ? 'अतिथि' : 'Guests'}</span>
+                            </div>
+                            {fn.dressCode && (
+                              <div style={{ fontSize: '0.8rem', color: '#6B4226', fontWeight: 500 }}>
+                                <strong>{isHindi ? 'पोशाक:' : 'Dress Code:'}</strong> {fn.dressCode}
+                              </div>
+                            )}
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                            <MapPin size={14} color="#EA580C" />
-                            <span>{fn.venueName || 'Venue TBD'}</span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                            <Users size={14} color="#EA580C" />
-                            <span>{fn.expectedGuests} Guests</span>
-                          </div>
-                          {fn.dressCode && (
-                            <div style={{ fontSize: '0.8rem', color: '#6B4226', fontWeight: 500 }}>
-                              <strong>Dress Code:</strong> {fn.dressCode}
+
+                          {fn.ritualNotes && (
+                            <div
+                              style={{
+                                marginTop: '0.65rem',
+                                padding: '0.5rem 0.75rem',
+                                background: 'rgba(251, 247, 240, 0.85)',
+                                borderLeft: '3px solid #EA580C',
+                                borderRadius: '4px',
+                                fontSize: '0.8rem',
+                                color: '#5A331E',
+                                lineHeight: 1.4,
+                              }}
+                            >
+                              <strong>{isHindi ? 'विशेष रस्में व नोट्स: ' : 'Rituals & Notes: '}</strong>
+                              {fn.ritualNotes}
                             </div>
                           )}
                         </div>
                       )}
 
-                      {/* In-Place Editing Form */}
+                      {/* Spacious In-Place Ceremony Editing Workspace */}
                       {isEditing && (
-                        <div style={{ marginTop: '1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem' }}>
+                        <div
+                          style={{
+                            marginTop: '1.15rem',
+                            paddingTop: '1rem',
+                            borderTop: '1.5px dashed rgba(234, 88, 12, 0.25)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '1rem',
+                          }}
+                        >
+                          {/* Ceremony Type Selector */}
                           <div>
-                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
-                              Title (English)
+                            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#140A05', marginBottom: '0.35rem' }}>
+                              {isHindi ? 'समारोह प्रकार चुनें (Ritual Type)' : 'Ceremony Type (Select to auto-fill smart defaults)'}
                             </label>
-                            <input
-                              type="text"
-                              value={fn.title}
-                              onChange={(e) => handleUpdateFunction(fn.id, { title: e.target.value })}
-                              style={{ width: '100%', padding: '0.45rem', fontSize: '0.85rem', borderRadius: '4px', border: '1px solid #CBD5E1' }}
+                            <select
+                              value={fn.type}
+                              onChange={(e) => handleSelectRitualType(fn.id, e.target.value as IndianFunctionType)}
+                              className="glass-input"
+                              style={{ width: '100%', padding: '0.55rem', fontSize: '0.875rem', fontWeight: 600, background: '#FFF' }}
+                            >
+                              <option value="haldi">🌼 Haldi & Pithi (हल्दी समारोह)</option>
+                              <option value="mehendi">🌿 Mehendi & Henna (मेहंदी की रस्म)</option>
+                              <option value="sangeet">💃 Sangeet & Dance Night (संगीत संध्या)</option>
+                              <option value="cocktail">🍸 Cocktail & DJ Party (कॉकटेल संध्या)</option>
+                              <option value="roka">💍 Roka & Shagun (रोका समारोह)</option>
+                              <option value="engagement">💎 Ring Exchange & Engagement (सगाई)</option>
+                              <option value="tilak">🚩 Tilak & Sagai (तिलक रस्म)</option>
+                              <option value="baraat">🥁 Baraat Procession (बारात प्रस्थान)</option>
+                              <option value="wedding_pheras">🔥 Varmala & Sacred Pheras (सात फेरे)</option>
+                              <option value="reception">👑 Grand Reception (विवाह प्रीतिभोज)</option>
+                              <option value="vidaai">🌸 Vidaai & Doli (विदाई रस्म)</option>
+                              <option value="custom_ritual">✨ Custom Cultural Ritual (विशेष पारिवारिक रस्म)</option>
+                            </select>
+                          </div>
+
+                          {/* Row 1: English & Hindi Titles */}
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.85rem' }}>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#140A05', marginBottom: '0.25rem' }}>
+                                Ceremony Title (English)
+                              </label>
+                              <input
+                                type="text"
+                                value={fn.title}
+                                onChange={(e) => handleUpdateFunction(fn.id, { title: e.target.value })}
+                                className="glass-input"
+                                placeholder="e.g. Phoolon Ki Haldi Ceremony"
+                                style={{ width: '100%', padding: '0.55rem', fontSize: '0.875rem' }}
+                              />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#140A05', marginBottom: '0.25rem' }}>
+                                Hindi Title (हिंदी शीर्षक)
+                              </label>
+                              <input
+                                type="text"
+                                value={fn.hindiTitle || ''}
+                                onChange={(e) => handleUpdateFunction(fn.id, { hindiTitle: e.target.value })}
+                                className="glass-input"
+                                placeholder="जैसे: फूलों की हल्दी व पिठी समारोह"
+                                style={{ width: '100%', padding: '0.55rem', fontSize: '0.875rem' }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Row 2: Date, Start Time & End Time */}
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.85rem' }}>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#140A05', marginBottom: '0.25rem' }}>
+                                {isHindi ? 'दिनांक (Date)' : 'Event Date'}
+                              </label>
+                              <input
+                                type="date"
+                                value={fn.date || ''}
+                                onChange={(e) => handleUpdateFunction(fn.id, { date: e.target.value })}
+                                className="glass-input"
+                                style={{ width: '100%', padding: '0.55rem', fontSize: '0.875rem' }}
+                              />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#140A05', marginBottom: '0.25rem' }}>
+                                {isHindi ? 'प्रारंभ समय (Start Time)' : 'Start Time'}
+                              </label>
+                              <input
+                                type="text"
+                                value={fn.startTime || ''}
+                                onChange={(e) => handleUpdateFunction(fn.id, { startTime: e.target.value })}
+                                className="glass-input"
+                                placeholder="e.g. 10:00 AM or 07:00 PM"
+                                style={{ width: '100%', padding: '0.55rem', fontSize: '0.875rem' }}
+                              />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#140A05', marginBottom: '0.25rem' }}>
+                                {isHindi ? 'समापन समय (End Time)' : 'End Time'}
+                              </label>
+                              <input
+                                type="text"
+                                value={fn.endTime || ''}
+                                onChange={(e) => handleUpdateFunction(fn.id, { endTime: e.target.value })}
+                                className="glass-input"
+                                placeholder="e.g. 01:00 PM or 11:30 PM"
+                                style={{ width: '100%', padding: '0.55rem', fontSize: '0.875rem' }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Row 3: Venue, Guests, Dress Code */}
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#140A05', marginBottom: '0.25rem' }}>
+                                {isHindi ? 'स्थान / मंडप / हॉल (Venue)' : 'Venue / Space / Hall'}
+                              </label>
+                              <input
+                                type="text"
+                                value={fn.venueName || ''}
+                                onChange={(e) => handleUpdateFunction(fn.id, { venueName: e.target.value })}
+                                className="glass-input"
+                                placeholder="e.g. Sunlit Terrace Garden / Ballroom"
+                                style={{ width: '100%', padding: '0.55rem', fontSize: '0.875rem' }}
+                              />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#140A05', marginBottom: '0.25rem' }}>
+                                {isHindi ? 'अपेक्षित अतिथि संख्या (Guests)' : 'Expected Guests'}
+                              </label>
+                              <input
+                                type="number"
+                                value={fn.expectedGuests}
+                                onChange={(e) => handleUpdateFunction(fn.id, { expectedGuests: parseInt(e.target.value) || 0 })}
+                                className="glass-input"
+                                style={{ width: '100%', padding: '0.55rem', fontSize: '0.875rem' }}
+                              />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#140A05', marginBottom: '0.25rem' }}>
+                                {isHindi ? 'पोशाक व थीम (Dress Code)' : 'Dress Code Theme'}
+                              </label>
+                              <input
+                                type="text"
+                                value={fn.dressCode || ''}
+                                onChange={(e) => handleUpdateFunction(fn.id, { dressCode: e.target.value })}
+                                className="glass-input"
+                                placeholder="e.g. Sunlit Yellow & Pastel Ochre"
+                                style={{ width: '100%', padding: '0.55rem', fontSize: '0.875rem' }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Row 4: Spacious Ritual Details & Family Responsibilities */}
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#140A05', marginBottom: '0.25rem' }}>
+                              {isHindi ? 'विस्तृत रस्में, परंपराएं व पारिवारिक जिम्मेदारियां (Ritual Details & Notes)' : 'Custom Ritual Notes, Traditions & Special Family Roles'}
+                            </label>
+                            <textarea
+                              rows={3}
+                              value={fn.ritualNotes || ''}
+                              onChange={(e) => handleUpdateFunction(fn.id, { ritualNotes: e.target.value })}
+                              className="glass-input"
+                              placeholder={
+                                isHindi
+                                  ? 'जैसे: फूलों की वर्षा, ढोल ताशा, 4 मेहंदी आर्टिस्ट, जयमाला हाइड्रोलिक स्टेज, पंडित जी दक्षिणा, भोजन का समय, विशेष पारिवारिक रस्में...'
+                                  : 'e.g. Bangles stall, marigold flower petal shower, dhol walas, entry choreography, Pandit ji Dakshina, family customs...'
+                              }
+                              style={{ width: '100%', padding: '0.65rem', fontSize: '0.85rem', lineHeight: 1.45, resize: 'vertical' }}
                             />
                           </div>
-                          <div>
-                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
-                              Hindi Title (हिंदी शीर्षक)
-                            </label>
-                            <input
-                              type="text"
-                              value={fn.hindiTitle || ''}
-                              onChange={(e) => handleUpdateFunction(fn.id, { hindiTitle: e.target.value })}
-                              placeholder="जैसे: हल्दी समारोह"
-                              style={{ width: '100%', padding: '0.45rem', fontSize: '0.85rem', borderRadius: '4px', border: '1px solid #CBD5E1' }}
-                            />
-                          </div>
-                          <div>
-                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
-                              Date
-                            </label>
-                            <input
-                              type="date"
-                              value={fn.date || ''}
-                              onChange={(e) => handleUpdateFunction(fn.id, { date: e.target.value })}
-                              style={{ width: '100%', padding: '0.45rem', fontSize: '0.85rem', borderRadius: '4px', border: '1px solid #CBD5E1' }}
-                            />
-                          </div>
-                          <div>
-                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
-                              Venue / Hall
-                            </label>
-                            <input
-                              type="text"
-                              value={fn.venueName || ''}
-                              onChange={(e) => handleUpdateFunction(fn.id, { venueName: e.target.value })}
-                              placeholder="e.g. Poolside Lawn"
-                              style={{ width: '100%', padding: '0.45rem', fontSize: '0.85rem', borderRadius: '4px', border: '1px solid #CBD5E1' }}
-                            />
-                          </div>
-                          <div>
-                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
-                              Expected Guests
-                            </label>
-                            <input
-                              type="number"
-                              value={fn.expectedGuests}
-                              onChange={(e) => handleUpdateFunction(fn.id, { expectedGuests: parseInt(e.target.value) || 0 })}
-                              style={{ width: '100%', padding: '0.45rem', fontSize: '0.85rem', borderRadius: '4px', border: '1px solid #CBD5E1' }}
-                            />
-                          </div>
-                          <div>
-                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#140A05', marginBottom: '0.2rem' }}>
-                              Dress Code Theme
-                            </label>
-                            <input
-                              type="text"
-                              value={fn.dressCode || ''}
-                              onChange={(e) => handleUpdateFunction(fn.id, { dressCode: e.target.value })}
-                              placeholder="e.g. Pastels & Ochre"
-                              style={{ width: '100%', padding: '0.45rem', fontSize: '0.85rem', borderRadius: '4px', border: '1px solid #CBD5E1' }}
-                            />
+
+                          {/* Editor Action Buttons */}
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.65rem', paddingTop: '0.5rem' }}>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteFunction(fn.id)}
+                              className="btn-ghost"
+                              style={{ color: '#DC2626', fontSize: '0.825rem', padding: '0.45rem 0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                            >
+                              <Trash2 size={15} />
+                              <span>{isHindi ? 'समारोह हटाएं' : 'Remove Ceremony'}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingFunctionId(null)}
+                              className="btn-primary"
+                              style={{ padding: '0.45rem 1.15rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                            >
+                              <Check size={16} />
+                              <span>{isHindi ? 'समारोह विवरण सहेजें' : 'Save Ceremony Details'}</span>
+                            </button>
                           </div>
                         </div>
                       )}
@@ -921,24 +1095,13 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
           )}
         </div>
 
-        {/* Modal Bottom Actions */}
-        <div
-          style={{
-            padding: '1rem 1.75rem',
-            background: 'rgba(251, 247, 240, 0.95)',
-            borderTop: '1px solid rgba(234, 88, 12, 0.2)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '0.75rem',
-          }}
-        >
-          <div style={{ fontSize: '0.825rem', color: '#6B4226', fontWeight: 600 }}>
+        {/* Modal Bottom Actions (Fully Responsive on Mobile & Desktop) */}
+        <div className="indian-modal-footer">
+          <div className="footer-note" style={{ fontSize: '0.825rem', color: '#6B4226', fontWeight: 600 }}>
             🇮🇳 {isHindi ? 'मुद्रा: भारतीय रुपया (INR ₹) • सभी गणनाएं शुद्ध अंकगणित पर आधारित' : 'Currency: Indian Rupee (INR ₹) • Sum(items) === 100%'}
           </div>
 
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div className="footer-buttons" style={{ display: 'flex', gap: '0.75rem' }}>
             <button
               type="button"
               onClick={onClose}

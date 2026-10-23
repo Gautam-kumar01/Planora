@@ -463,6 +463,23 @@ export function App() {
     showToast('Downloaded .ics calendar file with all milestones!');
   };
 
+  // Open Indian Event Intelligence or launch Indian Wedding Wizard
+  const handleOpenIndianIntelligenceOrWizard = () => {
+    if (activePlan && currentView === 'dashboard') {
+      setIsIndianIntelligenceOpen(true);
+    } else {
+      setWizardInitialValues({
+        eventType: 'wedding',
+        currency: 'INR',
+        isIndianWeddingPlan: true,
+        guestCount: 250,
+        totalBudget: 2500000,
+        title: 'Grand Indian Wedding Celebration (शुभ विवाह)',
+      });
+      setIsWizardOpen(true);
+    }
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%', maxWidth: '100vw', overflowX: 'clip' }}>
       {/* Toast Notification */}
@@ -523,7 +540,7 @@ export function App() {
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onOpenAiTransparency={() => setIsAiTransparencyOpen(true)}
         onOpenShareModal={() => setIsShareModalOpen(true)}
-        onOpenIndianIntelligence={() => setIsIndianIntelligenceOpen(true)}
+        onOpenIndianIntelligence={handleOpenIndianIntelligenceOrWizard}
         onToggleLanguage={() => {
           if (activePlan) {
             const nextLang = activePlan.language === 'hi' ? 'en' : 'hi';

@@ -739,3 +739,177 @@ input[type='range']::-webkit-slider-thumb:hover {
   }
 }
 
+/* ========================================================
+   Indian Event Intelligence - Responsive Mobile & Desktop
+   ======================================================== */
+.indian-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 7, 4, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1.25rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.indian-modal-card {
+  width: 95%;
+  max-width: 960px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0 !important;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: #FFFFFF;
+  box-shadow: 0 25px 60px -12px rgba(45, 24, 15, 0.35), 0 0 40px rgba(234, 88, 12, 0.15);
+  border: 1.5px solid rgba(251, 146, 60, 0.3);
+}
+
+.indian-modal-header {
+  background: linear-gradient(135deg, #1C130D 0%, #2D180F 100%);
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid rgba(251, 146, 60, 0.25);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #FFFFFF;
+}
+
+.indian-tab-bar {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  background: rgba(251, 247, 240, 0.95);
+  border-bottom: 1px solid rgba(234, 88, 12, 0.18);
+  padding: 0.5rem 1.25rem !important;
+  gap: 0.5rem !important;
+}
+
+.indian-tab-bar::-webkit-scrollbar {
+  display: none !important;
+}
+
+.indian-tab-bar button {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+.indian-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.75rem;
+  background: #FFFFFF;
+}
+
+.indian-modal-footer {
+  padding: 1rem 1.75rem;
+  background: rgba(251, 247, 240, 0.96);
+  border-top: 1px solid rgba(234, 88, 12, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Mobile Screens (<= 768px) */
+@media screen and (max-width: 768px) {
+  .indian-modal-backdrop {
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+
+  .indian-modal-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+  }
+
+  .indian-modal-header {
+    padding: 0.85rem 1rem !important;
+  }
+
+  .indian-modal-header h2 {
+    font-size: 1.05rem !important;
+  }
+
+  .indian-modal-header p {
+    font-size: 0.72rem !important;
+  }
+
+  .indian-tab-bar {
+    padding: 0.4rem 0.65rem !important;
+    gap: 0.35rem !important;
+  }
+
+  .indian-tab-bar button {
+    padding: 0.45rem 0.75rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  .indian-modal-body {
+    padding: 1rem 0.85rem !important;
+  }
+
+  .indian-modal-footer {
+    padding: 0.75rem 1rem !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.5rem !important;
+  }
+
+  .indian-modal-footer .footer-note {
+    font-size: 0.75rem !important;
+    text-align: center;
+  }
+
+  .indian-modal-footer .footer-buttons {
+    display: grid !important;
+    grid-template-columns: 1fr 1.6fr !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  .indian-modal-footer .footer-buttons button {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0.65rem !important;
+  }
+}
+
+/* Wizard Modal Card Desktop & Mobile */
+.wizard-modal-card {
+  max-width: 720px;
+  width: 95%;
+  padding: 1.75rem;
+  transition: max-width 0.3s ease;
+}
+
+.wizard-modal-card.wizard-indian-card {
+  max-width: 880px;
+}
+
+@media screen and (max-width: 768px) {
+  .wizard-modal-card {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    padding: 1.15rem 0.85rem !important;
+  }
+}
