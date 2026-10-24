@@ -6,7 +6,6 @@
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FGautam-kumar01%2FPlanora&env=VITE_OPENROUTER_API_KEY)
 [![Built with React 19 & TypeScript](https://img.shields.io/badge/Built%20with-React%2019%20%2B%20TypeScript-blue?style=flat-square&logo=react)](https://react.dev/)
 [![Pure Vanilla CSS](https://img.shields.io/badge/Styling-Pure%20Vanilla%20CSS-orange?style=flat-square)](#design-system--styling)
-[![Vitest Passing](https://img.shields.io/badge/Unit%20Tests-43%20Passed%20(100%25)-success?style=flat-square&logo=vitest)](tests/planora.test.ts)
 [![AI Inference](https://img.shields.io/badge/AI%20Inference-Google%20Gemini%202.5%20Flash-purple?style=flat-square&logo=google)](https://openrouter.ai/)
 [![Multi-Currency](https://img.shields.io/badge/Currency-INR%20₹%20%7C%20USD%20$%20%7C%20EUR%20€%20%7C%20GBP%20£-amber?style=flat-square)](#deterministic-financial-engine)
 
@@ -19,9 +18,7 @@
 4. [Pro Power-User Shortcuts](#-pro-power-user-shortcuts)
 5. [Automated Test Suite (43 Tests)](#-automated-test-suite-43-tests)
 6. [Tech Stack](#-tech-stack)
-7. [Environment Variables](#-environment-variables)
-8. [Getting Started & Local Setup](#-getting-started--local-setup)
-9. [1-Click Vercel Deployment](#-1-click-vercel-deployment)
+
 
 ---
 
@@ -144,21 +141,6 @@ flowchart TD
 
 ---
 
-## 🧪 Automated Test Suite (43 Tests)
-
-Planora features a comprehensive test suite written in **Vitest**:
-
-```bash
-npm test
-```
-
-```text
- ✓ tests/indianEvent.test.ts (16 tests)
- ✓ tests/planora.test.ts (27 tests)
-
- Test Files  2 passed (2)
-      Tests  43 passed (43)
-```
 
 ### Key Test Coverages:
 1. **Plan Ownership & User Isolation:** Guarantees User A cannot access User B's plans, verifies complete isolation, and ensures pre-built presets never leak into user dashboards.
@@ -176,23 +158,7 @@ npm test
 - **Icons & Delight:** Lucide-React, Canvas-Confetti
 - **AI Synthesis:** Google Gemini 2.5 Flash via OpenRouter with client-side fallback
 - **Date & Calendar:** Native iCalendar (`.ics`) generation & ISO 8601 timeline math
-- **Testing:** Vitest
 
----
-
-## 🔑 Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-# (Optional) OpenRouter API Key for Gemini 2.5 Flash synthesis
-VITE_OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-# (Optional) Cloud Database for multi-device sync
-VITE_DATABASE_URL=
-```
-
-> **Note:** If no API key is set, Planora runs seamlessly with client-side deterministic algorithms and sample presets. Users can also enter their own Gemini API key in-app via the API Key Modal.
 
 ---
 
@@ -218,14 +184,6 @@ npm run build
 
 ---
 
-## 🌐 1-Click Vercel Deployment
-
-1. Click the **Deploy with Vercel** button above or import the repository in [Vercel](https://vercel.com).
-2. Set the framework preset to **Vite**.
-3. Optionally add `VITE_OPENROUTER_API_KEY` in Environment Variables.
-4. Click **Deploy** — your live celebration master planner will be ready in under 60 seconds!
-
----
 
 ## 📄 License
 MIT © 2026 Gautam Kumar. Built for PromptWars Challenge 5: Celebration & Event Planner.
