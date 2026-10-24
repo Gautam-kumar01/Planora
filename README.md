@@ -1,101 +1,202 @@
 # 🌟 Planora — GenAI Celebration & Event Master Planner
+
 > **[PromptWars Challenge 5: Celebration & Event Planner]**  
-> *Create a GenAI-powered planning assistant that helps users organize weddings, birthdays, and community events with budgets, timelines, vendor checklists, and personalized ideas.*
+> *A state-of-the-art GenAI planning copilot that unites deterministic financial mathematics, multi-day ceremony timelines, vendor procurement CRM, intelligent seating, and emergency contingency protocols.*
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FGautam-kumar01%2FPlanora&env=VITE_OPENROUTER_API_KEY)
-[![Built with React 19 & TypeScript](https://img.shields.io/badge/Built%20with-React%2019%20%2B%20TypeScript-blue)](https://react.dev/)
-[![Pure Vanilla CSS](https://img.shields.io/badge/Styling-Pure%20Vanilla%20CSS-orange)](#design-system--styling)
-[![Inference Speed](https://img.shields.io/badge/AI%20Inference-1.6s%20Flash-success)](#performance)
-
-Planora is an intelligent event copilot that fuses **deterministic financial mathematics** with **generative AI creativity**. Unlike generic chatbots that hallucinate numbers or break arithmetic formulas, Planora guarantees **zero budget error (Sum == 100%)**, automates host-to-vendor procurement briefs, protects outdoor ceremonies with an automated **Weather Plan B Contingency**, and provides a **Day-of Live Event Director Mode** for running celebrations in real time.
+[![Built with React 19 & TypeScript](https://img.shields.io/badge/Built%20with-React%2019%20%2B%20TypeScript-blue?style=flat-square&logo=react)](https://react.dev/)
+[![Pure Vanilla CSS](https://img.shields.io/badge/Styling-Pure%20Vanilla%20CSS-orange?style=flat-square)](#design-system--styling)
+[![Vitest Passing](https://img.shields.io/badge/Unit%20Tests-43%20Passed%20(100%25)-success?style=flat-square&logo=vitest)](tests/planora.test.ts)
+[![AI Inference](https://img.shields.io/badge/AI%20Inference-Google%20Gemini%202.5%20Flash-purple?style=flat-square&logo=google)](https://openrouter.ai/)
+[![Multi-Currency](https://img.shields.io/badge/Currency-INR%20₹%20%7C%20USD%20$%20%7C%20EUR%20€%20%7C%20GBP%20£-amber?style=flat-square)](#deterministic-financial-engine)
 
 ---
 
-## 🚀 Key Killer Features (PromptWars Challenge 5)
+## 📖 Table of Contents
+1. [Overview & Philosophy](#-overview--philosophy)
+2. [Key Core Modules & Innovations](#-key-core-modules--innovations)
+3. [Architecture & Data Isolation Flow](#-architecture--data-isolation-flow)
+4. [Pro Power-User Shortcuts](#-pro-power-user-shortcuts)
+5. [Automated Test Suite (43 Tests)](#-automated-test-suite-43-tests)
+6. [Tech Stack](#-tech-stack)
+7. [Environment Variables](#-environment-variables)
+8. [Getting Started & Local Setup](#-getting-started--local-setup)
+9. [1-Click Vercel Deployment](#-1-click-vercel-deployment)
+
+---
+
+## 🎯 Overview & Philosophy
+
+Most generative AI event tools act as glorified text chatbots that hallucinate financial figures, output schedules with timing clashes, and collapse when budgets change.
+
+**Planora is engineered on a strict dual-layer paradigm:**
+1. **Deterministic Core:** Exact arithmetic formulas, zero-error budget balance (`Sum == 100%`), date constraints, allergen matrixes, and conflict auditing run purely via TypeScript client-side algorithms.
+2. **Generative Creativity Layer:** Google Gemini 2.5 Flash acts as a creative advisory partner for personalized design themes, custom ceremony rituals, vendor vetting questions, speechwriting, and situational risk adjustments.
+
+---
+
+## 🚀 Key Core Modules & Innovations
 
 ### 1. 💰 Deterministic Financial Budget Engine
-- **Sum == 100% Zero-Waste Guarantee:** AI only suggests category percentages; client-side TypeScript mathematics guarantees every penny accounts for the total ceiling.
-- **Reactive Trade-Off Sliders:** Rebalance any category (e.g. increase Catering) and the 10% Emergency Contingency Reserve automatically absorbs the difference.
-- **Real-Time Expense Ledger:** Track actual paid receipts against allocations with live over/under budget warnings.
+- **Sum == 100% Zero-Leak Guarantee:** AI only suggests initial allocation percentages; deterministic TypeScript mathematics allocates every single penny.
+- **Dynamic Multi-Currency:** Native support for Indian Rupees (`₹ INR` with Lakhs / Crores notation), US Dollars (`$ USD`), Euros (`€ EUR`), and British Pounds (`£ GBP`).
+- **Reactive Trade-Off Sliders:** Increasing one category (e.g., Catering or Photography) automatically rebalances the remaining categories and the 10% Emergency Contingency buffer without exceeding the master ceiling.
+- **Expense & Receipt Ledger:** Log verified payments and track variance across all vendor categories in real time.
 
-### 2. ⚡ Day-Of "Live Event Director Mode" (Run-of-Show Conductor)
-- **Live Ticking Clock & Completion Bar:** Tracks real-time schedule progress on celebration day.
-- **Active Cue Spotlight:** Highlights which milestone is occurring right now, the responsible lead (MC, DJ, Chef), and location pin.
-- **1-Click Cue Advancement:** Confetti particle burst and advance to next cue.
-- **+15m Stage Buffer Delay:** Instantly adds stage breathing room if speeches or ceremonies run over.
-- **Vendor Speed-Dial:** Instant telephone and radio links for booth, kitchen, and stage managers.
+### 2. 🪔 Indian Wedding & Multi-Day Celebration Intelligence
+- **Comprehensive Ritual Engine:** Pre-configured and customizable sub-event schedules for **Haldi**, **Mehendi**, **Sangeet**, **Baraat & Shaadi / Pheras**, and **Reception**.
+- **Regional Catering & Dietary Profiling:** Automated per-guest cost modeling for Pure Vegetarian, Jain (no root vegetables), and Non-Vegetarian spreads with live buffet counter multipliers.
+- **Statutory Municipal Permits & NOC Checklist:** Dedicated compliance tracker for Sound/Loudspeaker permits, Fire NOC, Liquor license, and Police clearances.
 
-### 3. 🌧️ Weather "Plan B" Contingency & Rain Simulator
-- **Meteorological Forecast Radar:** Simulate sunny conditions vs. 84% sudden rain storms or gale winds.
-- **1-Click Rain Plan B:** Automatically shifts outdoor lawn ceremonies to covered indoor pavilions.
-- **Contingency Reserve Draw:** Automatically funds marquee tent rentals and subflooring from the 10% emergency buffer without exceeding the master budget.
-- **1-Click Broadcast Dispatch:** Copy pre-formatted emergency SMS/WhatsApp updates for guests and logistics alerts for vendors.
+### 3. 🤝 Vendor CRM, RFPs & Procurement Pipeline
+- **Procurement Stage Pipeline:** Real-time tracking from `To Research` → `Contacted` → `Quote Received` → `Booked & Confirmed`.
+- **1-Click Communication Shortcuts:** Direct **Call (`tel:`)**, **WhatsApp Chat (`wa.me`)**, and **Email (`mailto:`)** action shortcuts for every vendor partner.
+- **Automated AI Vendor RFP Briefs:** 1-click exportable inquiry briefs customized with event date, guest count, scale, and allocated budget ceiling.
+- **Deposit & Retainer Due Date Alerts:** Smart alert badges flag upcoming and overdue contract milestone payments.
+- **Neutral Quote Comparison Matrix:** Compare up to 4 vendor quotes across deliverables, deposit terms, and pricing.
 
-### 4. 🤝 1-Click Vendor RFP Briefs & Targeted Vetting
-- **Instant Procurement Hand-off:** Automatically crafts formal vendor inquiries with scale, headcount, date, and allocated budget ceiling.
-- **Targeted Interview Questions:** Equips hosts with 3 hard-hitting vetting questions (e.g., overtime penalty rates, generator backups, cancellation grace periods).
-- **1-Click Actions:** Copy to clipboard, open in native mail client (`mailto:`), or print formal vendor briefs.
+### 4. ⚡ Day-Of "Live Event Director Mode" (Run-of-Show Conductor)
+- **Real-Time Ticking Conductor:** Tracks live schedule progress on the day of celebration.
+- **Active Cue Spotlight:** Highlights which milestone is occurring right now, the responsible lead (MC, DJ, Coordinator), and location pin.
+- **+15m Stage Buffer Delay:** Instantly recalculates remaining timeline if speeches or ceremonies run over schedule.
+- **1-Click Cue Advancement:** Confetti burst on reaching milestones.
 
-### 5. 🪑 Smart Seating Matrix & Allergen Guard
-- **1-Click Auto-Seat by Affiliation:** Groups Family, VIP, Friends, and Colleagues onto tables within capacity limits.
-- **Allergen Conflict Flags:** Prominently highlights nut, vegan, and gluten dietary clash warnings directly on table cards for catering safety.
+### 5. 🌧️ Weather "Plan B" Contingency & Rain Simulator
+- **Meteorological Radar Simulator:** Simulate sunny conditions vs. 84% sudden rainstorms or high winds.
+- **1-Click Rain Plan B:** Automatically shifts outdoor ceremonies to covered indoor pavilions.
+- **Contingency Reserve Draw:** Funds marquee tent rentals and flooring from the 10% emergency buffer without breaking the master budget.
+- **Emergency Broadcast Dispatch:** Pre-formatted emergency SMS/WhatsApp updates for guests and logistics alerts for vendors.
 
-### 6. 📱 100% Mobile-Friendly & Pure Vanilla CSS
-- **Responsive Hamburger Drawer:** Seamless navigation sheet for smartphone viewports (iPhone, Android).
-- **Horizontal Touch-Scroll Tabs:** Smooth swipeable module navigation (`-webkit-overflow-scrolling: touch`).
-- **Warm Ivory & Terracotta Glassmorphism:** Curated color palette (`#FBF7F0`, Spiced Ochre, Golden Amber) with zero external CSS framework bloat.
+### 6. 🪑 Smart Seating Matrix & Allergen Guard
+- **Auto-Seat by Affiliation:** Groups Family, VIP, Friends, and Colleagues onto tables within seating capacity limits.
+- **Allergen Clash Flags:** Highlights nut, gluten, dairy, and vegan dietary conflict warnings directly on table cards for catering safety.
 
-### 7. ☁️ Option C Hybrid Cloud Persistence
-- **Zero Friction Guest Mode:** Plan immediately with zero login (persisted in browser `localStorage`).
-- **Cloud Database Synchronization:** Sign in or connect Supabase/PostgreSQL for multi-device cross-syncing.
+### 7. 🔒 Strict Multi-User Isolation & Privacy Protection
+- **Per-User Scoped Storage:** Each logged-in user only ever sees and accesses their own created event plans (`planora_plans_user_${userId}`).
+- **Zero Cross-User Data Leakage:** Unauthorized direct access attempts trigger immediate access denial.
+- **Homepage Template Confinement:** Pre-built sample plans (Wedding, Birthday, Community) are strictly confined to the homepage demo showcase and never appear in a user's private dashboard.
+- **Clean Empty States:** New registered users receive a clean empty dashboard inviting them to create their first plan.
+
+---
+
+## 🏗️ Architecture & Data Isolation Flow
+
+```mermaid
+flowchart TD
+    subgraph UI ["Planora Frontend (React 19 + TypeScript + Vanilla CSS)"]
+        Nav[Navbar & View Switcher]
+        Home[Homepage Showcase & Demo Plans]
+        UserDash[User Dashboard (Isolated per User)]
+        Workspace[Master Event Workspace]
+    end
+
+    subgraph Auth ["Authentication & Session Layer"]
+        GuestMode["Guest Mode (LocalStorage Guest Namespace)"]
+        UserSession["Authenticated Session (User ID Scoped)"]
+    end
+
+    subgraph Storage ["Strict Ownership & Storage Layer"]
+        StorageCheck{"canUserAccessPlan(plan, userId)"}
+        GuestStorage[Guest Plans Storage]
+        UserStorage["User Scoped Storage (planora_plans_user_{id})"]
+        AccessDenied["Access Denied Toast"]
+    end
+
+    subgraph Engines ["Deterministic Computation Engines"]
+        BudgetEngine[Deterministic Budget Math (Sum == 100%)]
+        IndianEngine[Indian Wedding Multi-Day Rituals]
+        VendorEngine[Vendor Pipeline & Retainer Alerts]
+        ConflictEngine[Timeline Conflict & Clashing Auditor]
+        WeatherEngine[Weather Plan B Contingency]
+    end
+
+    Nav --> Home
+    Nav --> UserDash
+    Nav --> Workspace
+
+    Home -->|Explore Templates| GuestMode
+    UserDash -->|Strict Filter| UserSession
+
+    UserSession --> StorageCheck
+    GuestMode --> StorageCheck
+
+    StorageCheck -->|Authorized| UserStorage
+    StorageCheck -->|Guest| GuestStorage
+    StorageCheck -->|Unauthorized| AccessDenied
+
+    Workspace --> BudgetEngine
+    Workspace --> IndianEngine
+    Workspace --> VendorEngine
+    Workspace --> ConflictEngine
+    Workspace --> WeatherEngine
+```
 
 ---
 
 ## ⌨️ Pro Power-User Shortcuts
 
-| Shortcut | Action |
-| :--- | :--- |
-| <kbd>Ctrl</kbd> + <kbd>K</kbd> / <kbd>⌘</kbd> + <kbd>K</kbd> | Toggle AI Copilot Drawer |
-| <kbd>Ctrl</kbd> + <kbd>N</kbd> / <kbd>⌘</kbd> + <kbd>N</kbd> | Launch 5-Step New Event Setup Wizard |
-| <kbd>Ctrl</kbd> + <kbd>P</kbd> / <kbd>⌘</kbd> + <kbd>P</kbd> | Generate Clean Master PDF / Print |
-| <kbd>Esc</kbd> | Close any active modal dialog |
+| Shortcut | Action | Description |
+| :--- | :--- | :--- |
+| <kbd>Ctrl</kbd> + <kbd>K</kbd> / <kbd>⌘</kbd> + <kbd>K</kbd> | Toggle AI Copilot Drawer | Instant access to the Gemini celebration assistant |
+| <kbd>Ctrl</kbd> + <kbd>N</kbd> / <kbd>⌘</kbd> + <kbd>N</kbd> | Launch Setup Wizard | Start a new wedding, birthday, or community plan |
+| <kbd>Ctrl</kbd> + <kbd>P</kbd> / <kbd>⌘</kbd> + <kbd>P</kbd> | Print Master Dossier | Generates clean, printer-friendly PDF dossier |
+| <kbd>Esc</kbd> | Close Active Modal | Dismisses any open dialog or overlay |
+
+---
+
+## 🧪 Automated Test Suite (43 Tests)
+
+Planora features a comprehensive test suite written in **Vitest**:
+
+```bash
+npm test
+```
+
+```text
+ ✓ tests/indianEvent.test.ts (16 tests)
+ ✓ tests/planora.test.ts (27 tests)
+
+ Test Files  2 passed (2)
+      Tests  43 passed (43)
+```
+
+### Key Test Coverages:
+1. **Plan Ownership & User Isolation:** Guarantees User A cannot access User B's plans, verifies complete isolation, and ensures pre-built presets never leak into user dashboards.
+2. **Deterministic Arithmetic:** Verifies `Sum == 100%` across budgets from $5,000 to $100,000 and ₹5 Lakhs to ₹1 Crore.
+3. **Timeline Clashes & Auditing:** Tests chronological consistency, overlapping milestones, and stage buffers.
+4. **Indian Wedding Engine:** Validates Haldi/Mehendi date offsets, Pure Veg/Jain catering ratios, and permit checklist rules.
+5. **Vendor Quote Neutrality:** Verifies price ranking algorithms and budget variance calculations.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend Core:** React 19, TypeScript, Vite
-- **Icons & Animation:** Lucide-React, Canvas-Confetti
-- **Styling:** Pure Vanilla CSS with CSS Custom Properties & Glassmorphism
-- **AI Synthesis:** Google Gemini 2.5 Flash via OpenRouter API with AbortController timeout protection
-- **Exports:** Native iCalendar (`.ics`) generation & CSS Print Engine
+- **Core Framework:** React 19, TypeScript, Vite
+- **Styling Architecture:** Pure Vanilla CSS with CSS Variables, Responsive Fluid Typography & Glassmorphism
+- **Icons & Delight:** Lucide-React, Canvas-Confetti
+- **AI Synthesis:** Google Gemini 2.5 Flash via OpenRouter with client-side fallback
+- **Date & Calendar:** Native iCalendar (`.ics`) generation & ISO 8601 timeline math
+- **Testing:** Vitest
 
 ---
 
-## 🌐 Deploy to Vercel in 2 Minutes
+## 🔑 Environment Variables
 
-### Step 1: Import Repository
-1. Go to [Vercel](https://vercel.com) and click **"Add New Project"**.
-2. Select your repository: `https://github.com/Gautam-kumar01/Planora`.
-3. Vercel will automatically detect **Vite** as the framework.
+Create a `.env` file in the root directory:
 
-### Step 2: Configure Environment Variables
-In the Vercel project deployment screen under **Environment Variables**, add:
+```env
+# (Optional) OpenRouter API Key for Gemini 2.5 Flash synthesis
+VITE_OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-| Key | Value | Description |
-| :--- | :--- | :--- |
-| `VITE_OPENROUTER_API_KEY` | `sk-or-v1-...` | **(Required)** Your OpenRouter API key powering Gemini 2.5 Flash |
-| `VITE_DATABASE_URL` | *(Optional)* | Supabase / PostgreSQL URL for Option C cloud synchronization |
-| `VITE_SUPABASE_ANON_KEY` | *(Optional)* | Supabase anonymous public client key |
+# (Optional) Cloud Database for multi-device sync
+VITE_DATABASE_URL=
+```
 
-> **Note:** If no API key is provided in environment variables, Planora seamlessly falls back to local client-side deterministic synthesis or prompts the user via the in-app Key Modal.
-
-### Step 3: Deploy
-Click **Deploy**! Vercel will run `vite build` and provide your live production URL in under 60 seconds.
+> **Note:** If no API key is set, Planora runs seamlessly with client-side deterministic algorithms and sample presets. Users can also enter their own Gemini API key in-app via the API Key Modal.
 
 ---
 
-## 💻 Local Development
+## 💻 Getting Started & Local Setup
 
 ```bash
 # 1. Clone repository
@@ -105,12 +206,11 @@ cd Planora
 # 2. Install dependencies
 npm install
 
-# 3. Configure environment
-cp .env.example .env
-# Edit .env and paste your VITE_OPENROUTER_API_KEY
-
-# 4. Start local development server
+# 3. Start local development server
 npm run dev
+
+# 4. Run test suite
+npm test
 
 # 5. Build for production
 npm run build
@@ -118,5 +218,14 @@ npm run build
 
 ---
 
+## 🌐 1-Click Vercel Deployment
+
+1. Click the **Deploy with Vercel** button above or import the repository in [Vercel](https://vercel.com).
+2. Set the framework preset to **Vite**.
+3. Optionally add `VITE_OPENROUTER_API_KEY` in Environment Variables.
+4. Click **Deploy** — your live celebration master planner will be ready in under 60 seconds!
+
+---
+
 ## 📄 License
-MIT © 2026 Gautam Kumar. Built for PromptWars Challenge 5.
+MIT © 2026 Gautam Kumar. Built for PromptWars Challenge 5: Celebration & Event Planner.

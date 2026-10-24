@@ -7,7 +7,12 @@ import {
   ArrowLeft,
   UserCheck,
   Megaphone,
+  Clock,
+  Share2,
+  Printer,
+  Bot,
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import {
   EventPlan,
   BudgetItem,
@@ -33,6 +38,7 @@ import {
 import { getCurrentUser, logoutUser } from './utils/cloudSync';
 import { generateEventPlanWithAI } from './utils/geminiApi';
 import { downloadCalendarICS } from './utils/calendarExport';
+import { calculateDaysRemaining, formatCurrency } from './utils/deterministicMath';
 import { SAMPLE_WEDDING_PLAN, ALL_PRESET_PLANS } from './utils/sampleData';
 import { Navbar } from './components/Navbar';
 import { HomePage } from './components/HomePage';
@@ -364,6 +370,14 @@ export function App() {
       setIsWizardOpen(false);
       setCurrentView('dashboard');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      try {
+        confetti({
+          particleCount: 90,
+          spread: 75,
+          origin: { y: 0.6 },
+          colors: ['#EA580C', '#F59E0B', '#D97706', '#16A34A', '#FB923C'],
+        });
+      } catch {}
       showToast(`Generated master plan for "${newPlan.basics.title}"!`);
     } catch (err) {
       console.error('Failed to generate plan:', err);
@@ -668,50 +682,144 @@ export function App() {
         {/* VIEW 3: MASTER EVENT WORKSPACE DASHBOARD */}
         {currentView === 'dashboard' && activePlan && (
           <div>
-            {/* Top Workspace Navigation Bar */}
+            {/* Top Workspace Navigation & Quick Status Command Hub */}
             <div
-              className="no-print"
+              className="no-print glass-panel"
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 marginBottom: '1.25rem',
                 flexWrap: 'wrap',
-                gap: '0.75rem',
+                gap: '0.85rem',
+                padding: '0.75rem 1.25rem',
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 251, 245, 0.96) 100%)',
+                border: '1.5px solid rgba(234, 88, 12, 0.22)',
               }}
             >
-              <button
-                onClick={() => {
-                  if (currentUser) {
-                    setCurrentView('user-hub');
-                  } else {
-                    setCurrentView('home');
-                  }
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className="btn-secondary"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                <ArrowLeft size={16} />
-                <span>{currentUser ? '← Back to My Dashboard' : '← Back to Homepage'}</span>
-              </button>
+              {/* Left: Back button & Title */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => {
+                    if (currentUser) {
+                      setCurrentView('user-hub');
+                    } else {
+                      setCurrentView('home');
+                    }
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="btn-secondary"
+                  style={{
+                    padding: '0.45rem 0.95rem',
+                    fontSize: '0.825rem',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                  }}
+                >
+                  <ArrowLeft size={15} />
+                  <span>{currentUser ? '← Back to My Dashboard' : '← Back to Homepage'}</span>
+                </button>
 
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.65rem',
-                  fontSize: '0.85rem',
-                  color: '#4A2B1A',
-                  fontWeight: 600,
-                  background: 'rgba(234, 88, 12, 0.08)',
-                  padding: '0.4rem 0.9rem',
-                  borderRadius: 'var(--radius-full)',
-                  border: '1px solid rgba(234, 88, 12, 0.2)',
-                }}
-              >
-                <span>Active Master Plan:</span>
-                <strong style={{ color: '#140A05' }}>{activePlan.basics.title}</strong>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <span
+                    className="badge badge-orange"
+                    style={{ textTransform: 'uppercase', fontSize: '0.68rem', fontWeight: 800 }}
+                  >
+                    {activePlan.basics.eventType}
+                  </span>
+                  <span style={{ fontSize: '1rem', fontWeight: 800, color: '#140A05' }}>
+                    {activePlan.basics.title}
+                  </span>
+                </div>
+              </div>
+
+              {/* Center / Metrics Quick Pills */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+                {(() => {
+                  const daysLeft = calculateDaysRemaining(activePlan.basics.eventDate);
+                  if (daysLeft === null) return null;
+                  return (
+                    <span
+                      className="badge"
+                      style={{
+                        background: daysLeft < 30 ? 'rgba(239, 68, 68, 0.12)' : 'rgba(234, 88, 12, 0.1)',
+                        color: daysLeft < 30 ? '#DC2626' : '#C2410C',
+                        border: '1px solid currentColor',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                      }}
+                    >
+                      <Clock size={12} />
+                      {daysLeft > 0 ? `${daysLeft}d to go` : daysLeft === 0 ? 'Today! 🎉' : 'Past Event'}
+                    </span>
+                  );
+                })()}
+
+                <span
+                  className="badge"
+                  style={{
+                    background: 'rgba(22, 163, 74, 0.1)',
+                    border: '1px solid rgba(22, 163, 74, 0.35)',
+                    color: '#15803D',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                  }}
+                >
+                  Budget: {formatCurrency(activePlan.budget.totalBudget, activePlan.budget.currency)}
+                </span>
+
+                <span
+                  className="badge"
+                  style={{
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    border: '1px solid rgba(59, 130, 246, 0.35)',
+                    color: '#1D4ED8',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                  }}
+                >
+                  <Users size={12} style={{ marginRight: '0.2rem' }} />
+                  {activePlan.basics.guestCount} Guests
+                </span>
+              </div>
+
+              {/* Right: Quick Action Shortcuts */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="btn-secondary"
+                  title="Share read-only plan or collaborate"
+                  style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', fontWeight: 700 }}
+                >
+                  <Share2 size={14} color="#EA580C" />
+                  <span>Share</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="btn-secondary"
+                  title="Print or export clean Master PDF Dossier"
+                  style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', fontWeight: 700 }}
+                >
+                  <Printer size={14} color="#78533E" />
+                  <span>Print Dossier</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsCopilotOpen((prev) => !prev)}
+                  className="btn-primary"
+                  title="Open AI Event Copilot"
+                  style={{ padding: '0.4rem 0.9rem', fontSize: '0.8rem', fontWeight: 700 }}
+                >
+                  <Bot size={14} />
+                  <span>AI Copilot</span>
+                </button>
               </div>
             </div>
 
