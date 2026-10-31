@@ -56,8 +56,6 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
   onClose,
   onUpdatePlan,
 }) => {
-  if (!isOpen) return null;
-
   // Initialize or load existing Indian Intelligence configuration
   const initialConfig: IndianEventConfig = plan.indianIntelligence || {
     isEnabled: true,
@@ -72,6 +70,8 @@ export const IndianEventIntelligenceModal: React.FC<IndianEventIntelligenceModal
   const [activeTab, setActiveTab] = useState<'functions' | 'catering' | 'permits' | 'backup' | 'language'>('functions');
   const [config, setConfig] = useState<IndianEventConfig>(initialConfig);
   const [editingFunctionId, setEditingFunctionId] = useState<string | null>(null);
+
+  if (!isOpen) return null;
 
   // Helper for catering calculation
   const cateringMath = calculateIndianCateringBreakdown(plan.basics.guestCount, config.catering);
