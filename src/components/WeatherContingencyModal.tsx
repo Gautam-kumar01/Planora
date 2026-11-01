@@ -5,18 +5,18 @@ import {
   CloudLightning,
   ShieldAlert,
   CheckCircle2,
-  AlertTriangle,
-  ArrowRight,
+
+
   Copy,
   Check,
   Send,
-  DollarSign,
+
   Tent,
   Thermometer,
   Wind,
   Umbrella,
   X,
-  Sparkles,
+
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { EventPlan, BudgetItem, HourlyRunOfShowItem } from '../types';

@@ -3,7 +3,7 @@ import {
   Sparkles,
   ArrowRight,
   ShieldCheck,
-  Calendar,
+
   DollarSign,
   Heart,
   Cake,
@@ -11,25 +11,25 @@ import {
   CheckCircle,
   Clock,
   Layers,
-  Database,
+
   Users,
-  Palette,
-  FileText,
+
+
   Cloud,
   CheckCircle2,
   XCircle,
-  HelpCircle,
+
   Calculator,
-  Sliders,
+
   Wand2,
-  TrendingUp,
+
   CloudRain,
   Zap,
   UserCheck,
   Check,
-  Send,
+
   AlertTriangle,
-  FileSpreadsheet,
+
 } from 'lucide-react';
 import { EventPlan, UserProfile, EventType, OnboardingFormValues } from '../types';
 import { formatCurrency } from '../utils/deterministicMath';
@@ -96,7 +96,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   const [readinessBudgetStatus, setReadinessBudgetStatus] = useState<'locked' | 'estimated' | 'untracked'>('locked');
   const [readinessVendorStatus, setReadinessVendorStatus] = useState<'some' | 'all' | 'none'>('some');
   const [readinessWeatherPlan, setReadinessWeatherPlan] = useState<boolean>(true);
-  const [readinessDaysLeft, setReadinessDaysLeft] = useState<number>(90);
+  const [readinessDaysLeft] = useState<number>(90);
 
   // Dynamic Readiness Calculation
   let readinessScore = 40;
@@ -1440,7 +1440,6 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.25rem' }}>
             {plans.map((plan) => {
-              const totalAllocated = plan.budget.items.reduce((sum, item) => sum + item.allocatedAmount, 0);
               const totalSpent = plan.budget.items.reduce((sum, item) => sum + item.spentAmount, 0);
 
               return (

@@ -94,7 +94,7 @@ export async function testAiConnection(apiKey: string): Promise<{
       );
 
       if (!res.ok) {
-        const errText = await res.text();
+        const _errText = await res.text();
         return { success: false, model: 'gemini-2.5-flash', message: `Google API Error: ${res.status}` };
       }
 
@@ -810,7 +810,7 @@ function generateDefaultVendors(
   }
 }
 
-function generateDefaultIdeas(eventType: string, vibe: string) {
+function generateDefaultIdeas(_eventType: string, _vibe: string) {
   return {
     activities: [
       {

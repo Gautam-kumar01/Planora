@@ -1,7 +1,7 @@
 import React from 'react';
 import { EventPlan } from '../types';
 import { formatCurrency, calculatePerGuest } from '../utils/deterministicMath';
-import { formatIndianCurrency, calculateIndianCateringBreakdown, HINDI_TERMS } from '../utils/indianEventEngine';
+import { calculateIndianCateringBreakdown } from '../utils/indianEventEngine';
 
 interface PrintViewProps {
   plan: EventPlan;
@@ -10,7 +10,6 @@ interface PrintViewProps {
 export const PrintView: React.FC<PrintViewProps> = ({ plan }) => {
   const { basics, budget, timeline, runOfShow, vendors, themeConcept, indianIntelligence, language } = plan;
   const perGuest = calculatePerGuest(budget.totalBudget, basics.guestCount);
-  const isIndian = indianIntelligence?.isEnabled || basics.currency === 'INR' || language === 'hi';
   const isHindi = language === 'hi';
 
   return (

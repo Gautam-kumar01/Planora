@@ -5,19 +5,19 @@ import {
   DollarSign,
   Plus,
   Trash2,
-  Calendar,
+
   CreditCard,
   CheckCircle,
   Clock,
-  AlertCircle,
+
   Search,
-  Filter,
-  Download,
+
+
   Copy,
   Check,
-  TrendingDown,
-  TrendingUp,
-  Tag,
+
+
+
 } from 'lucide-react';
 import { EventPlan, ExpenseRecord, PaymentMethod, PaymentStatus } from '../types';
 import { formatCurrency } from '../utils/deterministicMath';

@@ -10,12 +10,12 @@ import {
   Copy,
   Check,
   Search,
-  Filter,
-  CheckCircle,
-  HelpCircle,
+
+
+
   Layers,
   Sparkles,
-  Edit2,
+
   AlertTriangle,
   X,
 } from 'lucide-react';

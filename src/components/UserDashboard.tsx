@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import {
-  Sparkles,
+
   Calendar,
   DollarSign,
-  Users,
+
   PlusCircle,
   FileText,
   Share2,
   Sliders,
   Bot,
   LogOut,
-  Layers,
+
   ArrowRight,
   Printer,
   Copy,
@@ -18,12 +18,12 @@ import {
   CheckCircle,
   Clock,
   Compass,
-  FileCheck,
+
   Search,
-  ChevronRight,
-  ShieldCheck,
-  Send,
-  HelpCircle,
+
+
+
+
 } from 'lucide-react';
 import { EventPlan, UserProfile } from '../types';
 import { formatCurrency, calculateDaysRemaining } from '../utils/deterministicMath';
@@ -60,11 +60,11 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
   onToggleCopilot,
   onPrintPlan,
   onSharePlan,
-  onRenamePlan,
+  onRenamePlan: _onRenamePlan,
   onDuplicatePlan,
   onDeletePlan,
   onSignOut,
-  onNavigateHome,
+  onNavigateHome: _onNavigateHome,
   onGoToEventWorkspace,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');

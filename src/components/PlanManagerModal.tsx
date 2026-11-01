@@ -6,12 +6,12 @@ import {
   Copy,
   Edit2,
   Check,
-  Calendar,
-  Users,
-  DollarSign,
+
+
+
   Download,
   Clock,
-  Sparkles,
+
   ShieldCheck,
   Cloud,
 } from 'lucide-react';

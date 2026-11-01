@@ -1,5 +1,5 @@
-import { EventPlan, UserProfile, DatabaseConfig, CloudSyncStatus } from '../types';
-import { loadSavedPlans, savePlans, purgeUserData } from './storage';
+import { EventPlan, UserProfile, DatabaseConfig } from '../types';
+import { loadSavedPlans, purgeUserData } from './storage';
 
 const STORAGE_KEY_USER = 'planora_current_user_v1';
 const STORAGE_KEY_DB_CONFIG = 'planora_db_config_v1';

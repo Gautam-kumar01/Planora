@@ -33,13 +33,13 @@ import {
   getActivePlanId,
   setActivePlanId,
   canUserAccessPlan,
-  isPresetPlan,
+
 } from './utils/storage';
 import { getCurrentUser, logoutUser } from './utils/cloudSync';
 import { generateEventPlanWithAI } from './utils/geminiApi';
 import { downloadCalendarICS } from './utils/calendarExport';
 import { calculateDaysRemaining, formatCurrency } from './utils/deterministicMath';
-import { SAMPLE_WEDDING_PLAN, ALL_PRESET_PLANS } from './utils/sampleData';
+import { ALL_PRESET_PLANS } from './utils/sampleData';
 import { Navbar } from './components/Navbar';
 import { HomePage } from './components/HomePage';
 import { UserDashboard } from './components/UserDashboard';

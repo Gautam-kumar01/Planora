@@ -4,12 +4,12 @@ import {
   X,
   Send,
   Sparkles,
-  Zap,
-  ArrowRight,
-  CheckCircle2,
-  HelpCircle,
+
+
+
+
   User,
-  MessageSquare,
+
   Lightbulb,
 } from 'lucide-react';
 import { CopilotMessage, EventPlan } from '../types';
@@ -116,7 +116,7 @@ Ask me anything about planning:
       };
 
       setMessages((prev) => [...prev, aiMsg]);
-    } catch (err) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {

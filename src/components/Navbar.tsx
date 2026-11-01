@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import {
   Sparkles,
-  Calendar,
-  Printer,
+
+
   PlusCircle,
-  KeyRound,
+
   Bot,
   Layers,
   ChevronDown,
@@ -13,8 +13,8 @@ import {
   Cloud,
   CheckCircle,
   User,
-  ShieldCheck,
-  Share2,
+
+
   Menu,
   X,
 } from 'lucide-react';
@@ -49,22 +49,22 @@ export const Navbar: React.FC<NavbarProps> = ({
   activePlan,
   onSelectPlan,
   onOpenWizard,
-  onOpenApiKeyModal,
+  onOpenApiKeyModal: _onOpenApiKeyModal,
   onOpenPlanManager,
   onToggleCopilot,
   isCopilotOpen,
-  onPrint,
-  onExportICS,
+  onPrint: _onPrint,
+  onExportICS: _onExportICS,
   currentView,
   onNavigateHome,
   onNavigateDashboard,
   onNavigateUserDashboard,
   currentUser,
   onOpenAuthModal,
-  onOpenAiTransparency,
-  onOpenShareModal,
+  onOpenAiTransparency: _onOpenAiTransparency,
+  onOpenShareModal: _onOpenShareModal,
   onOpenIndianIntelligence,
-  onToggleLanguage,
+  onToggleLanguage: _onToggleLanguage,
   language = 'en',
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

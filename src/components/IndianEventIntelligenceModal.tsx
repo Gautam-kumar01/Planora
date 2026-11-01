@@ -12,9 +12,9 @@ import {
   CheckCircle2,
   Plus,
   Trash2,
-  ExternalLink,
-  Info,
-  Clock,
+
+
+
   MapPin,
   Users,
   Languages,
@@ -26,9 +26,9 @@ import {
   IndianEventConfig,
   IndianFunctionItem,
   IndianFunctionType,
-  IndianPermitItem,
-  IndianCateringConfig,
-  IndianBackupConfig,
+
+
+
   IndianCateringDiet,
 } from '../types';
 import {

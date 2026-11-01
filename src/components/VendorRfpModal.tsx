@@ -6,15 +6,15 @@ import {
   Printer,
   Mail,
   X,
-  Sparkles,
+
   ShieldCheck,
-  Calendar,
-  Users,
-  DollarSign,
-  AlertCircle,
+
+
+
+
   MessageCircle,
 } from 'lucide-react';
-import { EventPlan, VendorItem } from '../types';
+import { EventPlan } from '../types';
 import { formatCurrency } from '../utils/deterministicMath';
 
 interface VendorRfpModalProps {

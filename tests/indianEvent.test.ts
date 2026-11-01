@@ -6,7 +6,7 @@ import {
   generateDefaultIndianPermits,
   generateDefaultIndianCatering,
   generateDefaultIndianBackups,
-  initializeIndianEventConfig,
+
   HINDI_TERMS,
   createCustomIndianRitual,
   INDIAN_VENDOR_TEMPLATES,

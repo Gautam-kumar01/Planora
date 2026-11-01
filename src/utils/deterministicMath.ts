@@ -508,7 +508,7 @@ export function calculatePlanCompleteness(plan: EventPlan): PlanCompleteness {
  * Priority 3.3: Community Event Checklist Template
  * Relevant optional items with 'needed', 'completed', or 'not_needed' status.
  */
-export function generateDefaultCommunityChecklist(eventName?: string): CommunityChecklistItem[] {
+export function generateDefaultCommunityChecklist(_eventName?: string): CommunityChecklistItem[] {
   return [
     {
       id: 'comm-chk-1',

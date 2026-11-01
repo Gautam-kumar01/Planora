@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import {
   X,
-  Lock,
-  Mail,
-  User,
+
+
+
   CheckCircle,
   Cloud,
   ShieldCheck,
@@ -11,7 +11,7 @@ import {
   LogOut,
   ArrowRight,
   Trash2,
-  AlertTriangle,
+
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import {

@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import {
-  TrendingUp,
-  TrendingDown,
-  Users,
-  DollarSign,
-  Sparkles,
+
+
+
+
+
   ArrowRight,
   Check,
   RefreshCw,
   Sliders,
   X,
-  HelpCircle,
+
 } from 'lucide-react';
 import { EventPlan, BudgetItem } from '../types';
 import { formatCurrency, calculatePerGuest, assessBudgetFeasibility } from '../utils/deterministicMath';
@@ -52,9 +52,6 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
   );
 
   // Compute simulated item allocations
-  const venueCat = budget.items.find((i) => i.category.toLowerCase().includes('venue'));
-  const cateringCat = budget.items.find((i) => i.category.toLowerCase().includes('food') || i.category.toLowerCase().includes('catering'));
-
   const handleApply = () => {
     // Generate scaled budget items
     const ratio = simulatedBudget / budget.totalBudget;

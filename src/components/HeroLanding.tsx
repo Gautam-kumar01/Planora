@@ -2,14 +2,14 @@ import React from 'react';
 import {
   Sparkles,
   ArrowRight,
-  ShieldCheck,
-  Calendar,
-  DollarSign,
+
+
+
   Heart,
   Cake,
   Megaphone,
   CheckCircle,
-  Zap,
+
 } from 'lucide-react';
 import { EventPlan } from '../types';
 
@@ -22,7 +22,7 @@ interface HeroLandingProps {
 export const HeroLanding: React.FC<HeroLandingProps> = ({
   onOpenWizard,
   onSelectSample,
-  plans,
+  plans: _plans,
 }) => {
   return (
     <section className="no-print" style={{ marginBottom: '2.5rem' }}>

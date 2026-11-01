@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import {
-  Users,
-  CheckCircle,
+
+
   Clock,
   HelpCircle,
   Plus,
   Mail,
-  User,
-  ExternalLink,
+
+
   ChevronRight,
-  ShieldCheck,
-  Tag,
+
+
   DollarSign,
   AlertCircle,
   FileCheck,
-  CalendarClock,
+
   FileText,
   Scale,
   Trash2,
@@ -23,7 +23,7 @@ import {
   MessageCircle,
   AlertTriangle,
   Sparkles,
-  TrendingUp,
+
 } from 'lucide-react';
 import { EventPlan, VendorItem, VendorStatus, VendorQuote } from '../types';
 import { VendorRfpModal } from './VendorRfpModal';

@@ -8,12 +8,12 @@ import {
   Calendar,
   Users,
   Palette,
-  Printer,
+
   Heart,
   Cake,
   Megaphone,
   Lock,
-  ExternalLink,
+
   Bot,
 } from 'lucide-react';
 

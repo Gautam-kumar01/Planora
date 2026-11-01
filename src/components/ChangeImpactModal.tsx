@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import {
   Sparkles,
   X,
-  CheckCircle,
-  AlertCircle,
+
+
   Calendar,
   Users,
   DollarSign,
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { EventPlan, PlanImpactSuggestion } from '../types';
 import { analyzePlanChangeImpact, applyAcceptedImpactSuggestions } from '../utils/changeImpactEngine';
-import { formatCurrency } from '../utils/deterministicMath';
+
 
 interface ChangeImpactModalProps {
   isOpen: boolean;
@@ -49,12 +49,11 @@ export const ChangeImpactModal: React.FC<ChangeImpactModalProps> = ({
   const [location, setLocation] = useState<string>(
     initialProposedChanges?.location ?? plan.basics.location ?? ''
   );
-  const [vibe, setVibe] = useState<string>(
+  const [vibe] = useState<string>(
     initialProposedChanges?.vibe ?? plan.basics.preferences.vibe ?? ''
   );
 
   const [acceptedSuggestionIds, setAcceptedSuggestionIds] = useState<Set<string>>(new Set());
-  const [showReviewStep, setShowReviewStep] = useState<boolean>(true);
 
   if (!isOpen) return null;
 

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import {
-  AlertTriangle,
+
   CheckCircle2,
   X,
   ShieldAlert,
   ArrowRight,
-  Filter,
+
   EyeOff,
   Undo2,
-  RefreshCw,
+
   Info,
 } from 'lucide-react';
 import { EventPlan } from '../types';

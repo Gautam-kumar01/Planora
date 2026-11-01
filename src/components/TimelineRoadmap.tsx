@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
-  Calendar,
+
   CheckCircle2,
   Circle,
   Plus,
   Clock,
-  Tag,
+
   Download,
-  Sparkles,
+
   MapPin,
   User,
   Filter,

@@ -9,8 +9,8 @@ import {
   Wine,
   Send,
   Loader2,
-  Share2,
-  RefreshCw,
+
+
   Lightbulb,
 } from 'lucide-react';
 import { EventPlan } from '../types';

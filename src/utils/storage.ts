@@ -1,6 +1,6 @@
 // LocalStorage Persistence Layer for Planora
 import { EventPlan } from '../types';
-import { ALL_PRESET_PLANS, SAMPLE_WEDDING_PLAN } from './sampleData';
+import { ALL_PRESET_PLANS } from './sampleData';
 
 const STORAGE_KEY_PLANS_LEGACY = 'planora_event_plans_v1';
 const STORAGE_KEY_ACTIVE = 'planora_active_plan_id_v1';

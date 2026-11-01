@@ -16,7 +16,7 @@
 2. [Key Core Modules & Innovations](#-key-core-modules--innovations)
 3. [Architecture & Data Isolation Flow](#-architecture--data-isolation-flow)
 4. [Pro Power-User Shortcuts](#-pro-power-user-shortcuts)
-5. [Automated Test Suite (43 Tests)](#-automated-test-suite-43-tests)
+5. [Automated Test Suite (64 Tests)](#-automated-test-suite-64-tests)
 6. [Tech Stack](#-tech-stack)
 
 
@@ -142,12 +142,17 @@ flowchart TD
 ---
 
 
+## 🧪 Automated Test Suite (64 Tests)
+
 ### Key Test Coverages:
 1. **Plan Ownership & User Isolation:** Guarantees User A cannot access User B's plans, verifies complete isolation, and ensures pre-built presets never leak into user dashboards.
 2. **Deterministic Arithmetic:** Verifies `Sum == 100%` across budgets from $5,000 to $100,000 and ₹5 Lakhs to ₹1 Crore.
-3. **Timeline Clashes & Auditing:** Tests chronological consistency, overlapping milestones, and stage buffers.
-4. **Indian Wedding Engine:** Validates Haldi/Mehendi date offsets, Pure Veg/Jain catering ratios, and permit checklist rules.
-5. **Vendor Quote Neutrality:** Verifies price ranking algorithms and budget variance calculations.
+3. **Day-Of Live Event Director:** Validates run-of-show tracking, active cue boundary limits, and +15m stage delay buffers.
+4. **Weather Plan B Contingency:** Tests meteorological rain thresholds, marquee tent emergency reserve funding, and guest/vendor broadcast alerts.
+5. **Guest Seating & Allergen Guard:** Tests headcount with plus-ones, table seating capacity, and dietary/allergen clash detection (nut, gluten, vegan).
+6. **Timeline Clashes & Auditing:** Tests chronological consistency, overlapping milestones, and floor plan capacity deficit detection.
+7. **Indian Wedding Engine:** Validates Haldi/Mehendi date offsets, Pure Veg/Jain catering ratios, and municipal permit checklist rules.
+8. **Vendor Quote Neutrality & Expense Ledger:** Verifies price ranking algorithms, budget variance calculations, and payment tracking.
 
 ---
 

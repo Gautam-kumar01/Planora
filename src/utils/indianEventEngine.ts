@@ -853,8 +853,8 @@ export const GENERAL_VENDOR_TEMPLATES: Record<string, VendorTemplateItem> = {
  * Generates default service partners for Indian Celebrations
  */
 export function generateDefaultIndianVendors(
-  guestCount = 250,
-  totalBudgetINR = 2500000
+  _guestCount = 250,
+  _totalBudgetINR = 2500000
 ): import('../types').VendorItem[] {
   return Object.values(INDIAN_VENDOR_TEMPLATES).map((tmpl, idx) => ({
     id: `vnd-in-${idx + 1}`,

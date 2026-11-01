@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 import {
   ShieldCheck,
   AlertCircle,
-  HelpCircle,
+
   X,
-  Sparkles,
+
   Lock,
   CheckCircle2,
   Send,
-  ExternalLink,
-  Info,
+
+
   Scale,
   Brain,
-  Cpu,
+
 } from 'lucide-react';
 
 interface AiTransparencyModalProps {

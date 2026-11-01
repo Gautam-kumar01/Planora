@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
-  DollarSign,
-  TrendingDown,
+
+
   TrendingUp,
   AlertTriangle,
   CheckCircle,
@@ -9,11 +9,11 @@ import {
   Trash2,
   RefreshCw,
   Sparkles,
-  HelpCircle,
+
   ShieldAlert,
-  Lightbulb,
+
   CheckCircle2,
-  ArrowRight,
+
   Sliders,
   Receipt,
 } from 'lucide-react';

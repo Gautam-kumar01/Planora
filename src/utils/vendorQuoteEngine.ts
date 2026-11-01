@@ -20,7 +20,7 @@ export interface NeutralQuoteComparisonSummary {
  */
 export function generateNeutralQuoteComparison(
   quotes: VendorQuote[],
-  serviceName: string
+  _serviceName: string
 ): NeutralQuoteComparisonSummary {
   if (!quotes || quotes.length === 0) {
     return {

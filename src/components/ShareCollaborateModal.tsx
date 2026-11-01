@@ -6,13 +6,13 @@ import {
   Check,
   UserPlus,
   Users,
-  Shield,
-  Mail,
+
+
   Trash2,
-  ExternalLink,
-  Sparkles,
+
+
   Link as LinkIcon,
-  CheckCircle2,
+
 } from 'lucide-react';
 import { EventPlan } from '../types';
 

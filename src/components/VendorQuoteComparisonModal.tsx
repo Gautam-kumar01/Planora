@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import {
-  FileText,
+
   Plus,
   Trash2,
   X,
-  CheckCircle2,
-  Clock,
-  HelpCircle,
-  AlertCircle,
+
+
+
+
   ShieldCheck,
   DollarSign,
   Scale,
-  Calendar,
+
   Check,
 } from 'lucide-react';
 import { VendorItem, VendorQuote } from '../types';

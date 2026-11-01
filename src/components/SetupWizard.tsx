@@ -14,22 +14,22 @@ import {
   CheckCircle2,
   Wand2,
   Calculator,
-  Compass,
+
   Edit3,
   Sun,
   Home,
   CloudSun,
-  HelpCircle,
+
   Clock,
   Loader2,
   Lightbulb,
-  UtensilsCrossed,
+
   Trash2,
   Plus,
 } from 'lucide-react';
 import {
   EventType,
-  DateType,
+
   OnboardingFormValues,
   IndianFunctionItem,
   IndianFunctionType,
@@ -233,7 +233,7 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
       clearInterval(interval);
       clearInterval(tipInterval);
     };
-  }, [isGenerating]);
+  }, [isGenerating, ROTATING_TIPS.length]);
 
   if (!isOpen) return null;
 

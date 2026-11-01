@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   Clock,
-  Play,
+
   CheckCircle2,
-  AlertCircle,
+
   Phone,
   User,
   MapPin,
@@ -12,7 +12,7 @@ import {
   Maximize2,
   Minimize2,
   X,
-  Volume2,
+
   FastForward,
   RotateCcw,
 } from 'lucide-react';
@@ -30,7 +30,7 @@ export const LiveEventDirectorModal: React.FC<LiveEventDirectorModalProps> = ({
   isOpen,
   onClose,
   plan,
-  onUpdateRunOfShow,
+  onUpdateRunOfShow: _onUpdateRunOfShow,
 }) => {
   const runOfShow = plan.runOfShow || [];
   const [currentSlotIndex, setCurrentSlotIndex] = useState<number>(0);
