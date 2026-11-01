@@ -19,7 +19,7 @@ interface AICopilotDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   plan: EventPlan;
-  onApplyPatch: (patchAction: any) => void;
+  onApplyPatch: (patchAction: NonNullable<CopilotMessage['patchAction']>) => void;
 }
 
 export const AICopilotDrawer: React.FC<AICopilotDrawerProps> = ({
@@ -346,7 +346,7 @@ Ask me anything about planning:
                       Recommended Action for your Master Plan:
                     </div>
                     <button
-                      onClick={() => onApplyPatch(m.patchAction)}
+                      onClick={() => m.patchAction && onApplyPatch(m.patchAction)}
                       className="btn-primary"
                       style={{
                         width: '100%',

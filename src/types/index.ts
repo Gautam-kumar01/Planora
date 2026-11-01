@@ -238,7 +238,7 @@ export interface CopilotMessage {
   patchAction?: {
     type: 'apply_budget' | 'add_tasks' | 'add_vendor' | 'update_theme';
     label: string;
-    data: any;
+    data: Record<string, unknown>;
   };
 }
 
@@ -306,8 +306,8 @@ export interface ChangeImpactAnalysis {
   changedFields: Array<{
     field: 'guestCount' | 'totalBudget' | 'eventDate' | 'location' | 'vibe';
     label: string;
-    oldValue: any;
-    newValue: any;
+    oldValue: string | number;
+    newValue: string | number;
   }>;
   plainLanguageExplanation: string[];
   suggestions: PlanImpactSuggestion[];

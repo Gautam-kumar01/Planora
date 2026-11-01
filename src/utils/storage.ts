@@ -165,8 +165,8 @@ export function getStoredApiKey(): string {
   try {
     return (
       localStorage.getItem(STORAGE_KEY_GEMINI_KEY) ||
-      (import.meta as any).env?.VITE_OPENROUTER_API_KEY ||
-      (import.meta as any).env?.VITE_GEMINI_API_KEY ||
+      import.meta.env.VITE_OPENROUTER_API_KEY ||
+      import.meta.env.VITE_GEMINI_API_KEY ||
       ''
     );
   } catch {

@@ -46,8 +46,8 @@ export const CreativeIdeas: React.FC<CreativeIdeasProps> = ({ plan, onUpdateIdea
       onUpdateIdeas(result.ideas, result.themeConcept);
       setRegenSuccess(true);
       setTimeout(() => setRegenSuccess(false), 4000);
-    } catch (err: any) {
-      setAiError(err.message || 'AI idea generation failed. Please check your connection or API key.');
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : 'AI idea generation failed. Please check your connection or API key.');
     } finally {
       setIsRegenerating(false);
     }

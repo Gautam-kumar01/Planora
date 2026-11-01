@@ -26,6 +26,7 @@ import {
   OnboardingFormValues,
   UserProfile,
   ExpenseRecord,
+  CopilotMessage,
 } from './types';
 import {
   loadSavedPlans,
@@ -388,11 +389,12 @@ export function App() {
   };
 
   // Handle Copilot Direct Patching
-  const handleApplyCopilotPatch = (patchAction: any) => {
+  const handleApplyCopilotPatch = (patchAction: NonNullable<CopilotMessage['patchAction']>) => {
     if (!activePlan || !patchAction) return;
 
     if (patchAction.type === 'apply_budget') {
-      const { guestCount, categoryToBoost, amountToAdd, totalBudget, cutAmount, reallocateFreeVenue, freedAmount } = patchAction.data;
+      const data = patchAction.data as Record<string, any>;
+      const { guestCount, categoryToBoost, amountToAdd, totalBudget, cutAmount, reallocateFreeVenue, freedAmount } = data;
 
       let newItems = [...activePlan.budget.items];
       let newTotal = activePlan.budget.totalBudget;

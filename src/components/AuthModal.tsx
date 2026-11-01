@@ -61,8 +61,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setSuccessMsg(null);
         onClose();
       }, 1200);
-    } catch (err: any) {
-      setErrorMsg(err?.message || 'Login failed. Please verify your credentials.');
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Login failed. Please verify your credentials.');
     } finally {
       setIsLoading(false);
     }
@@ -82,8 +82,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setSuccessMsg(null);
         onClose();
       }, 1200);
-    } catch (err: any) {
-      setErrorMsg(err?.message || 'Registration failed. Please try again.');
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -106,8 +106,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setSuccessMsg(null);
         onClose();
       }, 900);
-    } catch (err: any) {
-      setErrorMsg(err?.message || 'Failed to start demo session.');
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to start demo session.');
     } finally {
       setIsLoading(false);
     }
@@ -129,8 +129,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setSuccessMsg(null);
         onClose();
       }, 1200);
-    } catch (err: any) {
-      setErrorMsg(err?.message || 'Failed to delete account.');
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to delete account.');
     } finally {
       setIsLoading(false);
     }

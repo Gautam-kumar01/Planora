@@ -39,8 +39,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
     try {
       const res = await testAiConnection(apiKey);
       setTestResult(res);
-    } catch (err: any) {
-      setTestResult({ success: false, message: err.message || 'Connection test failed' });
+    } catch (err) {
+      setTestResult({ success: false, message: err instanceof Error ? err.message : 'Connection test failed' });
     } finally {
       setTesting(false);
     }
@@ -200,7 +200,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
             <a
               href="https://openrouter.ai/keys"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               style={{
                 fontSize: '0.75rem',
                 color: '#C2410C',
